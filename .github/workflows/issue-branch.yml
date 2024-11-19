@@ -1,0 +1,39 @@
+name: Create Branch on Issue
+
+on:
+  issues:
+    types: [opened]  # Issue가 생성될 때 트리거됨
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Extract label and create branch
+        run: |
+          # GitHub API를 사용하여 첫 번째 label 가져오기
+          LABEL_NAME=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} | \
+          jq -r '.labels[0].name')
+          
+          # 기본 네이밍 규칙 설정 (feat/)
+          if [[ "$LABEL_NAME" == "feat" ]]; then
+            LABEL_NAME="feat"
+          fi
+
+          # 커스텀 브랜치 이름 설정
+          BRANCH_NAME="${LABEL_NAME}/custom-name"
+          
+          # 브랜치 생성 및 푸시
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+
+      - name: Comment on the issue
+        run: |
+          # 브랜치 생성 메시지를 issue에 추가
+          echo "Branch '$BRANCH_NAME' created for issue #${{ github.event.issue.number }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
