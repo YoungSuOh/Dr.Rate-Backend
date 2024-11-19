@@ -12,20 +12,25 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
-      - name: Extract label and title to create branch
+      - name: Debug API Response
         run: |
           # GitHub API를 사용하여 issue의 label 및 title 정보 가져오기
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }})
+          https://api.github.com/repos/BitCamp-Final-Project/Dr.Rate-Backend/issues/${{ github.event.issue.number }})
 
-          # 첫 번째 label 이름 추출
-          LABEL_NAME=$(echo $RESPONSE | jq -r '.labels[0].name')
+          # API 응답 데이터 출력
+          echo "API Response: $RESPONSE"
 
-          # Issue 제목 추출
-          TITLE=$(echo $RESPONSE | jq -r '.title')
+          # label 이름과 제목 추출
+          LABEL_NAME=$(echo "$RESPONSE" | jq -r '.labels[0].name')
+          TITLE=$(echo "$RESPONSE" | jq -r '.title')
+
+          # 추출된 값 출력
+          echo "Extracted Label Name: $LABEL_NAME"
+          echo "Extracted Title: $TITLE"
 
           # '[Feat] :' 부분을 제거하고 나머지 텍스트만 추출
-          CUSTOM_NAME=$(echo $TITLE | sed -E 's/^\[.*\] : //')
+          CUSTOM_NAME=$(echo "$TITLE" | sed -E 's/^\[.*\] : //')
 
           # 브랜치 이름 설정: label/custom-name
           BRANCH_NAME="${LABEL_NAME}/${CUSTOM_NAME}"
