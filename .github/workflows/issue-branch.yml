@@ -14,17 +14,25 @@ jobs:
 
       - name: Extract label and create branch
         run: |
-          # GitHub API를 사용하여 첫 번째 label 가져오기
-          LABEL_NAME=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} | \
-          jq -r '.labels[0].name')
+          # GitHub API를 사용하여 issue의 label 정보 가져오기
+          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }})
+
+          # 첫 번째 label 이름 추출
+          LABEL_NAME=$(echo $RESPONSE | jq -r '.labels[0].name')
+
+          # label 이름이 'feat', 'fix', 'hotfix', 'refactor' 중 하나인지 확인
+          if [[ "$LABEL_NAME" != "feat" && "$LABEL_NAME" != "fix" && "$LABEL_NAME" != "hotfix" && "$LABEL_NAME" != "refactor" ]]; then
+            echo "Label name not recognized. Using default branch name."
+            LABEL_NAME="default"
+          fi
 
           # 브랜치 이름 설정: label/custom-name
           BRANCH_NAME="${LABEL_NAME}/custom-name"
 
           # 브랜치 생성 및 푸시
-          git checkout -b $BRANCH_NAME
-          git push origin $BRANCH_NAME
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
 
       - name: Comment on the issue
         run: |
