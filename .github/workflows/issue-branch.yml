@@ -13,6 +13,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Debug API Response
+        env:
+          GITHUB_TOKEN: ${{ secrets.DR_RATE_ORGANIZATION_ACCESS_TOKEN }}  # 수정된 부분
         run: |
           # GitHub API를 사용하여 issue의 label 및 title 정보 가져오기
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
@@ -42,5 +44,3 @@ jobs:
       - name: Comment on the issue
         run: |
           echo "Branch '$BRANCH_NAME' created for issue #${{ github.event.issue.number }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
