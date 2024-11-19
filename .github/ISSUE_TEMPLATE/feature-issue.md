@@ -2,7 +2,7 @@
 name: Feature Issue
 about: 기능 개발을 위한 issue
 title: "[Feat] :"
-labels: feat
+labels: feat, server
 assignees: ''
 
 ---
