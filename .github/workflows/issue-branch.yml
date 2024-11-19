@@ -12,7 +12,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
-      - name: Debug API Response
+      - name: Debug API Response and Filter Labels
         env:
           GITHUB_TOKEN: ${{ secrets.DR_RATE_ORGANIZATION_ACCESS_TOKEN }}  # 수정된 부분
         run: |
@@ -23,19 +23,30 @@ jobs:
           # API 응답 데이터 출력
           echo "API Response: $RESPONSE"
 
-          # label 이름과 제목 추출
-          LABEL_NAME=$(echo "$RESPONSE" | jq -r '.labels[0].name')
+          # 모든 라벨 이름을 배열로 추출
+          LABELS=$(echo "$RESPONSE" | jq -r '.labels[].name')
+
+          # 중요한 라벨만 필터링 (feat, fix, hotfix, refactor)
+          FILTERED_LABEL=$(echo "$LABELS" | grep -E '^(feat|fix|hotfix|refactor)$' | head -n 1)
+
+          # 제목 추출
           TITLE=$(echo "$RESPONSE" | jq -r '.title')
 
           # 추출된 값 출력
-          echo "Extracted Label Name: $LABEL_NAME"
+          echo "Filtered Label Name: $FILTERED_LABEL"
           echo "Extracted Title: $TITLE"
+
+          # 라벨이 없을 경우 작업 중지
+          if [ -z "$FILTERED_LABEL" ]; then
+            echo "No valid label found. Skipping branch creation."
+            exit 0
+          fi
 
           # '[Feat] :' 부분을 제거하고 나머지 텍스트만 추출
           CUSTOM_NAME=$(echo "$TITLE" | sed -E 's/^\[.*\] : //')
 
           # 브랜치 이름 설정: label/custom-name
-          BRANCH_NAME="${LABEL_NAME}/${CUSTOM_NAME}"
+          BRANCH_NAME="${FILTERED_LABEL}/${CUSTOM_NAME}"
 
           # 브랜치 생성 및 푸시
           git checkout -b "$BRANCH_NAME"
