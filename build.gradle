@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     // spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'io.projectreactor:reactor-test'
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -43,6 +44,12 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.18.1'
+
+    // thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    //Webflux
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 }
 
 
