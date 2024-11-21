@@ -2,21 +2,21 @@ package com.bitcamp.drrate.domain.google.controller;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bitcamp.drrate.domain.google.dto.GoogleUserInfoResponseDTO.UserInfoDTO;
+import com.bitcamp.drrate.domain.google.dto.response.GoogleUserInfoResponseDTO.UserInfoDTO;
 import com.bitcamp.drrate.domain.google.service.GoogleService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 public class GoogleLoginController {
 
-    @Autowired
-    private GoogleService googleService;
+    private final GoogleService googleService;
 
     // 인가 코드 요청
     @GetMapping("/loginGoogle")

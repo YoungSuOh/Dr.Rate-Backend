@@ -2,7 +2,7 @@ package com.bitcamp.drrate.domain.google.service;
 
 import java.io.IOException;
 
-import com.bitcamp.drrate.domain.google.dto.GoogleUserInfoResponseDTO.UserInfoDTO;
+import com.bitcamp.drrate.domain.google.dto.response.GoogleUserInfoResponseDTO.UserInfoDTO;
 
 import jakarta.servlet.http.HttpServletResponse;
 

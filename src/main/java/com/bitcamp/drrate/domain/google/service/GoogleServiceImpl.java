@@ -14,12 +14,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
-import com.bitcamp.drrate.domain.google.dto.GoogleUserInfoResponseDTO.UserAccessTokenDTO;
-import com.bitcamp.drrate.domain.google.dto.GoogleUserInfoResponseDTO.UserInfoDTO;
+import com.bitcamp.drrate.domain.google.dto.response.GoogleUserInfoResponseDTO.UserAccessTokenDTO;
+import com.bitcamp.drrate.domain.google.dto.response.GoogleUserInfoResponseDTO.UserInfoDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class GoogleServiceImpl implements GoogleService {
     
