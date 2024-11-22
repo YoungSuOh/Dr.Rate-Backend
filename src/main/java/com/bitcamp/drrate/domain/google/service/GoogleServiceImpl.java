@@ -42,7 +42,7 @@ public class GoogleServiceImpl implements GoogleService {
     }
 
     @Override
-    public UserInfoDTO login(String code) {
+    public String login(String code) {
         //System.out.println("code = " + code);
         //코드를 받고 AccessToken을 받음. 아래에 getAccessToken 메서드를 통해서 accessToken을 발급받음
         String accessToken = getAccessToken(code);
@@ -73,7 +73,7 @@ public class GoogleServiceImpl implements GoogleService {
             infoDTO.setSub((String)parse.get("sub"));
             infoDTO.setPicture((String)parse.get("picture"));
 
-            return infoDTO;
+            return (String)parse.get("email");
         } catch(Exception e){
             e.printStackTrace();
             return null;

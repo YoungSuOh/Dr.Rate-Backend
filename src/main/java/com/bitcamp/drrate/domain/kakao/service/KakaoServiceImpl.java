@@ -1,16 +1,20 @@
 package com.bitcamp.drrate.domain.kakao.service;
 
-import com.bitcamp.drrate.domain.kakao.dto.response.KakaoTokenResponseDTO;
-import com.bitcamp.drrate.domain.kakao.dto.response.KakaoUserInfoResponseDTO;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.bitcamp.drrate.domain.kakao.dto.response.KakaoTokenResponseDTO;
+import com.bitcamp.drrate.domain.kakao.dto.response.KakaoUserInfoResponseDTO;
+
+import io.netty.handler.codec.http.HttpHeaderValues;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -18,18 +22,24 @@ import reactor.core.publisher.Mono;
 @Service
 public class KakaoServiceImpl implements KakaoService {
 
-    private String client_id;
-    private final String KAUTH_TOKEN_URL_HOST;
-    private final String KAUTH_USER_URL_HOST;
+    private final String KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
+    private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
-    @Autowired
-    public KakaoServiceImpl(@Value("${spring.security.oauth2.client.registration.kakao.client_id}") String client_id) {
-        this.client_id = client_id;
-        KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
-        KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String client_id;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    private String redirect_uri;
+
+    @Override
+    public void loginKakao(HttpServletResponse response) throws IOException {
+        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id +"&redirect_uri=" + redirect_uri;
+
+        response.sendRedirect(location);
     }
-    //Access토큰 발급
-    public String getAccessTokenFromKakao(String code) {
+
+    @Override
+    public String login(String code) {
         KakaoTokenResponseDTO kakaoTokenResponseDTO = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -45,16 +55,21 @@ public class KakaoServiceImpl implements KakaoService {
                 .bodyToMono(KakaoTokenResponseDTO.class)
                 .block();
 
+        if(kakaoTokenResponseDTO == null) {
+            log.error("[Kakao Service] Token response DTO is null");
+            return null;
+        }
         log.info("[Kakao Service] Access token ------> {}", kakaoTokenResponseDTO.getAccessToken());
         log.info("[Kakao Service] Refresh token ------> {}", kakaoTokenResponseDTO.getRefreshToken());
         //제공 조건: OpenID Connect가 활성화 된 앱의 토큰 발급 요청인 경우 또는 scope에 openid를 포함한 추가 항목 동의 받기 요청을 거친 토큰 발급 요청인 경우
         log.info(" [Kakao Service] Id Token ------> {}", kakaoTokenResponseDTO.getIdToken());
         log.info(" [Kakao Service] Scope ------> {}", kakaoTokenResponseDTO.getScope());
 
-        return kakaoTokenResponseDTO.getAccessToken();
+        return getUserInfo(kakaoTokenResponseDTO.getAccessToken());
     }
+
     //사용자 정보 요청
-    public KakaoUserInfoResponseDTO getUserInfo(String accessToken) {
+    private String getUserInfo(String accessToken) {
         KakaoUserInfoResponseDTO userInfo = WebClient.create(KAUTH_USER_URL_HOST)
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -69,10 +84,14 @@ public class KakaoServiceImpl implements KakaoService {
                 .bodyToMono(KakaoUserInfoResponseDTO.class)
                 .block();
 
+        if(userInfo == null) {
+            log.error("[Kakao Service] UserInfo is null");
+            return null;
+        }
         log.info("[Kakao Service] Auth ID ---> {} ", userInfo.getId());
         log.info("[Kakao Service] NickName ---> {} ", userInfo.getKakaoAccount().getProfile().getNickName());
         log.info("[Kakao Service] ProfileImageUrl ---> {} ", userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
 
-        return userInfo;
+        return userInfo.getKakaoAccount().getEmail();
     }
 }
