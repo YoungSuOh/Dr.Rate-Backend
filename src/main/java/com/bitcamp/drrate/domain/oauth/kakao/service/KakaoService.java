@@ -1,4 +1,4 @@
-package com.bitcamp.drrate.domain.kakao.service;
+package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
 
