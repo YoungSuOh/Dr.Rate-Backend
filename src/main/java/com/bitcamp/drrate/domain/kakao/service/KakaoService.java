@@ -1,9 +1,12 @@
 package com.bitcamp.drrate.domain.kakao.service;
 
-import com.bitcamp.drrate.domain.kakao.dto.response.KakaoUserInfoResponseDTO;
+import java.io.IOException;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface KakaoService {
-    String getAccessTokenFromKakao(String code);
+    
+    public void loginKakao(HttpServletResponse response) throws IOException;
 
-    KakaoUserInfoResponseDTO getUserInfo(String accessToken);
+    public String login(String code);
 }
