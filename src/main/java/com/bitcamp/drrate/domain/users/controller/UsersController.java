@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.bitcamp.drrate.domain.google.service.GoogleService;
-import com.bitcamp.drrate.domain.kakao.service.KakaoService;
+import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
+import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

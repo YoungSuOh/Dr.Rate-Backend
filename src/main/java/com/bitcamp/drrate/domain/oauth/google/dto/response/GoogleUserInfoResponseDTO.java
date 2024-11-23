@@ -1,4 +1,4 @@
-package com.bitcamp.drrate.domain.google.dto.response;
+package com.bitcamp.drrate.domain.oauth.google.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,15 +1,15 @@
-package com.bitcamp.drrate.domain.kakao.service;
+package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
 
+import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.bitcamp.drrate.domain.kakao.dto.response.KakaoTokenResponseDTO;
-import com.bitcamp.drrate.domain.kakao.dto.response.KakaoUserInfoResponseDTO;
+import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoTokenResponseDTO;
 
 import io.netty.handler.codec.http.HttpHeaderValues;
 import jakarta.servlet.http.HttpServletResponse;

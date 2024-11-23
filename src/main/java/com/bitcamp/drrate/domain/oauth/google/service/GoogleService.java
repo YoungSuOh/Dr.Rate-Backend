@@ -1,4 +1,4 @@
-package com.bitcamp.drrate.domain.google.service;
+package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
 

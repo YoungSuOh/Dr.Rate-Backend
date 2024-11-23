@@ -1,8 +1,9 @@
-package com.bitcamp.drrate.domain.google.service;
+package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
 import java.util.Map;
 
+import com.bitcamp.drrate.domain.oauth.google.dto.response.GoogleUserInfoResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,8 +15,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
-import com.bitcamp.drrate.domain.google.dto.response.GoogleUserInfoResponseDTO.UserAccessTokenDTO;
-import com.bitcamp.drrate.domain.google.dto.response.GoogleUserInfoResponseDTO.UserInfoDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,7 +47,7 @@ public class GoogleServiceImpl implements GoogleService {
         String accessToken = getAccessToken(code);
         //System.out.println("AccessToken = " + accessToken);
         //발급받은 accessToken에서 값을 분리해서 access_token 값만 따로 파싱해서 가져옴
-        UserAccessTokenDTO token = parseAccessToken(accessToken);
+        GoogleUserInfoResponseDTO.UserAccessTokenDTO token = parseAccessToken(accessToken);
 
         // 파싱한 accessToken을 이용해서 사용자 정보 받아오기
         RestClient restClient = RestClient.create();
@@ -63,7 +62,7 @@ public class GoogleServiceImpl implements GoogleService {
         //사용자 정보를 json형식으로 받아서 콘솔창으로 확인
         //System.out.println(result.getStatusCode() + "\n" + result.getHeaders() + "\n" + result.getBody());
 
-        UserInfoDTO infoDTO = new UserInfoDTO();
+        GoogleUserInfoResponseDTO.UserInfoDTO infoDTO = new GoogleUserInfoResponseDTO.UserInfoDTO();
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Map<String, Object> parse = objectMapper.readValue(userInfo, Map.class);
@@ -120,12 +119,12 @@ public class GoogleServiceImpl implements GoogleService {
     }
 
     // 받아온 accessToken 값을 파싱해서 내가 필요한 access_token값만 가져옴
-    public UserAccessTokenDTO parseAccessToken(String accessToken) {
+    public GoogleUserInfoResponseDTO.UserAccessTokenDTO parseAccessToken(String accessToken) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Map<String, Object> parseToken = objectMapper.readValue(accessToken, Map.class);
             
-            UserAccessTokenDTO tokenDTO = new UserAccessTokenDTO();
+            GoogleUserInfoResponseDTO.UserAccessTokenDTO tokenDTO = new GoogleUserInfoResponseDTO.UserAccessTokenDTO();
 
             tokenDTO.setAccessToken((String)parseToken.get("access_token"));
             tokenDTO.setExpriesIn((Integer)parseToken.get("expires_in"));
