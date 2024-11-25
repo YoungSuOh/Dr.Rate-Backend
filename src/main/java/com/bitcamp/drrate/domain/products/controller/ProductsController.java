@@ -1,21 +1,19 @@
 package com.bitcamp.drrate.domain.products.controller;
 
-import com.bitcamp.drrate.domain.products.entity.Products;
 import com.bitcamp.drrate.domain.products.service.ProductsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
 
 @Controller
 @CrossOrigin
 @RequestMapping(value="product")
+@RequiredArgsConstructor
 public class ProductsController {
-    @Autowired
-    private ProductsService productsService;
+
+    private final ProductsService productsService;
 
     @GetMapping(value="getOneProduct/{id}")
     @ResponseBody

@@ -6,7 +6,7 @@ import com.bitcamp.drrate.domain.products.entity.Products;
 import com.bitcamp.drrate.domain.products.repository.DepositeOptionsRepository;
 import com.bitcamp.drrate.domain.products.repository.InstallMentOptionsRepository;
 import com.bitcamp.drrate.domain.products.repository.ProductsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -15,15 +15,14 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductsServiceImpl implements ProductsService{
-    @Autowired
-    private ProductsRepository productsRepository;
 
-    @Autowired
-    private DepositeOptionsRepository depositeOptionsRepository;
+    private final ProductsRepository productsRepository;
 
-    @Autowired
-    private InstallMentOptionsRepository installMentOptionsRepository;
+    private final DepositeOptionsRepository depositeOptionsRepository;
+
+    private final InstallMentOptionsRepository installMentOptionsRepository;
 
     @Override
     public Map<String, Object> getOneProduct(String prd_id) {
