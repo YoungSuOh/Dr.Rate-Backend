@@ -1,4 +1,4 @@
-package com.bitcamp.drrate.domain.kakao.dto.response;
+package com.bitcamp.drrate.domain.oauth.kakao.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
