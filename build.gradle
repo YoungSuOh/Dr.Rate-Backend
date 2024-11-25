@@ -30,7 +30,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     // spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'io.projectreactor:reactor-test'
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -49,7 +48,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     //Webflux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // test
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:mysql'
 }
 
 

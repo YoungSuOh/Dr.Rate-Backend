@@ -1,5 +1,6 @@
 package com.bitcamp.drrate.domain.users.entity;
 
+import com.bitcamp.drrate.domain.inquire.entity.InquireRoom;
 import com.bitcamp.drrate.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,6 +42,9 @@ public class Users extends BaseEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "users", fetch = FetchType.LAZY)
+    private InquireRoom inquireRoom;
 
     @PrePersist
     protected void onCreate() {
