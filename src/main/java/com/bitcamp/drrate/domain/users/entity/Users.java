@@ -1,5 +1,6 @@
 package com.bitcamp.drrate.domain.users.entity;
 
+import com.bitcamp.drrate.domain.inquire.entity.InquireRoom;
 import com.bitcamp.drrate.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,7 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Users") // 엔티티 테이블 이름 지정 필수 !!
+@Table(name = "users") // 엔티티 테이블 이름 지정 필수 !!
 @Getter
 @Setter
 @Builder
@@ -41,6 +42,13 @@ public class Users extends BaseEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "users", fetch = FetchType.LAZY, optional = true)
+    private InquireRoom inquireRoom;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
     @PrePersist
     protected void onCreate() {
