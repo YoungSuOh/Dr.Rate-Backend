@@ -17,7 +17,6 @@ public class DepositeOptions {
 
     @ManyToOne
     @JoinColumn(name = "dep_prd_id")
-    @Column(name="dep_prd_id")
     private Products products;
 
     @Column(name = "rate_type", length = 4, nullable = true)
