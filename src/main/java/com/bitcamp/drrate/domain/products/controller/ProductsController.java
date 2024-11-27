@@ -1,23 +1,14 @@
 package com.bitcamp.drrate.domain.products.controller;
 
-import com.bitcamp.drrate.domain.products.dto.response.DepResponseDTO;
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 import com.bitcamp.drrate.domain.products.entity.DepositeOptions;
 import com.bitcamp.drrate.domain.products.entity.InstallMentOptions;
 import com.bitcamp.drrate.domain.products.entity.Products;
 import com.bitcamp.drrate.domain.products.service.ProductsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
