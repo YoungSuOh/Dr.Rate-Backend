@@ -20,7 +20,6 @@ import java.util.List;
 @EnableWebSocket
 @EnableWebSocketMessageBroker // 브로커 활성화 => subscriber에서 원하는 시점에 메세지 처리가 가능하고, scaleout에 용이하다.
 @RequiredArgsConstructor
-
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final StompHandler stompHandler;
     private final StompExceptionHandler stompExceptionHandler;
@@ -32,24 +31,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setRelayPort(61613)
                 .setClientLogin("guest")
                 .setClientPasscode("guest")*/
-
+        //
         registry.setApplicationDestinationPrefixes("/pub"); // 클라이언트가 메시지를 발행할 때 사용하는 주소의 접두어를 설정. 클라이언트가 메시지를 서버로 전송할 때 **/pub/**로 시작하는 경로를 사용해야 한다.
     }
 
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry
-                .addEndpoint("/websocket")  // 엔드 포인트 : /websocket
+                .addEndpoint("/ws")  // 엔드 포인트 : /websocket
                 .setAllowedOrigins("*") // * 나중에 허용 도메인 추가 *
                 .withSockJS();
         registry.setErrorHandler(stompExceptionHandler);
-    }
-
-    @Override
-    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-        messageConverters.add(new MappingJackson2MessageConverter());
-        messageConverters.add(new StringMessageConverter());  // 문자열 기반 메시지 처리
-        return true;
     }
 
     @Override

@@ -39,8 +39,6 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     // Spring Boot Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    // JUnit
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.18.1'
 

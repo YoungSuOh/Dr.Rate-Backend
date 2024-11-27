@@ -18,6 +18,7 @@ public enum ErrorStatus implements ErrorCode {
 
 
     // inquire
+    INQUIRE_INVALID_PATH(HttpStatus.OK, "INQUIRE401", "잘못된 경로입니다."),
     INQUIRE_INVALID_ARGUMENT(HttpStatus.OK, "INQUIRE402", "topic 또는 message가 null입니다."),
     INQUIRE_ROOM_OVERFLOW(HttpStatus.OK, "INQUIRE403", "채팅방 인원이 초과되었습니다."),
     INQUIRE_ROOM_NOT_FOUND(HttpStatus.OK, "INQUIRE404", "존재하지 않는 채팅방입니다."),
