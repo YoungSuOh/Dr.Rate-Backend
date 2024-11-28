@@ -1,6 +1,5 @@
-package com.bitcamp.drrate.domain.products.controller;
+package com.bitcamp.drrate.domain.products.service.parser;
 
-import com.bitcamp.drrate.domain.products.dto.request.ProductRequestDTO;
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 
 import java.math.BigDecimal;

@@ -9,9 +9,7 @@ import java.util.Optional;
 
 public interface ProductsService {
 
-
     public Map<String, Object> getOneProduct(String prd_id);
-
 
     /* 상품 삽입 */
     //중복 확인
@@ -24,4 +22,5 @@ public interface ProductsService {
     public void insertDep(DepositeOptions optionEntity);
 
     public void insertIns(InstallMentOptions insOptionEntity);
+
 }
