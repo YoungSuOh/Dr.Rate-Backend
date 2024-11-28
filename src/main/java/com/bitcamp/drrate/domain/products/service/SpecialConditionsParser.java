@@ -1,4 +1,4 @@
-package com.bitcamp.drrate.domain.products.service.parser;
+package com.bitcamp.drrate.domain.products.service;
 
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 

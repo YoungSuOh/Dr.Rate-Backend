@@ -4,9 +4,6 @@ import com.bitcamp.drrate.domain.products.entity.DepositeOptions;
 import com.bitcamp.drrate.domain.products.entity.InstallMentOptions;
 import com.bitcamp.drrate.domain.products.entity.Products;
 
-import java.util.Map;
-import java.util.Optional;
-
-public interface ProductsService {
-    public Map<String, Object> getOneProduct(String prd_id);
+public interface InsertProductService {
+    public void insertProductData(String d, String depositUrl, boolean b);
 }

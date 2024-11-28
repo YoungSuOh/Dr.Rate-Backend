@@ -1,11 +1,9 @@
 package com.bitcamp.drrate.domain.products.dto.response;
 
+import com.bitcamp.drrate.domain.products.entity.Products;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,4 +48,5 @@ public class DepResponseDTO {
             return intrRate2 == null ? null : BigDecimal.valueOf(intrRate2);
         }
     }
+
 }

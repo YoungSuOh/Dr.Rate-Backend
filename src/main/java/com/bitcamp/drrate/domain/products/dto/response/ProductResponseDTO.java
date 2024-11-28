@@ -1,5 +1,6 @@
 package com.bitcamp.drrate.domain.products.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponseDTO {
+
+    @JsonProperty("result")
     private Result result;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -26,10 +29,11 @@ public class ProductResponseDTO {
         private List<ProductApiDto> baseList;  // 기본 상품 리스트
 
         @JsonProperty("optionList")
-        private List<DepResponseDTO.OptionApiDto> optionList;  // 예금 옵션 리스트 (DepResponseDTO)
+        private List<InsResponseDTO.OptionApiDto> insOptionList;
 
-//        @JsonProperty("optionList")
-//        private List<InsResponseDTO.OptionApiDto> optionList;  // 적금 옵션 리스트 (InsResponseDTO)
+        //@JsonProperty("optionList")
+        //private List<DepResponseDTO.OptionApiDto> depOptionList;
+
     }
 
     @Getter
