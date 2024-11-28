@@ -29,7 +29,7 @@ public class ProductResponseDTO {
         private List<ProductApiDto> baseList;  // 기본 상품 리스트
 
         @JsonProperty("optionList")
-        private List<InsResponseDTO.OptionApiDto> insOptionList;
+        private List<InsResponseDTO.OptionApiDto> optionList;
 
         //@JsonProperty("optionList")
         //private List<DepResponseDTO.OptionApiDto> depOptionList;
