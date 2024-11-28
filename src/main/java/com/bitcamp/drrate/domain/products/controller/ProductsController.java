@@ -6,6 +6,7 @@ import com.bitcamp.drrate.domain.products.entity.InstallMentOptions;
 import com.bitcamp.drrate.domain.products.entity.Products;
 import com.bitcamp.drrate.domain.products.service.ProductsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
@@ -20,17 +21,19 @@ import java.util.Optional;
 public class ProductsController {
     private final ProductsService productsService;
 
+    /* 상품 상세페이지 상품 출력 */
     @GetMapping(value="getOneProduct/{id}")
     @ResponseBody
     public Map<String, Object> getOneProduct(@PathVariable(value="id") String prd_id) {
 
-        System.out.println(prd_id);
+        //System.out.println(prd_id);
         Map<String, Object> map = productsService.getOneProduct(prd_id);
 
+        // 상품
         Optional<Products> optionalProduct = (Optional<Products>) map.get("product");
         String specialConditions;
 
-        BigDecimal basicRate = BigDecimal.ZERO;  // BigDecimal.ZERO는 0 값을 나타냄
+        BigDecimal basicRate = BigDecimal.ZERO;
         BigDecimal spclRate = BigDecimal.ZERO;
         int optionNum = 0;
 
@@ -38,28 +41,28 @@ public class ProductsController {
             Products product = optionalProduct.get();
             specialConditions = product.getSpclCnd();
 
-            // 옵션
+            // 옵션 리스트
             List<?> options = (List<?>) map.get("options");
 
+            // 옵션이 있을 경우
             if (options != null && !options.isEmpty()) {
-                // options가 DepositeOptions일 경우
+
+                // 옵션 테이블 종류 구별
                 for (int i = 0; i < options.size(); i++) {
                     if (options.get(i) instanceof DepositeOptions) {
                         DepositeOptions option = (DepositeOptions) options.get(i);
 
-                        // '더 큰' spclRate를 찾는 조건으로 수정
-                        if (spclRate.compareTo(option.getSpclRate()) < 0) {  // 현재 spclRate보다 더 큰 값을 찾기
+                        // 옵션 중 우대금리 포함 금리 가장 높은걸로 선별
+                        if (spclRate.compareTo(option.getSpclRate()) < 0) {
                             spclRate = option.getSpclRate();
                             basicRate = option.getBasicRate();
                             optionNum = i;
                         }
-                    }
-                    // options가 InstallMentOptions일 경우
-                    else if (options.get(i) instanceof InstallMentOptions) {
+
+                    } else if (options.get(i) instanceof InstallMentOptions) {
                         InstallMentOptions option = (InstallMentOptions) options.get(i);
 
-                        // '더 큰' spclRate를 찾는 조건으로 수정
-                        if (spclRate.compareTo(option.getSpclRate()) < 0) {  // 현재 spclRate보다 더 큰 값을 찾기
+                        if (spclRate.compareTo(option.getSpclRate()) < 0) {
                             spclRate = option.getSpclRate();
                             basicRate = option.getBasicRate();
                             optionNum = i;
@@ -82,4 +85,14 @@ public class ProductsController {
         return map;
     }
 
+    /* 즐겨찾기 넣기 */
+    @PostMapping(value="favoriteInsert/{id}")
+    public ResponseEntity<Void> favoriteInsert(@PathVariable(value="id") String prd_id,
+                                               @RequestHeader(value="userId") String user_id) {
+        // 데이터 처리 로직 추가
+        System.out.println("Product ID: " + prd_id);
+        System.out.println("User ID: " + user_id);
+
+        return ResponseEntity.ok().build(); // HTTP 200 OK 응답
+    }
 }

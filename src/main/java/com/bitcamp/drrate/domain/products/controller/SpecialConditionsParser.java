@@ -15,8 +15,6 @@ public class SpecialConditionsParser {
         List<ProductResponseDTO.ProductCondition> conditions = new ArrayList<>();
 
         // 기본금리와 최대금리 차이
-        System.out.println("basic : " + basicRate);
-        System.out.println("spcl : " + spclRate);
         BigDecimal restRate = spclRate.subtract(basicRate);
 
         // \n , 로 분리
@@ -49,7 +47,7 @@ public class SpecialConditionsParser {
                 }
             }
 
-            System.out.print("- " + parts[0] + ", - " + rate + "\n");
+            //System.out.print("- " + parts[0] + ", - " + rate + "\n");
             // 금리 합산
             totalRate = totalRate.add(rate);
 
@@ -72,12 +70,12 @@ public class SpecialConditionsParser {
         // 나머지 Rate
         BigDecimal missingRate = BigDecimal.ZERO;
 
-        System.out.print("restRate : " + restRate);
+        //System.out.print("restRate : " + restRate);
         // 부족한 금리 계산
         if (totalRate.compareTo(restRate) < 0) {
             missingRate = restRate.subtract(totalRate);
 
-            System.out.print("부족한 값 : " + missingRate);
+           // System.out.print("부족한 값 : " + missingRate);
 
             int count = 0;
             for (ProductResponseDTO.ProductCondition condition : conditions) {
@@ -163,7 +161,7 @@ public class SpecialConditionsParser {
 
     /* 제외사항 처리 */
     private static boolean containsUnwantedKeywords(String line) {
-        if (line.contains("최고우대금리") || line.contains("최대우대금리") || line.contains("최대한도") || line.contains("※")) {
+        if (line.contains("최고우대금리") || line.contains("최대우대금리") || line.contains("최대한도") ||  line.contains("충족") || line.contains("※")) {
             return true;
         }
         return false;
