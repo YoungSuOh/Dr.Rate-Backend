@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "Products") // 엔티티 테이블 이름 지정 필수 !!
+@Table(name = "Products")
 @Data
 public class Products {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = true) // Allow Null이 Y
+    @Column(name = "id", nullable = true)
     private Long id;
 
     @Column(name = "ctg", length = 4, nullable = true)
