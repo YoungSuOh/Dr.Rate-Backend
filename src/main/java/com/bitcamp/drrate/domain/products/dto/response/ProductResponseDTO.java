@@ -11,29 +11,20 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductResponseDTO {
 
     @JsonProperty("result")
     private Result result;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Result {
         @JsonProperty("baseList")
         private List<ProductApiDto> baseList;  // 기본 상품 리스트
-
-        @JsonProperty("optionList")
-        private List<InsResponseDTO.OptionApiDto> optionList;
-
-        //@JsonProperty("optionList")
-        //private List<DepResponseDTO.OptionApiDto> depOptionList;
-
     }
 
     @Getter

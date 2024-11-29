@@ -41,9 +41,12 @@ public class InsertProductServiceImpl implements InsertProductService{
             ObjectMapper objectMapper = new ObjectMapper();
             ProductResponseDTO responseDTO = objectMapper.readValue(result, ProductResponseDTO.class);
 
+            DepResponseDTO depResponseDTO = objectMapper.readValue(result, DepResponseDTO.class);
+            InsResponseDTO insResponseDTO = objectMapper.readValue(result, InsResponseDTO.class);
+
             // 제품 리스트 추출
             List<ProductResponseDTO.ProductApiDto> productList = responseDTO.getResult().getBaseList();
-            List<?> optionList = responseDTO.getResult().getOptionList();
+            List<?> optionList = type ? depResponseDTO.getResult().getOptionList() : insResponseDTO.getResult().getOptionList();
 
             System.out.println("옵션 리스트: " + optionList);
 
@@ -68,6 +71,27 @@ public class InsertProductServiceImpl implements InsertProductService{
                 product.setJoinMember(apiDto.getJoinMember());
                 product.setEtc(apiDto.getEtc());
                 product.setMax(apiDto.getMax());
+
+                String bankName = apiDto.getBankName();
+                String logo = "remainLogo.png";  // 기본값
+
+                if ("하나은행".equals(bankName)) {
+                    logo = "hanaLogo.png";
+                } else if ("주식회사 카카오뱅크".equals(bankName)) {
+                    logo = "kakaoLogo.png";
+                } else if ("국민은행".equals(bankName)) {
+                    logo = "kookminLogo.png";
+                } else if ("농협은행주식회사".equals(bankName)) {
+                    logo = "nonghyupLogo.png";
+                } else if ("신한은행".equals(bankName)) {
+                    logo = "shinhanLogo.png";
+                } else if ("토스뱅크 주식회사".equals(bankName)) {
+                    logo = "tossLogo.png";
+                } else if ("우리은행".equals(bankName)) {
+                    logo = "wooriLogo.png";
+                }
+
+                product.setBankLogo(logo);
 
                 // 상품 저장
                 productsRepository.save(product);

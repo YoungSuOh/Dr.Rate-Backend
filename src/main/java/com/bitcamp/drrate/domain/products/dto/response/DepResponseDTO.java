@@ -8,7 +8,22 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DepResponseDTO {
+
+    @JsonProperty("result")
+    private Result result;
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Result {
+        @JsonProperty("optionList")
+        private List<DepResponseDTO.OptionApiDto> optionList;
+    }
 
     @Getter
     @Builder

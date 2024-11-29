@@ -8,8 +8,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+@Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InsResponseDTO {
+
+    @JsonProperty("result")
+    private Result result;
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Result {
+        @JsonProperty("optionList")
+        private List<InsResponseDTO.OptionApiDto> optionList;
+    }
 
     @Getter
     @Builder
