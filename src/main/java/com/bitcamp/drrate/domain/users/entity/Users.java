@@ -19,20 +19,17 @@ public class Users extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
+    /*@Column(nullable = false)
     private String userId;
 
-    @Column(name = "user_pwd")
-    private String userPwd;
+    @Column(nullable = false)
+    private String password;*/
 
-    @Column(nullable = false, name = "user_name")
-    private String userName;
+    @Column(nullable = false)
+    private String email;
 
-    @Column(name = "user_birth")
-    private String userBirth;
-
-    @Column(nullable = false, unique = true, name = "user_email")
-    private String userEmail;
+    @Column(nullable = false)
+    private String nickName;
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;

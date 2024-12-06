@@ -38,8 +38,8 @@ class StompHandlerIntegrationTest {
     @Test
     void testHandleSubscribe_validRoom() {
         // Given
-        Users user = Users.builder()//.nickName("Test User")
-                .userEmail("test@test.com")
+        Users user = Users.builder().nickName("Test User")
+                .email("test@test.com")
                 .oauth("kakao")
                 .role(Role.USER)
                 .build();
@@ -81,8 +81,8 @@ class StompHandlerIntegrationTest {
     void testHandleConnect_validUser() {
         // Given
         // 사용자 생성
-        Users user = Users.builder()//.nickName("Test User")
-                .userEmail("test@test.com")
+        Users user = Users.builder().nickName("Test User")
+                .email("test@test.com")
                 .oauth("kakao")
                 .role(Role.USER)
                 .build();
