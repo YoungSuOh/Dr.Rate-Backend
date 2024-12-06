@@ -1,17 +1,18 @@
 package com.bitcamp.drrate.global.handler.stomp;
 
-import com.bitcamp.drrate.domain.inquire.repository.InquireRoomRepository;
-import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
+
+import com.bitcamp.drrate.domain.inquire.repository.InquireRoomRepository;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j

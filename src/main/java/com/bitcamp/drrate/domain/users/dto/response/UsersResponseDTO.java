@@ -1,6 +1,5 @@
 package com.bitcamp.drrate.domain.users.dto.response;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,11 +12,11 @@ public class UsersResponseDTO {
     @AllArgsConstructor
     @Getter
     public static class UsersMyPageDto {
-        @NotNull
         private String userId;
-        @NotNull
-        private String password;
-        @NotNull
-        private String email;
+        private String userPwd;
+        private String userName;
+        private String userEmail;
+        private String role;
+        //private String birth;
     }
 }

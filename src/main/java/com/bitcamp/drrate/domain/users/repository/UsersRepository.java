@@ -1,14 +1,15 @@
 package com.bitcamp.drrate.domain.users.repository;
 
-import com.bitcamp.drrate.domain.users.entity.Users;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.bitcamp.drrate.domain.users.entity.Users;
 
 @Repository
 public interface UsersRepository extends JpaRepository<Users, Long> {
     Optional<Users>findUsersById(Long id);
 
-    Optional<Users>findByEmail(String email);
+    Optional<Users>findByUserEmail(String userEmail);
 }
