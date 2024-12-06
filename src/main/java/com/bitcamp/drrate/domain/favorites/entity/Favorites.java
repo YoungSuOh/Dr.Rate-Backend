@@ -27,7 +27,7 @@ public class Favorites {
 
   // 즐겨찾기 사용자 (외래 키)
   @ManyToOne(cascade = CascadeType.REMOVE) // Users 엔터티와의 관계 설정
-  @JoinColumn(name = "fa_user_id", nullable = false, referencedColumnName = "user_id",
+  @JoinColumn(name = "fa_user_id", nullable = false, referencedColumnName = "id",
       foreignKey = @ForeignKey(name = "fk_favorite_user"))
   private Users user;
 

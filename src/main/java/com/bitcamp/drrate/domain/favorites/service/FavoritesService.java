@@ -4,4 +4,5 @@
 package com.bitcamp.drrate.domain.favorites.service;
 
 public interface FavoritesService {
+  public Long addFavorite(String userId, Long productId);
 }
