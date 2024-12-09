@@ -82,15 +82,15 @@ public class UsersServiceImpl implements UsersService {
         String refresh = map.get("refresh");
 
         headers.set("Authorization", "Bearer " + access);
-        ResponseCookie cookie = ResponseCookie.from("refresh", refresh)
-                .httpOnly(true)
-                .sameSite("None")
-                .secure(true)
-                .maxAge(24*60*60)
-                .path("/")
-                .build();
+        // ResponseCookie cookie = ResponseCookie.from("refresh", refresh)
+        //         .httpOnly(true)
+        //         .sameSite("None")
+        //         .secure(true)
+        //         .maxAge(24*60*60)
+        //         .path("/")
+        //         .build();
 
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        // headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
         return headers;
     }
 }
