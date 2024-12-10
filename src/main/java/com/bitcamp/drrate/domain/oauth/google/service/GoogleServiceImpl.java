@@ -1,9 +1,11 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import com.bitcamp.drrate.domain.oauth.google.dto.response.GoogleUserInfoResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +17,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
+import com.bitcamp.drrate.domain.jwt.JWTUtil;
+import com.bitcamp.drrate.domain.oauth.google.dto.response.GoogleUserInfoResponseDTO;
+import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO.GoogleUserInfo;
+import com.bitcamp.drrate.domain.users.entity.RefreshEntity;
+import com.bitcamp.drrate.domain.users.entity.Role;
+import com.bitcamp.drrate.domain.users.entity.Users;
+import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,6 +34,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class GoogleServiceImpl implements GoogleService {
     
+    private final UsersRepository usersRepository;
+    private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
+
+
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String client_id;
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
@@ -41,7 +56,7 @@ public class GoogleServiceImpl implements GoogleService {
     }
 
     @Override
-    public String login(String code) {
+    public Map<String, String> login(String code) {
         //System.out.println("code = " + code);
         //코드를 받고 AccessToken을 받음. 아래에 getAccessToken 메서드를 통해서 accessToken을 발급받음
         String accessToken = getAccessToken(code);
@@ -62,17 +77,48 @@ public class GoogleServiceImpl implements GoogleService {
         //사용자 정보를 json형식으로 받아서 콘솔창으로 확인
         //System.out.println(result.getStatusCode() + "\n" + result.getHeaders() + "\n" + result.getBody());
 
-        GoogleUserInfoResponseDTO.UserInfoDTO infoDTO = new GoogleUserInfoResponseDTO.UserInfoDTO();
+        GoogleUserInfo googleInfo = new GoogleUserInfo();
+        
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Map<String, Object> parse = objectMapper.readValue(userInfo, Map.class);
 
-            infoDTO.setEmail((String)parse.get("email"));
-            infoDTO.setName((String)parse.get("name"));
-            infoDTO.setSub((String)parse.get("sub"));
-            infoDTO.setPicture((String)parse.get("picture"));
+            googleInfo.setEmail((String)parse.get("email"));
+            googleInfo.setName((String)parse.get("name"));
+            googleInfo.setSub((String)parse.get("sub"));
+            googleInfo.setPicture((String)parse.get("picture"));
+            
+            //소셜로그인으로 들어올 시 해당하는 소셜의 정보가 바뀔 수 있기 때문에 업데이트를 계속 해주어야한다.
+            String email = googleInfo.getEmail();
 
-            return (String)parse.get("email");
+            Optional<Users> optionalUsers = usersRepository.findByEmail(email);
+
+            Users users = optionalUsers.orElseGet(() -> new Users());
+            
+            setUserInfo(users, googleInfo);
+
+            usersRepository.save(users);
+                
+            
+            // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
+            String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
+            String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
+
+            //Refresh 토큰 DB에 저장
+            // Date date = new Date(System.currentTimeMillis() + 86400000L);
+
+            // RefreshEntity refreshEntity = new RefreshEntity();
+            // refreshEntity.setUsername(email);
+            // refreshEntity.setRefresh(refresh);
+            // refreshEntity.setExpiration(date.toString());
+
+            // refreshRepository.save(refreshEntity);
+
+            Map<String, String> map = new HashMap<>();
+            map.put("access", access);
+            map.put("refresh", refresh);
+
+            return map;
         } catch(Exception e){
             e.printStackTrace();
             return null;
@@ -144,5 +190,11 @@ public class GoogleServiceImpl implements GoogleService {
             return null;
         }
     }
-    
+
+    private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
+        users.setEmail(googleInfo.getEmail());
+        users.setNickName(googleInfo.getName());
+        users.setRole(Role.USER);
+        users.setOauth("GOOGLE");
+    }
 }
