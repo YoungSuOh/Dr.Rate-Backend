@@ -9,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 
@@ -46,5 +47,13 @@ public class JWTUtil {
             .expiration(new Date(System.currentTimeMillis() + expiredMs))
             .signWith(secretKey)
             .compact();
+    }
+
+    public Claims parseToken(String token) {
+        return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
     }
 }

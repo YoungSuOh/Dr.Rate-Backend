@@ -41,7 +41,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return; //로그아웃이더라도 포스트 요청이 아니면 넘어감
         }
 
-        //쿠키값 얻어오기
+        //쿠키값 얻어오기 (Redis에 저장한 refresh 토큰 값으로 수정예정)
         String refresh = null;
         Cookie[] cookies = request.getCookies();
         for(Cookie cookie : cookies) {
@@ -52,7 +52,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         //리프레시 토큰에 값이 있는지 확인
         if(refresh == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
@@ -60,20 +60,20 @@ public class CustomLogoutFilter extends GenericFilterBean {
         try {
             jwtUtil.isExpired(refresh);
         } catch(ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         //토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(refresh);
         if(!category.equals("refresh")) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         // 리프레시 토큰이 DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefresh(refresh);
         if(!isExist) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 

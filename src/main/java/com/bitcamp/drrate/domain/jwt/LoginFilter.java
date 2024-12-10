@@ -54,10 +54,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String refresh = jwtUtil.createJwt("refresh", userId, role, 86400000L);
 
         //Refresh 토큰 저장
-        // addRefreshEntity(userId, refresh, 86400000L);
+        //addRefreshEntity(userId, refresh, 86400000L);
 
         response.setHeader("Authorization", "Bearer " + access); // 액세스 토큰 헤더에 저장 (로컬스토리지 저장)
-        // response.addCookie(createCookie("refresh", refresh)); //리프레시 토큰 발급 및 발급된 리프레시 토큰 쿠키에 저장
+        //response.addCookie(createCookie("refresh", refresh)); //리프레시 토큰 발급 및 발급된 리프레시 토큰 쿠키에 저장
         response.setStatus(HttpStatus.OK.value());
     }
 
