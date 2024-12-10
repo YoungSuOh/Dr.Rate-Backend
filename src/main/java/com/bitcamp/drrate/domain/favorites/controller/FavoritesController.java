@@ -22,14 +22,15 @@ public class FavoritesController {
   /* ProductDetailPage; 즐겨찾기 등록 */
   @PostMapping("/addFavorite")
   public ResponseEntity<FavoritesResponseDTO.FavoriteActionResponseDTO> addFavorite(
+      @AuthenticationPrincipal Long userId, // JWT에서 가져온 사용자 ID
       @RequestBody @Valid FavoritesRequestDTO.AddFavoriteDTO request) {
 
     // 서비스 호출 및 등록 처리
-    Long favoriteId = favoritesService.addFavorite(request.getFaUserId(), request.getFaPrdId());
+    Long favoriteId = favoritesService.addFavorite(userId, request.getFaPrdId());
 
     return ResponseEntity.ok(
         FavoritesResponseDTO.FavoriteActionResponseDTO.builder()
-            .favoriteId(favoriteId) // 예시 ID
+            .favoriteId(1L) // 예시 id
             .message("즐겨찾기가 등록되었습니다. 즐겨찾기 페이지로 이동하시겠습니까?")
             .build()
     );

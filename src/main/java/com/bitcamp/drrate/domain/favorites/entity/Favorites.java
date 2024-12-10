@@ -8,9 +8,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "favorite", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"fa_user_id", "fa_prd_id"})
-})
+@Table(
+    name = "favorite",
+    uniqueConstraints = {
+      @UniqueConstraint(columnNames = {"fa_user_id", "fa_prd_id"})
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
