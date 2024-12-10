@@ -48,12 +48,19 @@ public class SecurityConfig {
         //csrf disable
         http.csrf(auth -> auth.disable());
         //폼 로그인 방식 disalbe
+        // http.formLogin(auth -> auth
+        //         .loginPage("/loginForm")
+        //         .loginProcessingUrl("/loginProc")
+        //         .usernameParameter("userId")
+        //         .passwordParameter("password")
+        //         .defaultSuccessUrl("/", true)
+        //         .permitAll());
         http.formLogin(auth -> auth.disable());
         //http basic 인증 방식 disable
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**").permitAll()
+                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
@@ -62,7 +69,7 @@ public class SecurityConfig {
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
         //세션 설정
         http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
-        
+
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();

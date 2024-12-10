@@ -193,8 +193,6 @@ public class GoogleServiceImpl implements GoogleService {
 
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
-        users.setNickName(googleInfo.getName());
         users.setRole(Role.USER);
-        users.setOauth("GOOGLE");
     }
 }
