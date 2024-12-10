@@ -39,9 +39,7 @@ public class UsersServiceImpl implements UsersService {
         // 신규 사용자 회원가입 처리
         Users newUsers = Users.builder()
                 .email(userInfo.getKakaoAccount().getEmail())
-                .nickName(userInfo.getKakaoAccount().getProfile().getNickName())
-                .profileImageUrl(userInfo.getKakaoAccount().getProfile().getProfileImageUrl())
-                .oauth("kakao")//제공자를 카카오로 설정
+                .username(userInfo.getKakaoAccount().getProfile().getNickName())
                 .build();
 
         return usersRepository.save(newUsers);
@@ -64,10 +62,9 @@ public class UsersServiceImpl implements UsersService {
 
         Users users = new Users();
 
-        users.setNickName(nickname);
+        users.setUsername(nickname);
         users.setEmail(email);
         users.setRole(Role.USER);
-        users.setOauth("NONE");
         users.setPassword(bCryptPasswordEncoder.encode(password));
         users.setUserId(userId);
 

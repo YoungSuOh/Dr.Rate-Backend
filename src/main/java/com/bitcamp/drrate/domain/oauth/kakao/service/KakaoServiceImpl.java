@@ -83,6 +83,8 @@ public class KakaoServiceImpl implements KakaoService {
 
         //소셜로그인으로 들어올 시 해당하는 소셜의 정보가 바뀔 수 있기 때문에 업데이트를 계속 해주어야한다.
         String email = userInfo.getKakaoAccount().getEmail();
+
+        System.out.println("email : "+email);
         Optional<Users> optionalUsers = usersRepository.findByEmail(email);
 
         Users users = optionalUsers.orElseGet(() -> new Users());
@@ -141,8 +143,7 @@ public class KakaoServiceImpl implements KakaoService {
 
     private void setUserInfo(Users users, KakaoUserInfoResponseDTO userInfo) {
         users.setEmail(userInfo.getKakaoAccount().getEmail());
-        users.setNickName(userInfo.getKakaoAccount().getName());
+        users.setUsername(userInfo.getKakaoAccount().getName());
         users.setRole(Role.USER);
-        users.setOauth("KAKAO");
     }
 }
