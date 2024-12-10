@@ -10,34 +10,34 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class FavoritesRequestDTO {
-  /**
-   * 즐겨찾기 등록 요청
-   */
+
+  /* ProductDetailPage; 즐겨찾기 조회, 등록, 취소 요청 */
   @Builder
   @Getter
   @AllArgsConstructor
-  public static class AddFavoriteDTO {
-    @NotNull
-    private Long faUserId; // 사용자 ID
-
+  public class ProductFavoriteDTO {
     @NotNull
     private Long faPrdId; // 상품 ID
   }
 
-  /**
-   * 즐겨찾기 취소 요청
-   */
-  @Builder
-  @Getter
-  @AllArgsConstructor
-  public static class RemoveFavoriteDTO {
-    @NotNull
-    private Long favoriteId; // 즐겨찾기 ID
-  }
 
-  /**
-   * 즐겨찾기 삭제 요청 (체크박스로 여러 개(1개 이상) 삭제)
-   */
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 조회 요청 */
+  // favorites 테이블의 favoriteId
+  // products 테이블의 bankLogo
+  // products 테이블의 bankName
+  // products 테이블의 prdName
+  
+  // 예금 즐겨찾기의 경우
+  // dep_options 테이블의 basic_rate
+  // dep_options 테이블의 spcl_rate
+
+  // 적금 즐겨찾기의 경우
+  // ins_options 테이블의 basic_rate
+  // ins_options 테이블의 spcl_rate
+
+
+
+  /* (마이페이지) 예금, 적금 즐겨찾기 삭제 요청 (체크박스로 여러 개(1개 이상) 삭제) */
   @Builder
   @Getter
   @AllArgsConstructor
@@ -45,4 +45,7 @@ public class FavoritesRequestDTO {
     @NotNull
     private Long[] favoriteIds; // 삭제할 즐겨찾기 ID 배열
   }
+
+
+
 }

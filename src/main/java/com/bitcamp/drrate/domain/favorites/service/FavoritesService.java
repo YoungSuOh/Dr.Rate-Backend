@@ -4,5 +4,10 @@
 package com.bitcamp.drrate.domain.favorites.service;
 
 public interface FavoritesService {
-  public Long addFavorite(String userId, Long productId);
+
+  public boolean isFavorite(Long faUserId, Long faPrdId);
+  
+  public void addFavorite(Long faUserId, Long faPrdId);
+
+  public void removeFavorite(Long faUserId, Long faPrdId);
 }

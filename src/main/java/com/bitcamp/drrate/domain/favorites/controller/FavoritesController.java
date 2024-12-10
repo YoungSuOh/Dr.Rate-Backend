@@ -6,10 +6,15 @@ package com.bitcamp.drrate.domain.favorites.controller;
 import com.bitcamp.drrate.domain.favorites.dto.request.FavoritesRequestDTO;
 import com.bitcamp.drrate.domain.favorites.dto.response.FavoritesResponseDTO;
 import com.bitcamp.drrate.domain.favorites.service.FavoritesService;
+import com.bitcamp.drrate.domain.users.entity.Users;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -19,18 +24,40 @@ public class FavoritesController {
 
   private final FavoritesService favoritesService;
 
+
+  /* ProductDetailPage; 즐겨찾기 조회 */
+  @GetMapping("/checkFavorite")
+  public ResponseEntity<Boolean> checkFavorite(
+      @AuthenticationPrincipal Users user, // JWT; 인증된 사용자 정보 가져오기
+      @RequestParam Long faPrdId // 요청 본문에서 즐겨찾기 등록 데이터를 가져옴
+  ) {
+    // 1. 인증된 사용자 정보에서 사용자 ID(PK)를 추출; 이 정보는 Spring Security 설정에서 주입된 Users 객체에 담겨 있음
+    // Users 엔터티에 정의된 getId() 메서드를 호출하여 사용자 ID를 추출하여 userId에 저장
+    Long faUserId = user.getId();
+
+    // 2. 서비스 호출: 추출한 faUserId와 요청으로 전달된 faPrdId를 FavoritesService에 전달
+    boolean isFavorite = favoritesService.isFavorite(faUserId, faPrdId);
+
+    // 3. 응답 구성: 서비스 호출로 반환된 favoriteId를 응답 DTO에 담아 클라이언트로 반환
+    return ResponseEntity.ok(isFavorite);  // HTTP 200 OK 응답; ResponseEntity는 HTTP 상태 코드와 함께 데이터를 반환하기 위한 객체
+  }
+
+
+
   /* ProductDetailPage; 즐겨찾기 등록 */
   @PostMapping("/addFavorite")
-  public ResponseEntity<FavoritesResponseDTO.FavoriteActionResponseDTO> addFavorite(
-      @AuthenticationPrincipal Long userId, // JWT에서 가져온 사용자 ID
-      @RequestBody @Valid FavoritesRequestDTO.AddFavoriteDTO request) {
+  public ResponseEntity<FavoritesResponseDTO.ProductFavoriteActionDTO> addFavorite(
+      @AuthenticationPrincipal Users user,
+      @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
+  ) {
 
-    // 서비스 호출 및 등록 처리
-    Long favoriteId = favoritesService.addFavorite(userId, request.getFaPrdId());
+    Long faUserId = user.getId();
+    Long faPrdId = request.getFaPrdId(); // 요청으로 전달된 상품 ID(request.getFaPrdId())를 faPrdId에 저장
+
+    favoritesService.addFavorite(faUserId, faPrdId);
 
     return ResponseEntity.ok(
-        FavoritesResponseDTO.FavoriteActionResponseDTO.builder()
-            .favoriteId(1L) // 예시 id
+        FavoritesResponseDTO.ProductFavoriteActionDTO.builder()
             .message("즐겨찾기가 등록되었습니다. 즐겨찾기 페이지로 이동하시겠습니까?")
             .build()
     );
@@ -38,17 +65,35 @@ public class FavoritesController {
 
 
 
-
   /* ProductDetailPage; 즐겨찾기 취소 */
-  // public removeFavorite {}
+  @DeleteMapping("/removeFavorite")
+  public ResponseEntity<FavoritesResponseDTO.ProductFavoriteActionDTO> removeFavorite(
+      @AuthenticationPrincipal Users user,
+      @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
+  ) {
+    Long faUserId = user.getId();
+    Long faPrdId = request.getFaPrdId();
+
+    favoritesService.removeFavorite(faUserId, faPrdId);
+
+    return ResponseEntity.ok(
+        FavoritesResponseDTO.ProductFavoriteActionDTO.builder()
+            .message("즐겨찾기가 삭제되었습니다.")
+            .build()
+    );
+  }
 
 
 
-  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 조회 */
+
+
+
+
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 조회 */
   // public viewFavorite {}
 
 
-  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 삭제 */
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 삭제 */
   // public deleteFavorite {}
   // 1 개 삭제 혹은 여러 개 삭제
   // 여러 개 삭제 가능하도록 체크박스 입력 받음, 그 체크박스 상품 아이디를 배열로 받아야함

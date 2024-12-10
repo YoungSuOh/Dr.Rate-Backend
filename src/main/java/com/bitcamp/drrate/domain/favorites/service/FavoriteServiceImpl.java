@@ -25,21 +25,39 @@ public class FavoriteServiceImpl implements FavoritesService {
   private final DepositeOptionsRepository depositeOptionsRepository;
   private final InstallMentOptionsRepository installMentOptionsRepository;
 
-  public Long addFavorite(String userId, Long productId) {
-    // 사용자와 상품 조회
-    Users user = usersRepository.findByUserId(userId)
-        .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
-    Products product = productsRepository.findById(productId)
-        .orElseThrow(() -> new IllegalArgumentException("상품이 존재하지 않습니다."));
 
-    // 즐겨찾기 저장
+  /* ProductDetailPage; 즐겨찾기 조회 */
+  @Override
+  public boolean isFavorite(Long faUserId, Long faPrdId) {
+    return favoritesRepository.existsByUserIdAndProductId(faUserId, faPrdId);
+  }
+
+
+  /* ProductDetailPage; 즐겨찾기 등록 */
+  @Override
+  public void  addFavorite(Long faUserId, Long faPrdId) {
+    // Users 및 Products 엔티티를 조회
+    Users user = usersRepository.findById(faUserId)
+        .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자 ID입니다."));
+    Products product = productsRepository.findById(faPrdId)
+        .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 상품 ID입니다."));
+
+    // Favorites 엔티티 생성
     Favorites favorite = Favorites.builder()
         .user(user)
         .product(product)
         .build();
-    Favorites savedFavorite = favoritesRepository.save(favorite);
 
-    return savedFavorite.getId(); // 저장된 즐겨찾기 ID 반환
+    // 즐겨찾기 등록(저장)
+    favoritesRepository.save(favorite);
   }
+
+
+  /* ProductDetailPage; 즐겨찾기 취소 */
+  @Override
+  public void removeFavorite(Long faUserId, Long faPrdId) {
+    favoritesRepository.deleteByUserIdAndProductId(faUserId, faPrdId);
+  }
+
 
 }

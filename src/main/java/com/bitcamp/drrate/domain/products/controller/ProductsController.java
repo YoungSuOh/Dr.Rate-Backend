@@ -23,14 +23,5 @@ public class ProductsController {
         return map;
     }
 
-    /* 즐겨찾기 넣기 */
-    @PostMapping(value="favoriteInsert/{id}")
-    public ResponseEntity<Void> favoriteInsert(@PathVariable(value="id") String prd_id,
-                                               @RequestHeader(value="userId") String user_id) {
-        // 데이터 처리 로직 추가
-        System.out.println("Product ID: " + prd_id);
-        System.out.println("User ID: " + user_id);
 
-        return ResponseEntity.ok().build(); // HTTP 200 OK 응답
-    }
 }

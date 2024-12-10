@@ -9,7 +9,7 @@ import lombok.*;
 
 @Entity
 @Table(
-    name = "favorite",
+    name = "favorites",
     uniqueConstraints = {
       @UniqueConstraint(columnNames = {"fa_user_id", "fa_prd_id"})
     }
