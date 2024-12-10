@@ -1,5 +1,7 @@
 package com.bitcamp.drrate.domain.users.dto.request;
 
+import com.bitcamp.drrate.domain.users.entity.Role;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +19,10 @@ public class UsersRequestDTO {
         private String password;
         @NotNull
         private String email;
+        @NotNull
+        private String nickname;
+        @NotNull
+        private Role role;
     }
 
     @Builder
