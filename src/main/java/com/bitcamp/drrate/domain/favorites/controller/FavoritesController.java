@@ -28,7 +28,7 @@ public class FavoritesController {
   /* ProductDetailPage; 즐겨찾기 조회 */
   @GetMapping("/checkFavorite")
   public ResponseEntity<Boolean> checkFavorite(
-      @AuthenticationPrincipal Users user, // JWT; 인증된 사용자 정보 가져오기
+      @AuthenticationPrincipal Users user, // JWT; 인증된 사용자 정보 가져오기 >> 나중에 UserDetails 로 바꿔야함
       @RequestParam Long faPrdId // 요청 본문에서 즐겨찾기 등록 데이터를 가져옴
   ) {
     // 1. 인증된 사용자 정보에서 사용자 ID(PK)를 추출; 이 정보는 Spring Security 설정에서 주입된 Users 객체에 담겨 있음

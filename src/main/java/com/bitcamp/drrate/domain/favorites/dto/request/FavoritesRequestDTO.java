@@ -5,16 +5,14 @@ package com.bitcamp.drrate.domain.favorites.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+
 public class FavoritesRequestDTO {
 
   /* ProductDetailPage; 즐겨찾기 조회, 등록, 취소 요청 */
   @Builder
   @Getter
   @AllArgsConstructor
+  @NoArgsConstructor
   public static class ProductFavoriteDTO {
     @NotNull
     private Long faPrdId; // 상품 ID
@@ -41,6 +39,7 @@ public class FavoritesRequestDTO {
   @Builder
   @Getter
   @AllArgsConstructor
+  @NoArgsConstructor
   public static class DeleteFavoriteDTO {
     @NotNull
     private Long[] favoriteIds; // 삭제할 즐겨찾기 ID 배열
