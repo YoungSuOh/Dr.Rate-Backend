@@ -29,19 +29,7 @@ public class Users extends BaseEntity {
     private String email;
 
     @Column(nullable = false, name = "user_name")
-    private String nickName;
-
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "oauth_provider", nullable = false)
-    private String oauth;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private String username;
 
     @OneToOne(mappedBy = "users", fetch = FetchType.LAZY, optional = true)
     private InquireRoom inquireRoom;
@@ -49,15 +37,4 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
 }
