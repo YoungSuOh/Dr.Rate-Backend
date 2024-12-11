@@ -97,15 +97,19 @@ public class GoogleServiceImpl implements GoogleService {
             
             setUserInfo(users, googleInfo);
 
+            /* 로그인 로직 수정 부탁드립니다 :) */
             usersRepository.save(users);
-                
-            
+
             // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
             String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
             String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
 
+            /* 우리 서버 token 값 */
+            System.out.println("우리 서버 accessToken :  "+access);
+            System.out.println("우리 서버 refreshToken :  "+refresh);
+
             /* 로그인 후 Redis에 access, refresh */
-            refreshTokenService.saveRefreshToken(access, refresh);
+            refreshTokenService.saveTokens(String.valueOf(users.getId()), access, refresh);
 
             //Refresh 토큰 DB에 저장
             // Date date = new Date(System.currentTimeMillis() + 86400000L);

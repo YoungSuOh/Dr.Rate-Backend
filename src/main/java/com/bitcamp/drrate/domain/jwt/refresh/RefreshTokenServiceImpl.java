@@ -13,20 +13,24 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final Long refreshTokenExpiry = 2 * 7 * 24 * 60 * 60L; // 14일(2주)
 
     @Override
-    public void saveRefreshToken(String accessToken, String refreshToken) {
-        String key = String.valueOf(accessToken);
-        redisTemplate.opsForValue().set(key, refreshToken, refreshTokenExpiry, TimeUnit.SECONDS);
+    public void saveTokens(String userId, String accessToken, String refreshToken) {
+        redisTemplate.opsForHash().put(userId, "access", accessToken);
+        redisTemplate.opsForHash().put(userId, "refresh", refreshToken);
+        redisTemplate.expire(userId, refreshTokenExpiry, TimeUnit.SECONDS); // 만료 시간 설정
     }
 
     @Override
-    public String getRefreshToken(String accessToken) {
-        String key = String.valueOf(accessToken);
-        return redisTemplate.opsForValue().get(key);
+    public String getAccessToken(String userId) {
+        return (String) redisTemplate.opsForHash().get(userId, "access");
     }
 
     @Override
-    public void deleteRefreshToken(String accessToken) {
-        String key = String.valueOf(accessToken);
-        redisTemplate.delete(key);
+    public String getRefreshToken(String userId) {
+        return (String) redisTemplate.opsForHash().get(userId, "refresh");
+    }
+
+    @Override
+    public void deleteTokens(String userId) {
+        redisTemplate.delete(userId); // 전체 키 삭제
     }
 }

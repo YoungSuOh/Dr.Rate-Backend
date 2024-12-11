@@ -38,7 +38,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             filterChain.doFilter(request, response);
             return; //로그아웃이 아니면 다음필터로 넘어감
         }
-
+        /* POST 요청인지 */
         String requestMethod = request.getMethod();
         if (!requestMethod.equals("POST")) {
             filterChain.doFilter(request, response);
@@ -47,23 +47,31 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String authorizationHeader = request.getHeader("Authorization");
         String accessToken = null;
 
+        /* 헤더가 있는지 & Access token 올바른 형식인지 */
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             accessToken = authorizationHeader.substring(7);
         } else {
             setUnauthorizedResponse(response, ErrorStatus.SESSION_HEADER_NOT_FOUND);
             return;
         }
-        String refreshToken = refreshTokenService.getRefreshToken(accessToken);
-        if (refreshToken == null) {
-            setUnauthorizedResponse(response, ErrorStatus.SESSION_ACCESS_NOT_VALID);
-            return;
-        }
-        String category = jwtUtil.getCategory(refreshToken);
-        if(!category.equals("refresh")) {
-            setUnauthorizedResponse(response,ErrorStatus.SESSION_REFRESH_NOT_VALID);
-            return;
-        }
 
+        String userId = jwtUtil.getUserId(accessToken);
+
+        /* userId 키값으로 refresh token이 있는지 */
+        String refreshToken = refreshTokenService.getRefreshToken(userId);
+        if (refreshToken == null) {
+            /* (중요) access token이 재발급되고 refresh기간이 만료될 수도 있음 => 이 경우는 access token 유효기간에 따라 로그아웃 권한 부여 */
+            if(jwtUtil.isExpired(accessToken)){
+                setUnauthorizedResponse(response, ErrorStatus.SESSION_ACCESS_NOT_VALID); return;
+            }else{
+                String category = jwtUtil.getCategory(refreshToken);
+                if(!category.equals("refresh")) {
+                    setUnauthorizedResponse(response,ErrorStatus.SESSION_REFRESH_NOT_VALID);
+                    return;
+                }
+            }
+        }
+        refreshTokenService.deleteTokens(userId);
         setAuthorizedResponse(response);
     }
     private void setAuthorizedResponse(HttpServletResponse response) throws IOException {

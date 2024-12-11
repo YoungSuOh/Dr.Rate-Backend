@@ -1,12 +1,15 @@
 package com.bitcamp.drrate.domain.jwt.refresh;
 
 public interface RefreshTokenService {
-    // Refresh Token 저장
-    public void saveRefreshToken(String accessToken, String refreshToken);
+    // Access Token과 Refresh Token 저장
+    void saveTokens(String userId, String accessToken, String refreshToken);
+
+    // Access Token 조회
+    String getAccessToken(String userId);
 
     // Refresh Token 조회
-    public String getRefreshToken(String accessToken);
+    String getRefreshToken(String userId);
 
-    // Refresh Token 삭제
-    public void deleteRefreshToken(String accessToken);
+    // Access Token과 Refresh Token 삭제
+    void deleteTokens(String userId);
 }
