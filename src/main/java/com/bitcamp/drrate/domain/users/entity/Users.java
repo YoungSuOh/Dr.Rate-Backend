@@ -17,6 +17,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+
 @Entity
 @Table(name = "users") // 엔티티 테이블 이름 지정 필수 !!
 @Getter

@@ -9,12 +9,10 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO.UsersJoinDTO;
@@ -46,11 +44,10 @@ public class UsersServiceImpl implements UsersService {
     }
 
 
-    @Override
+    @Override //일반 사용자 회원가입
     public void joinProc(UsersJoinDTO joinDTO) {
-        String nickname = joinDTO.getNickname();
+        String username = joinDTO.getUsername();
         String userId = joinDTO.getUserId();
-        Role role = joinDTO.getRole();
         String password = joinDTO.getPassword();
         String email = joinDTO.getEmail();
 
@@ -62,7 +59,7 @@ public class UsersServiceImpl implements UsersService {
 
         Users users = new Users();
 
-        users.setUsername(nickname);
+        users.setUsername(username);
         users.setEmail(email);
         users.setRole(Role.USER);
         users.setPassword(bCryptPasswordEncoder.encode(password));
@@ -71,23 +68,11 @@ public class UsersServiceImpl implements UsersService {
         usersRepository.save(users);
     }
 
-    @Override // 소셜로그인으로 로그인 시 Header에 AccessToken, Cookie에 RefreshToken 저장
-    public HttpHeaders tokenSetting(Map<String, String> map) {
+    @Override // 소셜로그인으로 로그인 시 Header에 AccessToken 전달
+    public HttpHeaders tokenSetting(String access) {
         HttpHeaders headers = new HttpHeaders();
 
-        String access = map.get("access");
-        String refresh = map.get("refresh");
-
         headers.set("Authorization", "Bearer " + access);
-        // ResponseCookie cookie = ResponseCookie.from("refresh", refresh)
-        //         .httpOnly(true)
-        //         .sameSite("None")
-        //         .secure(true)
-        //         .maxAge(24*60*60)
-        //         .path("/")
-        //         .build();
-
-        // headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
         return headers;
     }
 }

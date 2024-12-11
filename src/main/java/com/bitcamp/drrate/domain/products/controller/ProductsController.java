@@ -53,7 +53,7 @@ public class ProductsController {
         return productsService.getAllProducts();
     }
     
-    //241211 카테고리 i,d로 조회 -오혜진
+    //241211 카테고리 i,d로 조회 - 오혜진
     @GetMapping(value = "getProductsByCtg/{ctg}")
     @ResponseBody
     public List<Products> getProductsByCtg(@PathVariable(value = "ctg") String ctg) {

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bitcamp.drrate.domain.jwt.JWTUtil;
+import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoTokenResponseDTO;
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
 import com.bitcamp.drrate.domain.users.entity.Role;
@@ -51,7 +51,7 @@ public class KakaoServiceImpl implements KakaoService {
     }
 
     @Override
-    public Map<String, String> login(String code) {
+    public String login(String code) {
         KakaoTokenResponseDTO kakaoTokenResponseDTO = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
@@ -78,18 +78,18 @@ public class KakaoServiceImpl implements KakaoService {
         //소셜로그인으로 들어올 시 해당하는 소셜의 정보가 바뀔 수 있기 때문에 업데이트를 계속 해주어야한다.
         String email = userInfo.getKakaoAccount().getEmail();
 
-        System.out.println("email : "+email);
         Optional<Users> optionalUsers = usersRepository.findByEmail(email);
 
         Users users = optionalUsers.orElseGet(() -> new Users());
-
+        
         setUserInfo(users, userInfo);
-        /* 로그인 로직 수정 부탁드립니다 :) */
+
+        Long id = users.getId();
+
         usersRepository.save(users);
 
-        // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
-        String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
-        String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
+        String access = jwtUtil.createJwt(id, "access", "ROLE_USER", 600000L);
+        String refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
 
         /* 우리 서버 token 값 */
         System.out.println("우리 서버 accessToken :  "+access);
@@ -101,23 +101,7 @@ public class KakaoServiceImpl implements KakaoService {
         System.out.println(refreshTokenService.getAccessToken(String.valueOf(users.getId())));
         System.out.println(refreshTokenService.getRefreshToken(String.valueOf(users.getId())));
 
-
-
-        //Refresh 토큰 DB에 저장
-        // Date date = new Date(System.currentTimeMillis() + 86400000L);
-
-        // RefreshEntity refreshEntity = new RefreshEntity();
-        // refreshEntity.setUsername(email);
-        // refreshEntity.setRefresh(refresh);
-        // refreshEntity.setExpiration(date.toString());
-
-        // refreshRepository.save(refreshEntity);
-
-        Map<String, String> map = new HashMap<>();
-        map.put("access", access);
-        map.put("refresh", refresh);
-
-        return map; 
+        return access;
     }
 
     //사용자 정보 요청
@@ -140,9 +124,6 @@ public class KakaoServiceImpl implements KakaoService {
             log.error("[Kakao Service] UserInfo is null");
             return null;
         }
-        log.info("[Kakao Service] Auth ID ---> {} ", userInfo.getId());
-        log.info("[Kakao Service] NickName ---> {} ", userInfo.getKakaoAccount().getProfile().getNickName());
-        log.info("[Kakao Service] ProfileImageUrl ---> {} ", userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
 
         return userInfo;
     }
@@ -150,6 +131,9 @@ public class KakaoServiceImpl implements KakaoService {
     private void setUserInfo(Users users, KakaoUserInfoResponseDTO userInfo) {
         users.setEmail(userInfo.getKakaoAccount().getEmail());
         users.setUsername(userInfo.getKakaoAccount().getName());
+        if(userInfo.getKakaoAccount().getName() == null){
+            users.setUsername(userInfo.getKakaoAccount().getProfile().getNickName());
+        }
         users.setRole(Role.USER);
     }
 }
