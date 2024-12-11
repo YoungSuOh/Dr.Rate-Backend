@@ -56,7 +56,7 @@ public class GoogleServiceImpl implements GoogleService {
     }
 
     @Override
-    public Map<String, String> login(String code) {
+    public String login(String code) {
         //System.out.println("code = " + code);
         //코드를 받고 AccessToken을 받음. 아래에 getAccessToken 메서드를 통해서 accessToken을 발급받음
         String accessToken = getAccessToken(code);
@@ -90,42 +90,28 @@ public class GoogleServiceImpl implements GoogleService {
             
             //소셜로그인으로 들어올 시 해당하는 소셜의 정보가 바뀔 수 있기 때문에 업데이트를 계속 해주어야한다.
             String email = googleInfo.getEmail();
-
+            //DB 조회
             Optional<Users> optionalUsers = usersRepository.findByEmail(email);
 
             Users users = optionalUsers.orElseGet(() -> new Users());
-            
-            setUserInfo(users, googleInfo);
 
-            /* 로그인 로직 수정 부탁드립니다 :) */
+            setUserInfo(users, googleInfo);
+            //DB에서 사용자의 pk값
+            Long id = users.getId();
+            //신규 가입자는 DB Insert, 기존 가입자의 경우 정보가 바뀌면 Update 아니면 지나침
             usersRepository.save(users);
 
-            // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
-            String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
-            String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
+            String access = jwtUtil.createJwt(id, "access", "ROLE_USER", 600000L);
+            String refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
 
             /* 우리 서버 token 값 */
-            System.out.println("우리 서버 accessToken :  "+access);
-            System.out.println("우리 서버 refreshToken :  "+refresh);
+            System.out.println("우리 서버 accessToken :  "+ access);
+            System.out.println("우리 서버 refreshToken :  "+ refresh);
 
             /* 로그인 후 Redis에 access, refresh */
             refreshTokenService.saveTokens(String.valueOf(users.getId()), access, refresh);
 
-            //Refresh 토큰 DB에 저장
-            // Date date = new Date(System.currentTimeMillis() + 86400000L);
-
-            // RefreshEntity refreshEntity = new RefreshEntity();
-            // refreshEntity.setUsername(email);
-            // refreshEntity.setRefresh(refresh);
-            // refreshEntity.setExpiration(date.toString());
-
-            // refreshRepository.save(refreshEntity);
-
-            Map<String, String> map = new HashMap<>();
-            map.put("access", access);
-            map.put("refresh", refresh);
-
-            return map;
+            return access;
         } catch(Exception e){
             e.printStackTrace();
             return null;
@@ -200,6 +186,7 @@ public class GoogleServiceImpl implements GoogleService {
 
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
+        users.setUsername(googleInfo.getName());
         users.setRole(Role.USER);
     }
 }

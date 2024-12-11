@@ -9,8 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
-import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -23,10 +23,11 @@ import lombok.RequiredArgsConstructor;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-
+    private final UsersRepository usersRepository;
+    
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = request.getHeader("authorization");
+        String accessToken = request.getHeader("Authorization");
 
         // 토큰이 없으면 다음 필터로 넘김
         if (accessToken == null || !accessToken.startsWith("Bearer ")) {
@@ -58,15 +59,9 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         } // if
         String userId = jwtUtil.getUserId(accessToken);
-        String role = jwtUtil.getRole(accessToken);
 
-        Users users = new Users();
-        users.setUserId(userId);
-        if(role.equals("ADMIN")){
-            users.setRole(Role.ADMIN);
-        } else {
-            users.setRole(Role.USER);
-        }
+        Users users = usersRepository.findByUserId(userId);
+        
         CustomUserDetails customUserDetails = new CustomUserDetails(users);
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());

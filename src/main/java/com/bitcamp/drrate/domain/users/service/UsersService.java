@@ -12,5 +12,5 @@ import com.bitcamp.drrate.domain.users.entity.Users;
 public interface UsersService {
     Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo);
     void joinProc(UsersJoinDTO joinDTO);
-    HttpHeaders tokenSetting(Map<String, String> map);
+    HttpHeaders tokenSetting(String access);
 }
