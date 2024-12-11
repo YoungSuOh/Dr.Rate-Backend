@@ -6,11 +6,13 @@ package com.bitcamp.drrate.domain.favorites.controller;
 import com.bitcamp.drrate.domain.favorites.dto.request.FavoritesRequestDTO;
 import com.bitcamp.drrate.domain.favorites.dto.response.FavoritesResponseDTO;
 import com.bitcamp.drrate.domain.favorites.service.FavoritesService;
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -28,12 +30,15 @@ public class FavoritesController {
   /* ProductDetailPage; 즐겨찾기 조회 */
   @GetMapping("/checkFavorite")
   public ResponseEntity<Boolean> checkFavorite(
-      @AuthenticationPrincipal Users user, // JWT; 인증된 사용자 정보 가져오기 >> 나중에 UserDetails 로 바꿔야함
+      @AuthenticationPrincipal CustomUserDetails userDetails, // JWT; 인증된 사용자 정보 가져오기 >> 나중에 UserDetails 로 바꿔야함
       @RequestParam Long faPrdId // 요청 본문에서 즐겨찾기 등록 데이터를 가져옴
   ) {
-    // 1. 인증된 사용자 정보에서 사용자 ID(PK)를 추출; 이 정보는 Spring Security 설정에서 주입된 Users 객체에 담겨 있음
-    // Users 엔터티에 정의된 getId() 메서드를 호출하여 사용자 ID를 추출하여 userId에 저장
-    Long faUserId = user.getId();
+    // 1. 사용자 ID(PK)를 JWT에서 추출
+    Long faUserId = userDetails.getId(null);
+
+    // CustomUserDetails를 이용하여 사용자 ID를 추출
+    // Long faUserId = ((CustomUserDetails) userDetails).getUsers().getId();
+
 
     // 2. 서비스 호출: 추출한 faUserId와 요청으로 전달된 faPrdId를 FavoritesService에 전달
     boolean isFavorite = favoritesService.isFavorite(faUserId, faPrdId);
@@ -47,11 +52,11 @@ public class FavoritesController {
   /* ProductDetailPage; 즐겨찾기 등록 */
   @PostMapping("/addFavorite")
   public ResponseEntity<FavoritesResponseDTO.ProductFavoriteActionDTO> addFavorite(
-      @AuthenticationPrincipal Users user,
+      @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
   ) {
 
-    Long faUserId = user.getId();
+    Long faUserId = userDetails.getId(null);
     Long faPrdId = request.getFaPrdId(); // 요청으로 전달된 상품 ID(request.getFaPrdId())를 faPrdId에 저장
 
     favoritesService.addFavorite(faUserId, faPrdId);
