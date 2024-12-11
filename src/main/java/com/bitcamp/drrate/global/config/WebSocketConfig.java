@@ -4,17 +4,12 @@ import com.bitcamp.drrate.global.handler.stomp.StompExceptionHandler;
 import com.bitcamp.drrate.global.handler.stomp.StompHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.MessageConverter;
-import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSocket
@@ -31,16 +26,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
-    public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        registry
-                .addEndpoint("/ws")  // 엔드 포인트 : /websocket
-                .setAllowedOrigins("*") // * 나중에 허용 도메인 추가 *
-                .withSockJS();
-        registry.setErrorHandler(stompExceptionHandler);
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        System.out.println("interceptors");
+        registration.interceptors(stompHandler);
     }
 
     @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(stompHandler);
+    public void registerStompEndpoints(final StompEndpointRegistry registry) {
+        registry
+                .addEndpoint("/ws")  // 엔드 포인트 : /websocket
+                .setAllowedOrigins("*"); // * 나중에 허용 도메인 추가 *
+       /* registry.setErrorHandler(stompExceptionHandler);*/
     }
 }

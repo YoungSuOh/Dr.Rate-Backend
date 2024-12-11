@@ -10,7 +10,6 @@ import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -55,10 +54,10 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        String userId = jwtUtil.getUserId(accessToken);
+        Long userId = jwtUtil.getId(accessToken);
 
         /* userId 키값으로 refresh token이 있는지 */
-        String refreshToken = refreshTokenService.getRefreshToken(userId);
+        String refreshToken = refreshTokenService.getRefreshToken(String.valueOf(userId));
         if (refreshToken == null) {
             /* (중요) access token이 재발급되고 refresh기간이 만료될 수도 있음 => 이 경우는 access token 유효기간에 따라 로그아웃 권한 부여 */
             if(jwtUtil.isExpired(accessToken)){
@@ -71,7 +70,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
                 }
             }
         }
-        refreshTokenService.deleteTokens(userId);
+        refreshTokenService.deleteTokens(String.valueOf(userId));
         setAuthorizedResponse(response);
     }
     private void setAuthorizedResponse(HttpServletResponse response) throws IOException {

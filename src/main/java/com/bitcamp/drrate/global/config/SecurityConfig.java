@@ -73,8 +73,7 @@ public class SecurityConfig {
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm").permitAll()
-                .requestMatchers("/ws/**").authenticated()
+                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm", "/ws/**").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
@@ -94,6 +93,8 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 쿠키 포함 허용
+        config.addAllowedOrigin("http://localhost:8080");
+        config.addAllowedOrigin("https://jiangxy.github.io");
         config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 Origin
         config.addAllowedHeader("*"); // 모든 헤더 허용
         config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용

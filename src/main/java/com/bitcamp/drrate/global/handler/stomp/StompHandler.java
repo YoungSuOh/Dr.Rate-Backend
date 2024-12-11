@@ -40,22 +40,26 @@ public class StompHandler implements ChannelInterceptor {
         // STOMP 메시지 헤더에서 Authorization 토큰 추출
         String token = accessor.getFirstNativeHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
+            log.error("Authorization 헤더가 누락되었거나 잘못됨");
             throw new IllegalArgumentException(ErrorStatus.SESSION_HEADER_NOT_FOUND.getMessage());
         }
 
         token = token.substring(7);
         try {
             if (jwtUtil.isExpired(token)) {
+                log.error("JWT 토큰이 만료됨");
                 throw new IllegalArgumentException(ErrorStatus.SESSION_ACCESS_EXPIRED.getMessage());
             }
 
-            String userId = jwtUtil.getUserId(token);
+            Long userId = jwtUtil.getId(token);
 
-            if (usersRepository.findUsersById(Long.parseLong(userId)).isEmpty()) {
+            if (usersRepository.findUsersById(userId)==null){
+                log.error("사용자를 찾을 수 없음");
                 throw new IllegalArgumentException(ErrorStatus.USER_ID_CANNOT_FOUND.getMessage());
             }
 
         } catch (Exception e) {
+            log.error("JWT 검증 실패: {}", e.getMessage());
             throw new IllegalArgumentException(ErrorStatus.SESSION_ACCESS_NOT_VALID.getMessage(), e);
         }
     }
