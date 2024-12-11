@@ -1,7 +1,6 @@
 package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -143,6 +142,9 @@ public class KakaoServiceImpl implements KakaoService {
     private void setUserInfo(Users users, KakaoUserInfoResponseDTO userInfo) {
         users.setEmail(userInfo.getKakaoAccount().getEmail());
         users.setUsername(userInfo.getKakaoAccount().getName());
+        if(userInfo.getKakaoAccount().getName() == null){
+            users.setUsername(userInfo.getKakaoAccount().getProfile().getNickName());
+        }
         users.setRole(Role.USER);
     }
 }

@@ -9,12 +9,10 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO.UsersJoinDTO;
@@ -48,7 +46,6 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public void joinProc(UsersJoinDTO joinDTO) {
-        System.out.println("조인");
         String username = joinDTO.getUsername();
         String userId = joinDTO.getUserId();
         String password = joinDTO.getPassword();
@@ -62,11 +59,7 @@ public class UsersServiceImpl implements UsersService {
 
         Users users = new Users();
 
-<<<<<<< Updated upstream
-        users.setUsername(nickname);
-=======
         users.setUsername(username);
->>>>>>> Stashed changes
         users.setEmail(email);
         users.setRole(Role.USER);
         users.setPassword(bCryptPasswordEncoder.encode(password));

@@ -194,10 +194,7 @@ public class GoogleServiceImpl implements GoogleService {
 
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
-<<<<<<< Updated upstream
-=======
         users.setUsername(googleInfo.getName());
->>>>>>> Stashed changes
         users.setRole(Role.USER);
     }
 }

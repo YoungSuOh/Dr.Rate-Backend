@@ -37,8 +37,4 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 }
