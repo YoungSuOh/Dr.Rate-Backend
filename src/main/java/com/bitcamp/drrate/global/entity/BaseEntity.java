@@ -1,4 +1,4 @@
-package com.bitcamp.drrate.global.entity;
+package com.bitcamp.drrate.global.config.entity;
 
 
 import jakarta.persistence.Column;
