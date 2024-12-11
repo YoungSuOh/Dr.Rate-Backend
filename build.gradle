@@ -44,18 +44,28 @@ dependencies {
 
     // thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    //Webflux
+    // Webflux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+    // mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+
+
     //Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
     //JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+
+
     // test
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.testcontainers:junit-jupiter'

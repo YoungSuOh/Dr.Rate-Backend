@@ -1,12 +1,15 @@
 package com.bitcamp.drrate.global.handler.stomp;
 
 
+import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
@@ -15,21 +18,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
-    // private final JwtTokenProvider jwtTokenProvider; -> JWT 토큰 발급 이후에
-    // private final InquireRoomRepository inquireRoomRepository;
     private final UsersRepository usersRepository;
+    private final JWTUtil jwtUtil;
 
-    private static final int LIMIT_MEMBER = 2;
-
-    @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-        System.out.println("STOMP Command: " + accessor.getCommand());
-        System.out.println("Headers: " + accessor.toNativeHeaderMap());
-        return message;
-    }
-
-    /*
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
@@ -41,19 +32,31 @@ public class StompHandler implements ChannelInterceptor {
         } else if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
             handleDisconnect(accessor);
         }
-
         return message;
     }
 
+
     private void handleConnect(StompHeaderAccessor accessor) {
-        String userIdHeader = accessor.getFirstNativeHeader("userId");
-        if (userIdHeader == null) {
+        // STOMP 메시지 헤더에서 Authorization 토큰 추출
+        String token = accessor.getFirstNativeHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
             throw new IllegalArgumentException(ErrorStatus.SESSION_HEADER_NOT_FOUND.getMessage());
         }
 
-        Long userId = Long.parseLong(userIdHeader);
-        if (usersRepository.findUsersById(userId).isEmpty()) {
-            throw new IllegalArgumentException(ErrorStatus.USER_ID_CANNOT_FOUND.getMessage());
+        token = token.substring(7);
+        try {
+            if (jwtUtil.isExpired(token)) {
+                throw new IllegalArgumentException(ErrorStatus.SESSION_ACCESS_EXPIRED.getMessage());
+            }
+
+            String userId = jwtUtil.getUserId(token);
+
+            if (usersRepository.findUsersById(Long.parseLong(userId)).isEmpty()) {
+                throw new IllegalArgumentException(ErrorStatus.USER_ID_CANNOT_FOUND.getMessage());
+            }
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException(ErrorStatus.SESSION_ACCESS_NOT_VALID.getMessage(), e);
         }
     }
 
@@ -62,14 +65,6 @@ public class StompHandler implements ChannelInterceptor {
         if (destination == null || !destination.startsWith("/sub/chat/")) {
             throw new IllegalArgumentException(ErrorStatus.INQUIRE_INVALID_PATH.getMessage());
         }
-
-        // 채팅방 ID 추출
-        String roomIdStr = destination.replace("/sub/chat/", "");
-        Long roomId = Long.parseLong(roomIdStr);
-
-        // 채팅방 존재 여부 확인
-        inquireRoomRepository.findById(roomId).orElseThrow(() ->
-                new IllegalArgumentException(ErrorStatus.INQUIRE_ROOM_NOT_FOUND.getMessage()));
     }
     /* 세션 활성화되면 추후 수정 예정  */
     private void handleDisconnect(StompHeaderAccessor accessor) {
