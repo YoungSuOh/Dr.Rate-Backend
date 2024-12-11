@@ -2,9 +2,12 @@ package com.bitcamp.drrate.domain.jwt;
 
 import java.io.IOException;
 
+import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
+import com.bitcamp.drrate.global.ApiResponse;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.filter.GenericFilterBean;
-
-import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -20,73 +23,68 @@ import lombok.RequiredArgsConstructor;
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final ObjectMapper objectMapper;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
     }
-    
+
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         //path and method verify
         String requestUri = request.getRequestURI(); //uri에서 path값을 꺼내서 logout요청인지 확인
-        if(!requestUri.matches("^\\/logout")) {
+        if (!requestUri.matches("^\\/logout")) {
             filterChain.doFilter(request, response);
             return; //로그아웃이 아니면 다음필터로 넘어감
         }
 
         String requestMethod = request.getMethod();
-        if(!requestMethod.equals("POST")) {
+        if (!requestMethod.equals("POST")) {
             filterChain.doFilter(request, response);
-            return; //로그아웃이더라도 포스트 요청이 아니면 넘어감
-        }
-
-        //쿠키값 얻어오기 (Redis에 저장한 refresh 토큰 값으로 수정예정)
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        for(Cookie cookie : cookies) {
-            if(cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
-            }
-        }
-
-        //리프레시 토큰에 값이 있는지 확인
-        if(refresh == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
+        String authorizationHeader = request.getHeader("Authorization");
+        String accessToken = null;
 
-        //만료시간이 지났는지 확인
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch(ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            accessToken = authorizationHeader.substring(7);
+        } else {
+            setUnauthorizedResponse(response, ErrorStatus.SESSION_HEADER_NOT_FOUND);
             return;
         }
-
-        //토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
+        String refreshToken = refreshTokenService.getRefreshToken(accessToken);
+        if (refreshToken == null) {
+            setUnauthorizedResponse(response, ErrorStatus.SESSION_ACCESS_NOT_VALID);
+            return;
+        }
+        String category = jwtUtil.getCategory(refreshToken);
         if(!category.equals("refresh")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-        // 리프레시 토큰이 DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
-        if(!isExist) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            setUnauthorizedResponse(response,ErrorStatus.SESSION_REFRESH_NOT_VALID);
             return;
         }
 
-        //로그아웃 진행
-        //Refresh 토큰을 DB에서 제거
-        refreshRepository.deleteByRefresh(refresh);
+        setAuthorizedResponse(response);
+    }
+    private void setAuthorizedResponse(HttpServletResponse response) throws IOException {
+        ApiResponse<Object> apiResponse = ApiResponse.onSuccess(null, SuccessStatus.USER_LOGOUT_SUCCESS);
 
-        //Refresh 토큰 Cookie 값 0
-        Cookie cookie = new Cookie("refresh", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
-    }   
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+    }
+
+    private void setUnauthorizedResponse(HttpServletResponse response, ErrorStatus errorStatus) throws IOException {
+        ApiResponse<Object> apiResponse = ApiResponse.onFailure(
+                errorStatus.getCode(),
+                errorStatus.getMessage(),
+                null
+        );
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+    }
 }

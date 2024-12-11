@@ -1,11 +1,11 @@
 package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -15,10 +15,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoTokenResponseDTO;
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
-import com.bitcamp.drrate.domain.users.entity.RefreshEntity;
 import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
-import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
 import io.netty.handler.codec.http.HttpHeaderValues;
@@ -34,7 +32,7 @@ public class KakaoServiceImpl implements KakaoService {
 
     private final UsersRepository usersRepository;
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final RefreshTokenService refreshTokenService;
 
     private final String KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
@@ -96,6 +94,9 @@ public class KakaoServiceImpl implements KakaoService {
         // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
         String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
         String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
+
+        /* 로그인 후 Redis에 access, refresh */
+        refreshTokenService.saveRefreshToken(access, refresh);
 
         //Refresh 토큰 DB에 저장
         // Date date = new Date(System.currentTimeMillis() + 86400000L);

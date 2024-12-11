@@ -1,12 +1,13 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,10 +21,8 @@ import org.springframework.web.client.RestTemplate;
 import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.oauth.google.dto.response.GoogleUserInfoResponseDTO;
 import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO.GoogleUserInfo;
-import com.bitcamp.drrate.domain.users.entity.RefreshEntity;
 import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
-import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,7 +35,8 @@ public class GoogleServiceImpl implements GoogleService {
     
     private final UsersRepository usersRepository;
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final RefreshTokenService refreshTokenService;
+
 
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -103,6 +103,9 @@ public class GoogleServiceImpl implements GoogleService {
             // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
             String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
             String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
+
+            /* 로그인 후 Redis에 access, refresh */
+            refreshTokenService.saveRefreshToken(access, refresh);
 
             //Refresh 토큰 DB에 저장
             // Date date = new Date(System.currentTimeMillis() + 86400000L);

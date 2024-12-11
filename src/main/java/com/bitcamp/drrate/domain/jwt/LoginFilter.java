@@ -13,7 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.bitcamp.drrate.domain.users.entity.RefreshEntity;
-import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -26,7 +25,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -76,8 +74,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         refreshEntity.setUsername(username);
         refreshEntity.setRefresh(refresh);
         refreshEntity.setExpiration(date.toString());
-
-        refreshRepository.save(refreshEntity);
+        /* Redis로 저장하는 로직으로 바꿔주세요 */
+        /*refreshRepository.save(refreshEntity);*/
     }
     //쿠키 생성 메서드
     private Cookie createCookie(String key, String value) {
