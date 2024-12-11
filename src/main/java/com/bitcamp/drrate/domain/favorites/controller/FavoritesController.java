@@ -34,7 +34,7 @@ public class FavoritesController {
       @RequestParam Long faPrdId // 요청 본문에서 즐겨찾기 등록 데이터를 가져옴
   ) {
     // 1. 사용자 ID(PK)를 JWT에서 추출
-    Long faUserId = userDetails.getId(null);
+    Long faUserId = userDetails.getId();
 
     // CustomUserDetails를 이용하여 사용자 ID를 추출
     // Long faUserId = ((CustomUserDetails) userDetails).getUsers().getId();
@@ -56,7 +56,7 @@ public class FavoritesController {
       @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
   ) {
 
-    Long faUserId = userDetails.getId(null);
+    Long faUserId = userDetails.getId();
     Long faPrdId = request.getFaPrdId(); // 요청으로 전달된 상품 ID(request.getFaPrdId())를 faPrdId에 저장
 
     favoritesService.addFavorite(faUserId, faPrdId);
@@ -73,10 +73,10 @@ public class FavoritesController {
   /* ProductDetailPage; 즐겨찾기 취소 */
   @DeleteMapping("/removeFavorite")
   public ResponseEntity<FavoritesResponseDTO.ProductFavoriteActionDTO> removeFavorite(
-      @AuthenticationPrincipal Users user,
+      @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
   ) {
-    Long faUserId = user.getId();
+    Long faUserId = userDetails.getId();
     Long faPrdId = request.getFaPrdId();
 
     favoritesService.removeFavorite(faUserId, faPrdId);
