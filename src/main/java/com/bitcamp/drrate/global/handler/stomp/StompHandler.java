@@ -1,14 +1,11 @@
 package com.bitcamp.drrate.global.handler.stomp;
 
-import com.bitcamp.drrate.domain.inquire.repository.InquireRoomRepository;
+
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
@@ -19,11 +16,20 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
     // private final JwtTokenProvider jwtTokenProvider; -> JWT 토큰 발급 이후에
-    private final InquireRoomRepository inquireRoomRepository;
+    // private final InquireRoomRepository inquireRoomRepository;
     private final UsersRepository usersRepository;
 
     private static final int LIMIT_MEMBER = 2;
 
+    @Override
+    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        System.out.println("STOMP Command: " + accessor.getCommand());
+        System.out.println("Headers: " + accessor.toNativeHeaderMap());
+        return message;
+    }
+
+    /*
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
@@ -70,4 +76,5 @@ public class StompHandler implements ChannelInterceptor {
         String sessionId = accessor.getSessionId();
         log.info("세션 종료: {}", sessionId);
     }
+
 }

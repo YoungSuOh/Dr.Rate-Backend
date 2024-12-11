@@ -46,14 +46,14 @@ public class UsersController {
     @GetMapping("/login/oauth2/code/{provider}")
     public ResponseEntity<?> login(@RequestParam("code") String code, @PathVariable("provider") String provider) {
         if(provider.equals("google")){
-            Map<String, String> token = googleService.login(code);
-            HttpHeaders headers = usersService.tokenSetting(token);
+            String access = googleService.login(code);
+            HttpHeaders headers = usersService.tokenSetting(access);
 
             return ResponseEntity.ok().headers(headers).build();
         }
         else if(provider.equals("kakao")){
-            Map<String, String> token = kakaoService.login(code);
-            HttpHeaders headers = usersService.tokenSetting(token);
+            String access = kakaoService.login(code);
+            HttpHeaders headers = usersService.tokenSetting(access);
 
             return ResponseEntity.ok().headers(headers).build();
         }

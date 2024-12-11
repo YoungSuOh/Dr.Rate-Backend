@@ -1,6 +1,6 @@
 package com.bitcamp.drrate.domain.users.entity;
 
-import com.bitcamp.drrate.domain.inquire.entity.InquireRoom;
+
 import com.bitcamp.drrate.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,9 +28,6 @@ public class Users extends BaseEntity {
 
     @Column(nullable = false, name = "user_name")
     private String username;
-
-    @OneToOne(mappedBy = "users", fetch = FetchType.LAZY, optional = true)
-    private InquireRoom inquireRoom;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
