@@ -29,7 +29,7 @@ public class CustomUserDetails implements UserDetails {
         return collection;
     }
 
-    public Long getId(Long id) {
+    public Long getId() {
         return users.getId();
     }
 
