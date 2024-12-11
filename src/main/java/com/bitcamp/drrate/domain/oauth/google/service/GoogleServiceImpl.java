@@ -1,6 +1,7 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,15 +95,15 @@ public class GoogleServiceImpl implements GoogleService {
             Optional<Users> optionalUsers = usersRepository.findByEmail(email);
 
             Users users = optionalUsers.orElseGet(() -> new Users());
-            
-            setUserInfo(users, googleInfo);
 
+            setUserInfo(users, googleInfo);
+            Long id = users.getId();
             usersRepository.save(users);
                 
             
             // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
-            String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
-            String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
+            String access = jwtUtil.createJwt(id, "access", email, "ROLE_USER", 600000L);
+            String refresh = jwtUtil.createJwt(id, "refresh", email, "ROLE_USER", 86400000L);
 
             //Refresh 토큰 DB에 저장
             // Date date = new Date(System.currentTimeMillis() + 86400000L);
@@ -193,6 +194,10 @@ public class GoogleServiceImpl implements GoogleService {
 
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
+<<<<<<< Updated upstream
+=======
+        users.setUsername(googleInfo.getName());
+>>>>>>> Stashed changes
         users.setRole(Role.USER);
     }
 }

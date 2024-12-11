@@ -12,8 +12,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.RefreshEntity;
+import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -27,6 +30,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final UsersRepository usersRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -42,16 +46,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
-        String userId = authentication.getName();
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        String userId = customUserDetails.getUserId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access", userId, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", userId, role, 86400000L);
+        Users users = usersRepository.findByUserId(userId);
+
+        Long id = users.getId();
+
+        String access = jwtUtil.createJwt(id, "access", userId, role, 600000L);
+        String refresh = jwtUtil.createJwt(id, "refresh", userId, role, 86400000L);
 
         //Refresh 토큰 저장
         //addRefreshEntity(userId, refresh, 86400000L);

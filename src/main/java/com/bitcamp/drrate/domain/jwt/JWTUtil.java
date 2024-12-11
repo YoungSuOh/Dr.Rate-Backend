@@ -34,12 +34,17 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
     }
 
+    public Long getId(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("id", Long.class);
+    }
+
     public Boolean isExpired(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(String category, String userId, String role, Long expiredMs) {
+    public String createJwt(Long id, String category, String userId, String role, Long expiredMs) {
         return Jwts.builder()
+            .claim("id", id)
             .claim("category", category)
             .claim("userId", userId)
             .claim("role", role)

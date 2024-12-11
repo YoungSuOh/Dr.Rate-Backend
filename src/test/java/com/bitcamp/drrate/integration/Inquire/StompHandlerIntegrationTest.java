@@ -38,9 +38,8 @@ class StompHandlerIntegrationTest {
     @Test
     void testHandleSubscribe_validRoom() {
         // Given
-        Users user = Users.builder().nickName("Test User")
+        Users user = Users.builder().username("Test User")
                 .email("test@test.com")
-                .oauth("kakao")
                 .role(Role.USER)
                 .build();
         user = usersRepository.save(user); // 영속화
@@ -81,9 +80,8 @@ class StompHandlerIntegrationTest {
     void testHandleConnect_validUser() {
         // Given
         // 사용자 생성
-        Users user = Users.builder().nickName("Test User")
+        Users user = Users.builder().username("Test User")
                 .email("test@test.com")
-                .oauth("kakao")
                 .role(Role.USER)
                 .build();
         usersRepository.save(user);

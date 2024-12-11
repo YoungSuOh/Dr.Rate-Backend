@@ -17,6 +17,7 @@ import com.bitcamp.drrate.domain.jwt.JWTFilter;
 import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.jwt.LoginFilter;
 import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final UsersRepository usersRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -66,7 +68,7 @@ public class SecurityConfig {
 
         http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository, usersRepository), UsernamePasswordAuthenticationFilter.class);
         //세션 설정
         http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 

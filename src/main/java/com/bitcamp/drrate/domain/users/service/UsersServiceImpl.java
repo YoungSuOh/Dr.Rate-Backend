@@ -48,9 +48,9 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public void joinProc(UsersJoinDTO joinDTO) {
-        String nickname = joinDTO.getNickname();
+        System.out.println("조인");
+        String username = joinDTO.getUsername();
         String userId = joinDTO.getUserId();
-        Role role = joinDTO.getRole();
         String password = joinDTO.getPassword();
         String email = joinDTO.getEmail();
 
@@ -62,7 +62,11 @@ public class UsersServiceImpl implements UsersService {
 
         Users users = new Users();
 
+<<<<<<< Updated upstream
         users.setUsername(nickname);
+=======
+        users.setUsername(username);
+>>>>>>> Stashed changes
         users.setEmail(email);
         users.setRole(Role.USER);
         users.setPassword(bCryptPasswordEncoder.encode(password));

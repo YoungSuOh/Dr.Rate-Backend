@@ -1,7 +1,7 @@
 package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +15,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoTokenResponseDTO;
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
-import com.bitcamp.drrate.domain.users.entity.RefreshEntity;
 import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.RefreshRepository;
@@ -88,14 +87,14 @@ public class KakaoServiceImpl implements KakaoService {
         Optional<Users> optionalUsers = usersRepository.findByEmail(email);
 
         Users users = optionalUsers.orElseGet(() -> new Users());
-
+        
         setUserInfo(users, userInfo);
-
+        Long id = users.getId();
         usersRepository.save(users);
         
         // UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(googleInfo.getEmail(), null, null);
-        String access = jwtUtil.createJwt("access", email, "ROLE_USER", 600000L);
-        String refresh = jwtUtil.createJwt("refresh", email, "ROLE_USER", 86400000L);
+        String access = jwtUtil.createJwt(id, "access", email, "ROLE_USER", 600000L);
+        String refresh = jwtUtil.createJwt(id, "refresh", email, "ROLE_USER", 86400000L);
 
         //Refresh 토큰 DB에 저장
         // Date date = new Date(System.currentTimeMillis() + 86400000L);

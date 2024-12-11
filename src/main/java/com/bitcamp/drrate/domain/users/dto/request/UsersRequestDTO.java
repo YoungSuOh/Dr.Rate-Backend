@@ -6,12 +6,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 public class UsersRequestDTO {
 
     @Builder
-    @Getter
+    @Getter@Setter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class UsersJoinDTO {
         @NotNull
         private String userId;
@@ -20,8 +23,8 @@ public class UsersRequestDTO {
         @NotNull
         private String email;
         @NotNull
-        private String nickname;
-        @NotNull
+        private String username;
+
         private Role role;
     }
 
