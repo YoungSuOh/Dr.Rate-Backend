@@ -20,6 +20,9 @@ import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.jwt.LoginFilter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -49,11 +52,14 @@ public class SecurityConfig {
 
         //csrf disable
         http.csrf(auth -> auth.disable());
+
+        http.cors(withDefaults -> {});
         //폼 로그인 방식 disalbe
         // http.formLogin(auth -> auth
         //         .loginPage("/loginForm")
         //         .loginProcessingUrl("/loginProc")
-        //         .usernameParameter("userId")
+        //         .usernameParameter("userId")g
+
         //         .passwordParameter("password")
         //         .defaultSuccessUrl("/", true)
         //         .permitAll());
@@ -76,4 +82,15 @@ public class SecurityConfig {
 
         return http.build();
     }
+    @Bean
+        public CorsFilter corsFilter() {
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowCredentials(true); // 쿠키 포함 허용
+            config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 Origin
+            config.addAllowedHeader("*"); // 모든 헤더 허용
+            config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+            source.registerCorsConfiguration("/**", config);
+            return new CorsFilter(source);
+        }
 }
