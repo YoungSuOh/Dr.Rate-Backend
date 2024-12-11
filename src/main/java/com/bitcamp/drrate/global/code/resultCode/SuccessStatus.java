@@ -19,6 +19,7 @@ public enum SuccessStatus implements SuccessCode {
     USER_JOIN_SUCCESS(HttpStatus.OK,"USER201", "회원 가입 성공"),
     USER_LOGIN_SUCCESS(HttpStatus.OK,"USER202", "로그인 성공"),
     USER_MYPAGE_SUCCESS(HttpStatus.OK,"USER203", "마이페이지 조회 성공"),
+    USER_LOGOUT_SUCCESS(HttpStatus.OK,"USER204", "로그아웃 성공"),
 
 
 

@@ -48,12 +48,4 @@ public class JWTUtil {
             .signWith(secretKey)
             .compact();
     }
-
-    public Claims parseToken(String token) {
-        return Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-    }
 }
