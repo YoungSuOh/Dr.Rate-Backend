@@ -2,7 +2,7 @@ package com.bitcamp.drrate.domain.inquire.entity;
 
 
 import com.bitcamp.drrate.domain.users.entity.Users;
-import com.bitcamp.drrate.global.config.entity.BaseEntity;
+import com.bitcamp.drrate.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
