@@ -1,6 +1,5 @@
 package com.bitcamp.drrate.domain.products.entity;
 
-import com.bitcamp.drrate.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
