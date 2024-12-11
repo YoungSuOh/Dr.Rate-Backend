@@ -1,11 +1,9 @@
 package com.bitcamp.drrate.domain.users.entity;
 
 import com.bitcamp.drrate.domain.inquire.entity.InquireRoom;
-import com.bitcamp.drrate.global.entity.BaseEntity;
+import com.bitcamp.drrate.global.config.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users") // 엔티티 테이블 이름 지정 필수 !!
