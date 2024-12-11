@@ -1,7 +1,6 @@
 package com.bitcamp.drrate.domain.jwt;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
 import org.springframework.http.HttpStatus;
@@ -12,10 +11,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.bitcamp.drrate.domain.users.entity.RefreshEntity;
+import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
+import com.bitcamp.drrate.domain.users.entity.Users;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final UsersRepository usersRepository;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -40,22 +43,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
-        String userId = authentication.getName();
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+        String userId = customUserDetails.getUserId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access", userId, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", userId, role, 86400000L);
+        Users users = usersRepository.findByUserId(userId);
+
+        Long id = users.getId();
+
+        String access = jwtUtil.createJwt(id, "access", role, 600000L);
+        String refresh = jwtUtil.createJwt(id, "refresh", role, 86400000L);
 
         //Refresh 토큰 저장
         //addRefreshEntity(userId, refresh, 86400000L);
+        refreshTokenService.saveTokens(String.valueOf(id), access, refresh);
 
         response.setHeader("Authorization", "Bearer " + access); // 액세스 토큰 헤더에 저장 (로컬스토리지 저장)
-        //response.addCookie(createCookie("refresh", refresh)); //리프레시 토큰 발급 및 발급된 리프레시 토큰 쿠키에 저장
         response.setStatus(HttpStatus.OK.value());
     }
 
@@ -63,26 +70,5 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);
-    }
-
-    //리프레시 토큰을 DB에 저장하는 메서드
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
-        //만료일자
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUsername(username);
-        refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
-        /* Redis로 저장하는 로직으로 바꿔주세요 */
-        /*refreshRepository.save(refreshEntity);*/
-    }
-    //쿠키 생성 메서드
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        cookie.setHttpOnly(true);
-        return cookie;
     }
 }

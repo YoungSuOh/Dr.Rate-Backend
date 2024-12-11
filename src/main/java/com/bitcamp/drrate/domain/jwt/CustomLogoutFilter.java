@@ -2,19 +2,18 @@ package com.bitcamp.drrate.domain.jwt;
 
 import java.io.IOException;
 
+import org.springframework.web.filter.GenericFilterBean;
+
 import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.filter.GenericFilterBean;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -85,8 +84,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private void setUnauthorizedResponse(HttpServletResponse response, ErrorStatus errorStatus) throws IOException {
         ApiResponse<Object> apiResponse = ApiResponse.onFailure(
-                errorStatus.getCode(),
-                errorStatus.getMessage(),
+                errorStatus.getReason().getCode(),
+                errorStatus.getReason().getMessage(),
                 null
         );
 
