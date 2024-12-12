@@ -14,20 +14,21 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final KafkaTopicService kafkaTopicService;
 
-    public ChatRoom getOrCreateChatRoom(String roomId) {
+    public ChatRoom getOrCreateChatRoom(String senderId) {
         // 기존 채팅방 조회
-        Optional<ChatRoom> existingRoom = chatRoomRepository.findById(roomId);
+        Optional<ChatRoom> existingRoom = chatRoomRepository.findById(senderId);
         if (existingRoom.isPresent()) {
-            System.out.println("Existing ChatRoom found: " + existingRoom.get().getTopicName());
-            return existingRoom.orElse(null);
+            ChatRoom chatRoom = existingRoom.get();
+            chatRoom.setUpdatedAt(LocalDateTime.now());
+            chatRoomRepository.save(chatRoom);
+            return chatRoom;
         }
-
         // 새로운 채팅방 생성
-        String topicName = "chat-room-" + roomId;
+        String topicName = "chat-room-" + senderId;
         ChatRoom newRoom = new ChatRoom();
-        newRoom.setId(roomId);
+        newRoom.setId(senderId);
         newRoom.setTopicName(topicName);
-        newRoom.setCreatedAt(LocalDateTime.now());
+
 
         // MongoDB 저장
         chatRoomRepository.save(newRoom);
@@ -35,7 +36,6 @@ public class ChatRoomService {
         // Kafka 토픽 생성
         kafkaTopicService.createTopic(topicName);
 
-        System.out.println("New ChatRoom created: " + topicName);
         return newRoom;
     }
 }

@@ -29,12 +29,13 @@ public class KafkaConsumer {
             // roomId와 메시지 추출
             String roomId = messagePayload.get("roomId");
             String messageContent = messagePayload.get("message");
+            String senderId  = messagePayload.get("senderId");
 
             // ChatMessage 객체 생성
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setRoomId(roomId);
             chatMessage.setContent(messageContent);
-            chatMessage.setCreatedAt(LocalDateTime.now());
+            chatMessage.setSenderId(senderId);
 
             // MongoDB에 저장
             chatMessageRepository.save(chatMessage);

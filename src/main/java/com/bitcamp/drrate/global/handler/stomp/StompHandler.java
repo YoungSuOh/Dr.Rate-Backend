@@ -38,6 +38,7 @@ public class StompHandler implements ChannelInterceptor {
 
     private void handleConnect(StompHeaderAccessor accessor) {
         // STOMP 메시지 헤더에서 Authorization 토큰 추출
+        log.info("연결 세션 id: {}", accessor.getSessionId());
         String token = accessor.getFirstNativeHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
             log.error("Authorization 헤더가 누락되었거나 잘못됨");
@@ -53,10 +54,14 @@ public class StompHandler implements ChannelInterceptor {
 
             Long userId = jwtUtil.getId(token);
 
-            if (usersRepository.findUsersById(userId)==null){
+            if (usersRepository.findUsersById(userId).isEmpty()){
                 log.error("사용자를 찾을 수 없음");
                 throw new IllegalArgumentException(ErrorStatus.USER_ID_CANNOT_FOUND.getMessage());
             }
+            String role = jwtUtil.getRole(token);
+            // 세션에 userId & role 저장
+            accessor.getSessionAttributes().put("userId", userId);
+            accessor.getSessionAttributes().put("role", role);
 
         } catch (Exception e) {
             log.error("JWT 검증 실패: {}", e.getMessage());
@@ -66,6 +71,7 @@ public class StompHandler implements ChannelInterceptor {
 
     private void handleSubscribe(StompHeaderAccessor accessor) {
         String destination = accessor.getDestination();
+        log.info("구독 세션 id: {}", accessor.getSessionId());
         if (destination == null || !destination.startsWith("/sub/chat/")) {
             throw new IllegalArgumentException(ErrorStatus.INQUIRE_INVALID_PATH.getMessage());
         }

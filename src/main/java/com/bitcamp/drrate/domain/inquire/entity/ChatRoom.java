@@ -12,6 +12,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ChatRoom extends BaseEntity {
     @Id
     private String id;
-    private String sender;
     private String topicName;
 }
