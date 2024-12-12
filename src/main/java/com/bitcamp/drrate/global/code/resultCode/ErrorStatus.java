@@ -29,6 +29,7 @@ public enum ErrorStatus implements ErrorCode {
     SESSION_HEADER_NOT_FOUND(HttpStatus.OK, "SESSION400", "헤더에 세션 정보가 존재하지 않습니다."),
     SESSION_ACCESS_NOT_VALID(HttpStatus.OK, "SESSION401", "액세스 토큰 값이 유효하지 않습니다."),
     SESSION_REFRESH_NOT_VALID(HttpStatus.OK, "SESSION401", "리프레쉬 토큰 값이 유효하지 않습니다."),
+    SESSION_ACCESS_EXPIRED(HttpStatus.OK, "SESSION401", "액세스 토큰이 만료되었습니다"),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL501","서버 오류")
     ;

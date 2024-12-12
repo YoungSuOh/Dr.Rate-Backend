@@ -61,9 +61,11 @@ public class JWTFilter extends OncePerRequestFilter {
         } // if
         Long userId = jwtUtil.getId(accessToken);
 
-        Optional<Users> optionalUsers = usersRepository.findById(userId); 
+        System.out.println("userId: " + userId);
 
-        Users users = optionalUsers.orElseGet(() -> new Users());
+        Users users = usersRepository.findUsersById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userId));
+
         
         CustomUserDetails customUserDetails = new CustomUserDetails(users);
 
