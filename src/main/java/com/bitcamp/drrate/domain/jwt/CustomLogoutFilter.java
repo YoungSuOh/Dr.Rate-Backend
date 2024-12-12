@@ -87,8 +87,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private void setUnauthorizedResponse(HttpServletResponse response, ErrorStatus errorStatus) throws IOException {
         ApiResponse<Object> apiResponse = ApiResponse.onFailure(
-                errorStatus.getReason().getCode(),
-                errorStatus.getReason().getMessage(),
+                errorStatus.getCode(),
+                errorStatus.getMessage(),
                 null
         );
 

@@ -1,7 +1,5 @@
 package com.bitcamp.drrate.domain.users.service;
 
-import java.util.Optional;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,12 +18,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UsersRepository usersRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        
+        Users users = usersRepository.findUsersById(Long.valueOf(id))
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
 
-        Users users = usersRepository.findByUserId(userId);
-        System.out.println("users = " + users);
         if(users != null) {
-            
             return new CustomUserDetails(users);
         }
 
