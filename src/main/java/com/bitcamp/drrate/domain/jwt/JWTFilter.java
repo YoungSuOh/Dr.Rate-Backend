@@ -65,6 +65,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         Users users = usersRepository.findUsersById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userId));
+
         
         CustomUserDetails customUserDetails = new CustomUserDetails(users);
 

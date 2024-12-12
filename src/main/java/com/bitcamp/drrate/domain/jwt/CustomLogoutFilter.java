@@ -54,10 +54,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        Long userId = jwtUtil.getId(accessToken);
+
+        Long id = jwtUtil.getId(accessToken);
 
         /* userId 키값으로 refresh token이 있는지 */
-        String refreshToken = refreshTokenService.getRefreshToken(String.valueOf(userId));
+        String refreshToken = refreshTokenService.getRefreshToken(String.valueOf(id));
+
         if (refreshToken == null) {
             /* (중요) access token이 재발급되고 refresh기간이 만료될 수도 있음 => 이 경우는 access token 유효기간에 따라 로그아웃 권한 부여 */
             if(jwtUtil.isExpired(accessToken)){
@@ -70,7 +72,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
                 }
             }
         }
-        refreshTokenService.deleteTokens(String.valueOf(userId));
+
+        refreshTokenService.deleteTokens(String.valueOf(id));
         setAuthorizedResponse(response);
     }
     private void setAuthorizedResponse(HttpServletResponse response) throws IOException {
