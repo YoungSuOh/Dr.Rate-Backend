@@ -62,7 +62,7 @@ public class UsersController {
 
     /* 임시 !!*/
     @GetMapping("/api/user/{id}") @ResponseBody
-    public String usersTest(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String id) {
+    public String usersTest(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("id") String id) {
         System.out.println("id : "+id);
         Optional<Users> user = usersRepository.findUsersById(Long.valueOf(id));
         if(user.isPresent()){
