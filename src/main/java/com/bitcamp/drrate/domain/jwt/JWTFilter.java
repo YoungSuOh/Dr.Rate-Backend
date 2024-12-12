@@ -2,6 +2,7 @@ package com.bitcamp.drrate.domain.jwt;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -58,9 +59,11 @@ public class JWTFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         } // if
-        String userId = jwtUtil.getUserId(accessToken);
+        Long userId = jwtUtil.getId(accessToken);
 
-        Users users = usersRepository.findByUserId(userId);
+        Optional<Users> optionalUsers = usersRepository.findById(userId); 
+
+        Users users = optionalUsers.orElseGet(() -> new Users());
         
         CustomUserDetails customUserDetails = new CustomUserDetails(users);
 
