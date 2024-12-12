@@ -26,7 +26,11 @@ public enum SuccessStatus implements SuccessCode {
 
 
     BOARD_GET_SUCCESS(HttpStatus.OK,"BOARD200", "게시판 조회 성공"),
-    BOARDLIST_GET_SUCCESS(HttpStatus.OK,"BOARD201", "전체 게시판 조회 성공")
+    BOARDLIST_GET_SUCCESS(HttpStatus.OK,"BOARD201", "전체 게시판 조회 성공"),
+
+
+    FILE_UPLOAD_SUCCESS(HttpStatus.OK,"S3200", "파일 업로드 성공"),
+    FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공")
     ;
 
 

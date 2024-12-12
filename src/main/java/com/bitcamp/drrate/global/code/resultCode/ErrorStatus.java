@@ -28,10 +28,25 @@ public enum ErrorStatus implements ErrorCode {
 
 
     // Session
-    SESSION_HEADER_NOT_FOUND(HttpStatus.OK, "SESSION400", "헤더에 세션 정보가 존재하지 않습니다."),
-    SESSION_ACCESS_NOT_VALID(HttpStatus.OK, "SESSION401", "액세스 토큰 값이 유효하지 않습니다."),
-    SESSION_REFRESH_NOT_VALID(HttpStatus.OK, "SESSION401", "리프레쉬 토큰 값이 유효하지 않습니다."),
-    SESSION_ACCESS_EXPIRED(HttpStatus.OK, "SESSION401", "액세스 토큰이 만료되었습니다"),
+    SESSION_HEADER_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION400", "헤더에 세션 정보가 존재하지 않습니다."),
+    SESSION_ACCESS_NOT_VALID(HttpStatus.UNAUTHORIZED, "SESSION401", "액세스 토큰 값이 유효하지 않습니다."),
+    SESSION_REFRESH_NOT_VALID(HttpStatus.UNAUTHORIZED, "SESSION402", "리프레쉬 토큰 값이 유효하지 않습니다."),
+    SESSION_ACCESS_EXPIRED(HttpStatus.UNAUTHORIZED, "SESSION403", "액세스 토큰이 만료되었습니다."),
+
+
+
+    // Object Storage
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S3400", "파일을 찾을 수 없습니다"),
+    FILE_METADATA_ERROR(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "S3401", "파일 메타데이터를 처리하는 중 오류가 발생했습니다"),
+    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3402", "S3 업로드 중 오류가 발생했습니다."),
+    FILE_PROCESSING_ERROR(HttpStatus.BAD_REQUEST, "S3403", "파일 처리 중 오류가 발생했습니다."),
+    FILE_CONVERSION_ERROR(HttpStatus.BAD_REQUEST, "S3404", "MultipartFile을 파일로 변환하는 중 오류가 발생했습니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "S3405", "파일 업로드를 실패했습니다."),
+    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3406", "파일 삭제를 실패했습니다."),
+    FILE_DELETE_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3407", "파일 삭제 도중 알 수 없는 에러가 발생했습니다."),
+    FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3408", "파일 삭제를 실패했습니다."),
+    FILE_UNVAILD_URL(HttpStatus.BAD_REQUEST, "S3409", "유효하지 않은 파일 경로입니다."),
+
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL501","서버 오류")
     ;
