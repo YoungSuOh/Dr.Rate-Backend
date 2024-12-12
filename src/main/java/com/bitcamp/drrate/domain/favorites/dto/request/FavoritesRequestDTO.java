@@ -15,7 +15,7 @@ public class FavoritesRequestDTO {
   @NoArgsConstructor
   public static class ProductFavoriteDTO {
     @NotNull
-    private Long faPrdId; // 상품 ID
+    private Long prdId; // 상품 ID
   }
 
 

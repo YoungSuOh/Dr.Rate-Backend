@@ -14,6 +14,7 @@ import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +56,7 @@ public class FavoriteServiceImpl implements FavoritesService {
 
   /* ProductDetailPage; 즐겨찾기 취소 */
   @Override
+  @Transactional
   public void removeFavorite(Long faUserId, Long faPrdId) {
     favoritesRepository.deleteByUserIdAndProductId(faUserId, faPrdId);
   }

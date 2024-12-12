@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
 
-  boolean existsByUserIdAndProductId(Long userId, Long productId);
+  boolean existsByUserIdAndProductId(Long faUserId, Long faPrdId);
 
-  void deleteByUserIdAndProductId(Long userId, Long productId);
+  void deleteByUserIdAndProductId(Long faUserId, Long faPrdId);
 }
