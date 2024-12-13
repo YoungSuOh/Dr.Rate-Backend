@@ -11,10 +11,13 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorStatus implements ErrorCode {
     // user
-    USER_ID_UNAVAILABLE(HttpStatus.OK,"USERID400", "중복된 id입니다."),
-    USER_JOIN_ERROR(HttpStatus.OK,"USER401", "회원 가입 실패"),
-    USER_LOGIN_ERROR(HttpStatus.OK,"USERID402", "로그인 실패"),
-    USER_ID_CANNOT_FOUND(HttpStatus.OK,"USERID403", "유효하지 않은 id입니다."),
+    USER_ID_UNAVAILABLE(HttpStatus.CONFLICT,"USER400", "중복된 사용자 ID입니다."),
+    USER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "USER401", "중복된 이메일입니다."),
+    USER_JOIN_ERROR(HttpStatus.BAD_REQUEST,"USER402", "회원 가입 중 오류가 발생했습니다."),
+    USER_LOGIN_ERROR(HttpStatus.UNAUTHORIZED,"USER403", "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다"),
+    USER_ID_CANNOT_FOUND(HttpStatus.NOT_FOUND,"USER404", "사용자를 찾을 수 없습니다. id가 유효하지 않습니다."),
+    USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
+
 
     // Session
     SESSION_HEADER_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION400", "헤더에 세션 정보가 존재하지 않습니다."),
@@ -34,7 +37,7 @@ public enum ErrorStatus implements ErrorCode {
     INQUIRE_INVALID_PATH(HttpStatus.BAD_REQUEST,"INQUIRE403", "잘못된 형식의 문의 메세지 요청입니다."),
 
 
-    
+
     // Kafka
     KAFKA_BROKER_BADREQUEST(HttpStatus.SERVICE_UNAVAILABLE, "KAFKA400", "Kafka에 BROKER에 전송을 실패했습니다."),
     KAFKA_PUBLISH_MESSAGE_BADREQUEST(HttpStatus.BAD_REQUEST, "KAFKA401", "Kafka에 잘못된 형식의 메세지를 Publish를 시도했습니다."),
@@ -55,19 +58,30 @@ public enum ErrorStatus implements ErrorCode {
     FILE_DELETE_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3407", "파일 삭제 도중 알 수 없는 에러가 발생했습니다."),
     FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3408", "파일 삭제를 실패했습니다."),
     FILE_UNVAILD_URL(HttpStatus.BAD_REQUEST, "S3409", "유효하지 않은 파일 경로입니다."),
-    
+
 
     // Mongo db
     MONGODB_SAVE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO400", "Mongodb에 저장을 실패했습니다"),
     MONGODB_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO401", "Mongodb에 불러오기를 실패했습니다"),
+
+
+    // Favorite
+    FAVORITE_INVALID_USER_ID(HttpStatus.BAD_REQUEST, "FAV400", "유효하지 않은 사용자 ID입니다."),
+    FAVORITE_INVALID_PRODUCT_ID(HttpStatus.BAD_REQUEST, "FAV401", "유효하지 않은 상품 ID입니다."),
+    FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "FAV402", "이미 즐겨찾기에 등록되어 있습니다."),
+    FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "FAV403", "즐겨찾기 데이터를 찾을 수 없습니다."),
+    FAVORITE_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV404", "즐겨찾기 조회에 실패했습니다."),
+    FAVORITE_INSERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV405", "즐겨찾기 등록에 실패했습니다."),
+    FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV406", "즐겨찾기 삭제에 실패했습니다."),
+
 
     // 권한 에러
     AUTHORIZATION_INVALID(HttpStatus.UNAUTHORIZED, "AUTHORIZATION400", "접근 권한이 없습니다."),
 
 
 
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL501","서버 오류"),
-    JSON_PROCESSING_ERROR(HttpStatus.BAD_REQUEST, "GLOBAL502","JSON 변환 오류")
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL500","서버 오류"),
+    JSON_PROCESSING_ERROR(HttpStatus.BAD_REQUEST, "GLOBAL501","JSON 변환 오류")
     ;
 
     private final HttpStatus httpStatus;

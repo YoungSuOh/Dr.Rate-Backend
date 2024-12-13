@@ -33,7 +33,13 @@ public enum SuccessStatus implements SuccessCode {
 
     // Object Storage(S3 api)
     FILE_UPLOAD_SUCCESS(HttpStatus.OK,"S3200", "파일 업로드 성공"),
-    FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공")
+    FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공"),
+
+
+    // Favorite
+    FAVORITE_QUERY_SUCCESS(HttpStatus.OK, "FAV200", "즐겨찾기 조회 성공"),
+    FAVORITE_ADD_SUCCESS(HttpStatus.OK, "FAV201", "즐겨찾기 등록 성공"),
+    FAVORITE_REMOVE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공")
     ;
 
 

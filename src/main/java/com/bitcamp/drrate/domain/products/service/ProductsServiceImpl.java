@@ -1,4 +1,13 @@
 package com.bitcamp.drrate.domain.products.service;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 import com.bitcamp.drrate.domain.products.entity.DepositeOptions;
 import com.bitcamp.drrate.domain.products.entity.InstallMentOptions;
@@ -6,11 +15,8 @@ import com.bitcamp.drrate.domain.products.entity.Products;
 import com.bitcamp.drrate.domain.products.repository.DepositeOptionsRepository;
 import com.bitcamp.drrate.domain.products.repository.InstallMentOptionsRepository;
 import com.bitcamp.drrate.domain.products.repository.ProductsRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.*;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -90,5 +96,40 @@ public class ProductsServiceImpl implements ProductsService{
         map.put("optionNum", optionNum);
 
         return map;
+    }
+   //241211 오혜진 추가
+
+    @Override
+    public List<Map<String, Object>> getAllProducts() {
+        List<Products> products = productsRepository.findAll();
+        List<Map<String, Object>> resultList = new ArrayList<>();
+
+        for (Products product : products) {
+            Map<String, Object> productMap = new HashMap<>();
+            Long productId = product.getId();
+
+            // 각 상품의 옵션 조회
+            List<DepositeOptions> dep_options = depositeOptionsRepository.findByProductsId(productId);
+            List<InstallMentOptions> ins_options = installMentOptionsRepository.findByProductsId(productId);
+
+            productMap.put("product", product);
+
+            if (dep_options != null && !dep_options.isEmpty()) {
+                productMap.put("options", dep_options);
+            } else if (ins_options != null && !ins_options.isEmpty()) {
+                productMap.put("options", ins_options);
+            }
+            
+            
+
+            resultList.add(productMap);
+        }
+
+        return resultList;
+    }
+    //241211 카테고리 - 오혜진
+    @Override
+    public List<Products> getProductsByCtg(String ctg) {
+        return productsRepository.findByCtg(ctg);
     }
 }
