@@ -9,6 +9,9 @@ import com.bitcamp.drrate.domain.products.entity.Products;
 import com.bitcamp.drrate.domain.products.repository.DepositeOptionsRepository;
 import com.bitcamp.drrate.domain.products.repository.InstallMentOptionsRepository;
 import com.bitcamp.drrate.domain.products.repository.ProductsRepository;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,10 +42,17 @@ public class InsertProductServiceImpl implements InsertProductService{
 
             // JSON 응답을 Java 객체로 변환
             ObjectMapper objectMapper = new ObjectMapper();
-            ProductResponseDTO responseDTO = objectMapper.readValue(result, ProductResponseDTO.class);
+            ProductResponseDTO responseDTO;
+            DepResponseDTO depResponseDTO;
+            InsResponseDTO insResponseDTO;
 
-            DepResponseDTO depResponseDTO = objectMapper.readValue(result, DepResponseDTO.class);
-            InsResponseDTO insResponseDTO = objectMapper.readValue(result, InsResponseDTO.class);
+            try {
+                responseDTO = objectMapper.readValue(result, ProductResponseDTO.class);
+                depResponseDTO = objectMapper.readValue(result, DepResponseDTO.class);
+                insResponseDTO = objectMapper.readValue(result, InsResponseDTO.class);
+            } catch (JsonProcessingException e) {
+                throw new ProductServiceExceptionHandler(ErrorStatus.JSON_PARSING_ERROR);
+            }
 
             // 제품 리스트 추출
             List<ProductResponseDTO.ProductApiDto> productList = responseDTO.getResult().getBaseList();
@@ -94,7 +104,11 @@ public class InsertProductServiceImpl implements InsertProductService{
                 product.setBankLogo(logo);
 
                 // 상품 저장
-                productsRepository.save(product);
+                try {
+                    productsRepository.save(product);
+                } catch (Exception e) {
+                    throw new ProductServiceExceptionHandler(ErrorStatus.INSERT_PRD_ERROR);
+                }
 
                 // 옵션 저장 (옵션 리스트가 null이 아니면)
                 if (optionList != null && !optionList.isEmpty()) {
@@ -102,39 +116,48 @@ public class InsertProductServiceImpl implements InsertProductService{
                     if (type) {
                         // 예금 옵션 처리
                         for (DepResponseDTO.OptionApiDto optionApiDto : (List<DepResponseDTO.OptionApiDto>) optionList) {
-                            if (optionApiDto.getFinPrdtCd().equals(apiDto.getPrdCo())) {
-                                DepositeOptions optionEntity = new DepositeOptions();
-                                optionEntity.setRateType(optionApiDto.getIntrRateType());
-                                optionEntity.setRateTypeKo(optionApiDto.getIntrRateTypeNm());
-                                optionEntity.setSaveTime(Integer.parseInt(optionApiDto.getSaveTrm())); // saveTrm을 Integer로 변환
-                                optionEntity.setBasicRate(optionApiDto.getBasicRate());
-                                optionEntity.setSpclRate(optionApiDto.getSpclRate());
+                            try {
+                                if (optionApiDto.getFinPrdtCd().equals(apiDto.getPrdCo())) {
+                                    DepositeOptions optionEntity = new DepositeOptions();
+                                    optionEntity.setRateType(optionApiDto.getIntrRateType());
+                                    optionEntity.setRateTypeKo(optionApiDto.getIntrRateTypeNm());
+                                    optionEntity.setSaveTime(Integer.parseInt(optionApiDto.getSaveTrm())); // saveTrm을 Integer로 변환
+                                    optionEntity.setBasicRate(optionApiDto.getBasicRate());
+                                    optionEntity.setSpclRate(optionApiDto.getSpclRate());
 
-                                // `product`는 `Products` 엔티티
-                                optionEntity.setProducts(product);
+                                    // Products 엔티티에 저장
+                                    optionEntity.setProducts(product);
 
-                                // 예금 옵션 엔티티를 저장
-                                depositeOptionsRepository.save(optionEntity);
+                                    // 예금 옵션 엔티티를 저장
+                                    depositeOptionsRepository.save(optionEntity);
+                                }
+
+                            } catch (Exception e) {
+                                throw new ProductServiceExceptionHandler(ErrorStatus.INSERT_DEPOPTIONS_ERROR);
                             }
                         }
                     } else {
                         // 적금 옵션 처리
                         for (InsResponseDTO.OptionApiDto optionApiDto : (List<InsResponseDTO.OptionApiDto>) optionList) {
-                            if (optionApiDto.getFinPrdtCd().equals(apiDto.getPrdCo())) {
-                                InstallMentOptions optionEntity = new InstallMentOptions();
-                                optionEntity.setRateType(optionApiDto.getIntrRateType());
-                                optionEntity.setRateTypeKo(optionApiDto.getIntrRateTypeNm());
-                                optionEntity.setRsrvType(optionApiDto.getRsrvType());
-                                optionEntity.setRsrvTypeName(optionApiDto.getRsrvTypeNm());
-                                optionEntity.setSaveTime(Integer.parseInt(optionApiDto.getSaveTrm())); // saveTrm을 Integer로 변환
-                                optionEntity.setBasicRate(optionApiDto.getBasicRate());
-                                optionEntity.setSpclRate(optionApiDto.getSpclRate());
+                            try{
+                                if (optionApiDto.getFinPrdtCd().equals(apiDto.getPrdCo())) {
+                                    InstallMentOptions optionEntity = new InstallMentOptions();
+                                    optionEntity.setRateType(optionApiDto.getIntrRateType());
+                                    optionEntity.setRateTypeKo(optionApiDto.getIntrRateTypeNm());
+                                    optionEntity.setRsrvType(optionApiDto.getRsrvType());
+                                    optionEntity.setRsrvTypeName(optionApiDto.getRsrvTypeNm());
+                                    optionEntity.setSaveTime(Integer.parseInt(optionApiDto.getSaveTrm())); // saveTrm을 Integer로 변환
+                                    optionEntity.setBasicRate(optionApiDto.getBasicRate());
+                                    optionEntity.setSpclRate(optionApiDto.getSpclRate());
 
-                                // `product`는 `Products` 엔티티
-                                optionEntity.setProducts(product);
+                                    // Products 엔티티에 저장
+                                    optionEntity.setProducts(product);
 
-                                // 적금 옵션 엔티티를 저장
-                                installMentOptionsRepository.save(optionEntity);
+                                    // 적금 옵션 엔티티를 저장
+                                    installMentOptionsRepository.save(optionEntity);
+                                }
+                            } catch (Exception e) {
+                                throw new ProductServiceExceptionHandler(ErrorStatus.INSERT_INSOPTIONS_ERROR);
                             }
                         }
                     }
@@ -142,7 +165,7 @@ public class InsertProductServiceImpl implements InsertProductService{
             }
 
         } catch (Exception e) {
-            e.printStackTrace(); // 예외 처리 (로깅 등)
+            throw new ProductServiceExceptionHandler(ErrorStatus.INSERT_PRD_ERROR);
         }
 
     }

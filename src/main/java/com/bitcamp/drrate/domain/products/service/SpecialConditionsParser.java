@@ -1,6 +1,8 @@
 package com.bitcamp.drrate.domain.products.service;
 
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ public class SpecialConditionsParser {
         // 조건 리스트
         List<ProductResponseDTO.ProductCondition> conditions = new ArrayList<>();
 
+        try {
         // 기본금리와 최대금리 차이
         BigDecimal restRate = spclRate.subtract(basicRate);
 
@@ -129,6 +132,10 @@ public class SpecialConditionsParser {
 
         //System.out.print(addConditions.get(0).getDescription());
         return addConditions;
+
+        } catch (Exception e) {
+            throw new ProductServiceExceptionHandler(ErrorStatus.CONDITIONS_SPECIAL_PARSE_ERROR);
+        }
     }
 
     /* 금리 우대치에서 숫자만 추출 ("연0.55%" -> 0.55) */
@@ -160,7 +167,7 @@ public class SpecialConditionsParser {
 
     /* 제외사항 처리 */
     private static boolean containsUnwantedKeywords(String line) {
-        if (line.contains("최고우대금리") || line.contains("최대우대금리") || line.contains("최대한도") ||  line.contains("충족") || line.contains("※")) {
+        if (line.contains("최고우대금리") || line.contains("최대우대금리") || line.contains("최대한도") ||  line.contains("충족") || line.contains("※") || line.contains("각 연")) {
             return true;
         }
         return false;

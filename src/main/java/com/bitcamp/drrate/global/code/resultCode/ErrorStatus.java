@@ -25,9 +25,6 @@ public enum ErrorStatus implements ErrorCode {
     SESSION_REFRESH_INVALID(HttpStatus.UNAUTHORIZED, "SESSION402", "리프레쉬 토큰 값이 유효하지 않습니다."),
     SESSION_ACCESS_EXPIRED(HttpStatus.UNAUTHORIZED, "SESSION403", "액세스 토큰이 만료되었습니다."),
 
-    // Product
-    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, " PRODUCT400", "상품 정보가 존재하지 않습니다."),
-
 
     // Inquire
     INQUIRE_LIST_GET_FAILED(HttpStatus.NOT_FOUND, "INQUIRE400", "문의 목록 불러오기 실패했습니다."),
@@ -64,6 +61,22 @@ public enum ErrorStatus implements ErrorCode {
     MONGODB_SAVE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO400", "Mongodb에 저장을 실패했습니다"),
     MONGODB_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO401", "Mongodb에 불러오기를 실패했습니다"),
 
+
+    // PRODUCT
+    PRD_ID_ERROR(HttpStatus.NOT_FOUND, "PRD400", "해당 코드의 상품을 찾을 수 없습니다."),
+    PRD_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD401", "알 수 없는 오류가 발생했습니다."),
+    PRD_ID_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "PRD402", "상품 ID 형식이 잘못되었습니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "상품을 찾을 수 없습니다"),
+    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "옵션을 찾을 수 없습니다"),
+    CONDITIONS_SPECIAL_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD405", "우대조건 파싱 중 오류가 발생했습니다."),
+    CONDITIONS_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD406", "옵션 파싱 중 오류가 발생했습니다"),
+
+    // INSERTPRODUCT
+    INSERT_ALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "모든 상품 등록에 실패했습니다."),
+    JSON_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS401", "JSON으로 가져오기에 실패했습니다."),
+    INSERT_PRD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "상품 등록에 실패했습니다."),
+    INSERT_DEPOPTIONS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "예금 상품 등록에 실패했습니다."),
+    INSERT_INSOPTIONS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "적금 상품 등록에 실패했습니다."),
 
     // Favorite
     FAVORITE_INVALID_USER_ID(HttpStatus.BAD_REQUEST, "FAV400", "유효하지 않은 사용자 ID입니다."),
