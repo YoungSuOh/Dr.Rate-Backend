@@ -22,6 +22,16 @@ public enum SuccessStatus implements SuccessCode {
     USER_LOGOUT_SUCCESS(HttpStatus.OK,"USER204", "로그아웃 성공"),
 
 
+
+    BOARD_GET_SUCCESS(HttpStatus.OK,"BOARD200", "게시판 조회 성공"),
+    BOARDLIST_GET_SUCCESS(HttpStatus.OK,"BOARD201", "전체 게시판 조회 성공"),
+
+
+    // INQUIRE
+    INQUIRE_LIST_GET_SUCCESS(HttpStatus.OK,"INQUIRE200", "문의 목록 조회 성공"),
+    INQUIRE_MESSAGE_GET_SUCCESS(HttpStatus.OK,"INQUIRE201", "문의 메세지 조회 성공"),
+
+    // Object Storage(S3 api)
     FILE_UPLOAD_SUCCESS(HttpStatus.OK,"S3200", "파일 업로드 성공"),
     FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공"),
 

@@ -4,6 +4,7 @@ package com.bitcamp.drrate.global.handler.stomp;
 import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.StompServiceExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -42,21 +43,21 @@ public class StompHandler implements ChannelInterceptor {
         String token = accessor.getFirstNativeHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
             log.error("Authorization 헤더가 누락되었거나 잘못됨");
-            throw new IllegalArgumentException(ErrorStatus.SESSION_HEADER_NOT_FOUND.getMessage());
+            throw new StompServiceExceptionHandler(ErrorStatus.SESSION_HEADER_NOT_FOUND);
         }
 
         token = token.substring(7);
         try {
             if (jwtUtil.isExpired(token)) {
                 log.error("JWT 토큰이 만료됨");
-                throw new IllegalArgumentException(ErrorStatus.SESSION_ACCESS_EXPIRED.getMessage());
+                throw new StompServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_EXPIRED);
             }
 
             Long userId = jwtUtil.getId(token);
 
             if (usersRepository.findUsersById(userId).isEmpty()){
                 log.error("사용자를 찾을 수 없음");
-                throw new IllegalArgumentException(ErrorStatus.USER_ID_CANNOT_FOUND.getMessage());
+                throw new StompServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND);
             }
             String role = jwtUtil.getRole(token);
             // 세션에 userId & role 저장
@@ -65,7 +66,7 @@ public class StompHandler implements ChannelInterceptor {
 
         } catch (Exception e) {
             log.error("JWT 검증 실패: {}", e.getMessage());
-            throw new IllegalArgumentException(ErrorStatus.SESSION_ACCESS_NOT_VALID.getMessage(), e);
+            throw new StompServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_INVALID);
         }
     }
 
@@ -73,7 +74,7 @@ public class StompHandler implements ChannelInterceptor {
         String destination = accessor.getDestination();
         log.info("구독 세션 id: {}", accessor.getSessionId());
         if (destination == null || !destination.startsWith("/sub/chat/")) {
-            throw new IllegalArgumentException(ErrorStatus.INQUIRE_INVALID_PATH.getMessage());
+            throw new StompServiceExceptionHandler(ErrorStatus.INQUIRE_INVALID_PATH);
         }
     }
     /* 세션 활성화되면 추후 수정 예정  */
