@@ -11,6 +11,7 @@ import com.bitcamp.drrate.domain.products.entity.Products;
 @Repository
 public interface ProductsRepository extends JpaRepository<Products, Long> {
 
+    /* 상품등록 - 중복확인 */
     boolean existsByPrdCo(String prdCo);
     
     //241211 카테고리로 상품 조회 - 오혜진
