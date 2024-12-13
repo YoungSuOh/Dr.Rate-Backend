@@ -13,7 +13,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.ErrorDTO;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -80,13 +79,5 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {  // Respon
         );
     }
     
-    //241213 오혜진 상품서비스 예외처리 추가 
-    @ExceptionHandler(ProductServiceExceptionHandler.class)
-    public ResponseEntity<Object> handleProductServiceException(ProductServiceExceptionHandler e, HttpServletRequest request) {
-        log.error("ProductServiceException occurred: {}", e.getMessage());
-
-        ErrorDTO errorReason = e.getErrorReasonHttpStatus();
-        return handleExceptionRuntime(e, errorReason, null, request);
-    }
 
 }
