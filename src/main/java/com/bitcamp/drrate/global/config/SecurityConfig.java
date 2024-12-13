@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -55,7 +57,8 @@ public class SecurityConfig {
         //csrf disable
         http.csrf(auth -> auth.disable());
 
-        http.cors(withDefaults -> {});
+        http.cors(withDefaults -> {
+        });
         //폼 로그인 방식 disalbe
         // http.formLogin(auth -> auth
         //         .loginPage("/loginForm")
@@ -70,7 +73,7 @@ public class SecurityConfig {
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm").permitAll()
+                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm", "/ws/**", "/product/**", "/api/**").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
@@ -78,21 +81,23 @@ public class SecurityConfig {
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, usersRepository, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
         //세션 설정
-        http.addFilterBefore(new CustomLogoutFilter(jwtUtil,objectMapper,refreshTokenService), LogoutFilter.class);
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, objectMapper, refreshTokenService), LogoutFilter.class);
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
+
     @Bean
-        public CorsFilter corsFilter() {
-            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowCredentials(true); // 쿠키 포함 허용
-            config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 Origin
-            config.addAllowedHeader("*"); // 모든 헤더 허용
-            config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
-            source.registerCorsConfiguration("/**", config);
-            return new CorsFilter(source);
-        }
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true); // 쿠키 포함 허용
+        config.addAllowedOrigin("https://jiangxy.github.io"); // websocket test용 origin
+        config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 Origin
+        config.addAllowedHeader("*"); // 모든 헤더 허용
+        config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
 }

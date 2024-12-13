@@ -1,6 +1,7 @@
 package com.bitcamp.drrate.domain.users.entity;
 
 
+
 import com.bitcamp.drrate.global.entity.BaseEntity;
 
 import jakarta.persistence.Column;
