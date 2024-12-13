@@ -1,11 +1,5 @@
 package com.bitcamp.drrate.global.exception;
 
-import com.bitcamp.drrate.global.ApiResponse;
-import com.bitcamp.drrate.global.code.ErrorDTO;
-import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +9,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.bitcamp.drrate.global.ApiResponse;
+import com.bitcamp.drrate.global.code.ErrorDTO;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice(annotations = {RestController.class}) // 모든 RestController가 붙은 클래스에 대해 전역적인 예외처리를 진행한다.
@@ -76,5 +78,6 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {  // Respon
                 webRequest
         );
     }
+    
 
 }
