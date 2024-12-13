@@ -26,10 +26,10 @@ public class ProductsController {
     public Map<String, Object> getOneProduct(
             @PathVariable(value="prdId") String prd_id  // URL 경로 파라미터 - 상품 번호
     ) {
-        // Long prdId = productService.getPrdId(prd_id); // prdId 확인 처리
+        Long prdId = productsService.getPrdId(prd_id); // prdId 확인 처리
 
-        //System.out.println(prd_id);
-        Map<String, Object> map = productsService.getOneProduct(prd_id);
+        System.out.println(prdId);
+        Map<String, Object> map = productsService.getOneProduct(prdId);
 
         return map;
     }

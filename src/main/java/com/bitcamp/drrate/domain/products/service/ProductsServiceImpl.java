@@ -1,5 +1,5 @@
 package com.bitcamp.drrate.domain.products.service;
-import java.io.IOException;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import java.util.Optional;
 import com.amazonaws.services.s3.AmazonS3;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
+import org.hibernate.query.sqm.ParsingException;
 import org.springframework.stereotype.Service;
 
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
@@ -31,26 +32,51 @@ public class ProductsServiceImpl implements ProductsService{
 
     private final AmazonS3 amazonS3;
 
-    //상품 출력
+    /* 상품 코드 확인 처리 */
     @Override
-    public Map<String, Object> getOneProduct(String prd_id) {
+    public Long getPrdId(String prdId) {
+        Long id = Long.parseLong(prdId);
+        Products products = productsRepository.findById(id)
+                .orElseThrow(() -> new ProductServiceExceptionHandler(ErrorStatus.PRD_ID_ERROR));
+        return id;
+    }
+
+
+
+    /* 상품 출력 */
+    @Override
+    public Map<String, Object> getOneProduct(Long prdId) {
         Optional<Products> product;
         List<DepositeOptions> dep_options;
         List<InstallMentOptions> ins_options;
 
+        Map<String, Object> map = new HashMap<>();
+
+        // 상품 조회
         try {
-            product = productsRepository.findById(Long.parseLong(prd_id));
-        } catch (NumberFormatException e){
-            throw new ProductServiceExceptionHandler(ErrorStatus.PRD_ID_ERROR);
+            product = productsRepository.findById(prdId);
+            if(!product.isPresent()){
+                throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_NOT_FOUND);
+            }
         } catch (Exception e){
-            throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_GET_ERROR);
+            throw new ProductServiceExceptionHandler(ErrorStatus.PRD_UNKNOWN_ERROR);
         }
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("product", product);
+        map.put("product", product.get());
 
-        dep_options = depositeOptionsRepository.findByProductsId(Long.parseLong(prd_id));
-        ins_options = installMentOptionsRepository.findByProductsId(Long.parseLong(prd_id));
+        // 옵션 조회
+        try{
+            dep_options = depositeOptionsRepository.findByProductsId(prdId); // 예금
+            ins_options = installMentOptionsRepository.findByProductsId(prdId); // 적금
+
+            if ((dep_options == null || dep_options.isEmpty()) &&
+                    (ins_options == null || ins_options.isEmpty())) {
+                throw new ProductServiceExceptionHandler(ErrorStatus.OPTION_NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            throw new ProductServiceExceptionHandler(ErrorStatus.PRD_UNKNOWN_ERROR);
+        }
 
         if(dep_options != null && !dep_options.isEmpty()){
             map.put("options", dep_options);
@@ -59,10 +85,10 @@ public class ProductsServiceImpl implements ProductsService{
         }
 
 
-        // 상품
+        // 상품 우대 조건
         Optional<Products> optionalProduct = (product);
-        String specialConditions;
 
+        String specialConditions;
         BigDecimal basicRate = BigDecimal.ZERO;
         BigDecimal spclRate = BigDecimal.ZERO;
         int optionNum = 0;
@@ -79,6 +105,8 @@ public class ProductsServiceImpl implements ProductsService{
 
                 // 옵션 테이블 종류 구별
                 for (int i = 0; i < options.size(); i++) {
+
+                    try {
                     if (options.get(i) instanceof DepositeOptions) {
                         DepositeOptions option = (DepositeOptions) options.get(i);
 
@@ -98,6 +126,10 @@ public class ProductsServiceImpl implements ProductsService{
                             optionNum = i;
                         }
                     }
+
+                    }catch (ClassCastException e){
+                        throw new ProductServiceExceptionHandler(ErrorStatus.CONDITIONS_UNKNOWN_ERROR);
+                    }
                 }
             }
         } else {
@@ -106,13 +138,22 @@ public class ProductsServiceImpl implements ProductsService{
         }
 
         // 특수 조건을 파싱하여 ProdcutCondition 리스트로 변환
-        List<ProductResponseDTO.ProductCondition> conditions = SpecialConditionsParser.parseSpecialConditions(specialConditions, basicRate, spclRate);
+        List<ProductResponseDTO.ProductCondition> conditions;
+        try{
+            conditions = SpecialConditionsParser.parseSpecialConditions(specialConditions, basicRate, spclRate);
+        } catch (ParsingException e) {
+            throw new ProductServiceExceptionHandler(ErrorStatus.CONDITIONS_SPECIAL_PARSE_ERROR);
+        } catch (Exception e) {
+            throw new ProductServiceExceptionHandler(ErrorStatus.CONDITIONS_UNKNOWN_ERROR);
+        }
 
         map.put("conditions", conditions);
         map.put("optionNum", optionNum);
 
         return map;
     }
+
+
    //241211 오혜진 추가
 
     @Override
