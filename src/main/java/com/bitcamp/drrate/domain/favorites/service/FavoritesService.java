@@ -1,4 +1,4 @@
-/* src/main/java/com/bitcamp/drrate/domain/favorites/service/FavoriteService.java */
+/* src/main/java/com/bitcamp/drrate/domain/favorites/service/FavoritesService.java */
 
 
 package com.bitcamp.drrate.domain.favorites.service;

@@ -49,6 +49,21 @@ public enum ErrorStatus implements ErrorCode {
     FILE_UNVAILD_URL(HttpStatus.BAD_REQUEST, "S3409", "유효하지 않은 파일 경로입니다."),
 
 
+
+    // Favorite
+    FAVORITE_INVALID_USER_ID(HttpStatus.BAD_REQUEST, "FAV400", "유효하지 않은 사용자 ID입니다."),
+    FAVORITE_INVALID_PRODUCT_ID(HttpStatus.BAD_REQUEST, "FAV401", "유효하지 않은 상품 ID입니다."),
+    FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "FAV402", "이미 즐겨찾기에 등록되어 있습니다."),
+    FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "FAV403", "즐겨찾기 데이터를 찾을 수 없습니다."),
+    FAVORITE_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV404", "즐겨찾기 조회에 실패했습니다."),
+    FAVORITE_INSERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV405", "즐겨찾기 등록에 실패했습니다."),
+    FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV406", "즐겨찾기 삭제에 실패했습니다."),
+
+
+
+
+
+
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL501","서버 오류")
     ;
 
