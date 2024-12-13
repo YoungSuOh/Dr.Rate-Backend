@@ -1,8 +1,6 @@
 package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +16,8 @@ import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseD
 import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UserServiceExceptionHandler;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -45,14 +44,19 @@ public class KakaoServiceImpl implements KakaoService {
 
     @Override
     public void loginKakao(HttpServletResponse response) throws IOException {
-        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id +"&redirect_uri=" + redirect_uri;
+        try {
+            String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id +"&redirect_uri=" + redirect_uri;
 
-        response.sendRedirect(location);
+            response.sendRedirect(location);
+        } catch (IOException e) {
+            throw new UserServiceExceptionHandler(ErrorStatus.SOCIAL_URL_NOT_FOUND);
+        }
     }
 
     @Override
     public String login(String code) {
-        KakaoTokenResponseDTO kakaoTokenResponseDTO = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
+        try {
+            KakaoTokenResponseDTO kakaoTokenResponseDTO = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
                         .path("/oauth/token")
@@ -62,70 +66,79 @@ public class KakaoServiceImpl implements KakaoService {
                         .build(true))
                 .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invaild Parameter")))
-                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
+                    return Mono.error(new UserServiceExceptionHandler(ErrorStatus.SOCIAL_PARAMETERS_INVALID));
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
+                    return Mono.error(new UserServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR));
+                })
                 .bodyToMono(KakaoTokenResponseDTO.class)
                 .block();
 
-        if(kakaoTokenResponseDTO == null) {
-            log.error("[Kakao Service] Token response DTO is null");
-            return null;
+            if (kakaoTokenResponseDTO == null) {
+                throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
+            }
+            KakaoUserInfoResponseDTO userInfo = getUserInfo(kakaoTokenResponseDTO.getAccessToken());
+
+            //소셜로그인으로 들어올 시 해당하는 소셜의 정보가 바뀔 수 있기 때문에 업데이트를 계속 해주어야한다.
+            String email = userInfo.getKakaoAccount().getEmail();
+
+            Optional<Users> optionalUsers = usersRepository.findByEmail(email);
+
+            Users users = optionalUsers.orElseGet(() -> new Users());
+            
+            setUserInfo(users, userInfo);
+
+            Long id = users.getId();
+
+            usersRepository.save(users);
+
+            String access = jwtUtil.createJwt(id, "access", "ROLE_USER", 600000L);
+            String refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
+
+            /* 우리 서버 token 값 */
+            System.out.println("우리 서버 accessToken :  "+access);
+            System.out.println("우리 서버 refreshToken :  "+refresh);
+
+            /* 로그인 후 Redis에 access, refresh */
+            refreshTokenService.saveTokens(String.valueOf(users.getId()), access, refresh);
+
+            System.out.println(refreshTokenService.getAccessToken(String.valueOf(users.getId())));
+            System.out.println(refreshTokenService.getRefreshToken(String.valueOf(users.getId())));
+
+            return access;
+        } catch (UserServiceExceptionHandler e) {
+            throw new UserServiceExceptionHandler(ErrorStatus.USER_LOGIN_ERROR);
+        } catch (IOException ex) {
+            throw new UserServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
-
-
-        KakaoUserInfoResponseDTO userInfo = getUserInfo(kakaoTokenResponseDTO.getAccessToken());
-
-        //소셜로그인으로 들어올 시 해당하는 소셜의 정보가 바뀔 수 있기 때문에 업데이트를 계속 해주어야한다.
-        String email = userInfo.getKakaoAccount().getEmail();
-
-        Optional<Users> optionalUsers = usersRepository.findByEmail(email);
-
-        Users users = optionalUsers.orElseGet(() -> new Users());
-        
-        setUserInfo(users, userInfo);
-
-        Long id = users.getId();
-
-        usersRepository.save(users);
-
-        String access = jwtUtil.createJwt(id, "access", "ROLE_USER", 600000L);
-        String refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
-
-        /* 우리 서버 token 값 */
-        System.out.println("우리 서버 accessToken :  "+access);
-        System.out.println("우리 서버 refreshToken :  "+refresh);
-
-        /* 로그인 후 Redis에 access, refresh */
-        refreshTokenService.saveTokens(String.valueOf(users.getId()), access, refresh);
-
-        System.out.println(refreshTokenService.getAccessToken(String.valueOf(users.getId())));
-        System.out.println(refreshTokenService.getRefreshToken(String.valueOf(users.getId())));
-
-        return access;
     }
 
     //사용자 정보 요청
-    private KakaoUserInfoResponseDTO getUserInfo(String accessToken) {
-        KakaoUserInfoResponseDTO userInfo = WebClient.create(KAUTH_USER_URL_HOST)
-                .get()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("https")
-                        .path("/v2/user/me")
-                        .build(true))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) //access token 인가
-                .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
-                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
-                .bodyToMono(KakaoUserInfoResponseDTO.class)
-                .block();
-
-        if(userInfo == null) {
-            log.error("[Kakao Service] UserInfo is null");
-            return null;
+    private KakaoUserInfoResponseDTO getUserInfo(String accessToken) throws IOException {
+        try {
+            return WebClient.create(KAUTH_USER_URL_HOST)
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .scheme("https")
+                            .path("/v2/user/me")
+                            .build(true))
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) // Access Token 인가
+                    .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
+                        log.error("[Kakao Service] Invalid request parameters for user info");
+                        return Mono.error(new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR));
+                    })
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
+                        log.error("[Kakao Service] Internal server error during user info retrieval");
+                        return Mono.error(new UserServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR));
+                    })
+                    .bodyToMono(KakaoUserInfoResponseDTO.class)
+                    .block();
+        } catch (Exception e) {
+            throw new UserServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return userInfo;
     }
 
     private void setUserInfo(Users users, KakaoUserInfoResponseDTO userInfo) {

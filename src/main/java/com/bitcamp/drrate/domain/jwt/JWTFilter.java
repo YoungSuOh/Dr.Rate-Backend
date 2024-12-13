@@ -2,7 +2,6 @@ package com.bitcamp.drrate.domain.jwt;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Optional;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +11,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UserServiceExceptionHandler;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -35,35 +36,28 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        
         // 토큰 추출
         accessToken = accessToken.substring(7); // Remove "Bearer " prefix
+
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
         try{
             jwtUtil.isExpired(accessToken);
         } catch(ExpiredJwtException e) {
-            //response body
-            PrintWriter writer = response.getWriter();
-            writer.print("access token expired");
-            //response status code
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        } // try/catch
-        // 토큰이 access인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(accessToken);
+            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_EXPIRED);
+        }
 
-        if(!category.equals("access")) {
-            //response body
-            PrintWriter writer = response.getWriter();
-            writer.print("invalid access token");
-
-            //response status code
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        } // if
+        // 토큰이 access인지 확인 access가 아니면 예외처리
+        try {
+            String category = jwtUtil.getCategory(accessToken);
+            if(!category.equals("access")) {
+                throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_NOT_VALID);
+            }
+        } catch(IllegalArgumentException e) {
+            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_NOT_VALID);
+        }
         
         Long userId = jwtUtil.getId(accessToken);
-
-        System.out.println("userId: " + userId);
 
         Users users = usersRepository.findUsersById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userId));

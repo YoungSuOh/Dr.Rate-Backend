@@ -1,13 +1,12 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +23,9 @@ import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO.GoogleUserI
 import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UserServiceExceptionHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,15 +50,19 @@ public class GoogleServiceImpl implements GoogleService {
 
     @Override
     public void loginGoogle(HttpServletResponse response) throws IOException {
-        //url에 get방식으로 인가코드를 요청한다
-        String url = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + client_id + 
-                        "&redirect_uri=" + redirect_uri + 
+        try {
+            String url = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + client_id +
+                        "&redirect_uri=" + redirect_uri +
                         "&response_type=code&scope=email profile";
-        response.sendRedirect(url);
+            response.sendRedirect(url);
+        } catch (IOException e) {
+            throw new UserServiceExceptionHandler(ErrorStatus.SOCIAL_URL_NOT_FOUND);
+        }
     }
 
+
     @Override
-    public String login(String code) {
+    public String login(String code) throws UserServiceExceptionHandler {
         //System.out.println("code = " + code);
         //코드를 받고 AccessToken을 받음. 아래에 getAccessToken 메서드를 통해서 accessToken을 발급받음
         String accessToken = getAccessToken(code);
@@ -112,9 +118,8 @@ public class GoogleServiceImpl implements GoogleService {
             refreshTokenService.saveTokens(String.valueOf(users.getId()), access, refresh);
 
             return access;
-        } catch(Exception e){
-            e.printStackTrace();
-            return null;
+        } catch(JsonProcessingException e){
+            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
         }
     }
 
@@ -158,7 +163,7 @@ public class GoogleServiceImpl implements GoogleService {
     }
 
     // 받아온 accessToken 값을 파싱해서 내가 필요한 access_token값만 가져옴
-    public GoogleUserInfoResponseDTO.UserAccessTokenDTO parseAccessToken(String accessToken) {
+    public GoogleUserInfoResponseDTO.UserAccessTokenDTO parseAccessToken(String accessToken) throws UserServiceExceptionHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Map<String, Object> parseToken = objectMapper.readValue(accessToken, Map.class);
@@ -178,9 +183,8 @@ public class GoogleServiceImpl implements GoogleService {
             //                     "id_token: " + idToken);
 
             return tokenDTO;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        } catch (JsonProcessingException e) {
+            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
         }
     }
 
