@@ -1,4 +1,5 @@
 package com.bitcamp.drrate.domain.products.service;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
 import org.springframework.stereotype.Service;
 
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
@@ -25,16 +29,28 @@ public class ProductsServiceImpl implements ProductsService{
     private final DepositeOptionsRepository depositeOptionsRepository;
     private final InstallMentOptionsRepository installMentOptionsRepository;
 
+    private final AmazonS3 amazonS3;
+
     //상품 출력
     @Override
     public Map<String, Object> getOneProduct(String prd_id) {
-        Optional<Products> product = productsRepository.findById(Long.parseLong(prd_id));
+        Optional<Products> product;
+        List<DepositeOptions> dep_options;
+        List<InstallMentOptions> ins_options;
 
-        List<DepositeOptions> dep_options = depositeOptionsRepository.findByProductsId(Long.parseLong(prd_id));
-        List<InstallMentOptions> ins_options = installMentOptionsRepository.findByProductsId(Long.parseLong(prd_id));
+        try {
+            product = productsRepository.findById(Long.parseLong(prd_id));
+        } catch (NumberFormatException e){
+            throw new ProductServiceExceptionHandler(ErrorStatus.PRD_ID_ERROR);
+        } catch (Exception e){
+            throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_GET_ERROR);
+        }
 
         Map<String, Object> map = new HashMap<>();
         map.put("product", product);
+
+        dep_options = depositeOptionsRepository.findByProductsId(Long.parseLong(prd_id));
+        ins_options = installMentOptionsRepository.findByProductsId(Long.parseLong(prd_id));
 
         if(dep_options != null && !dep_options.isEmpty()){
             map.put("options", dep_options);

@@ -25,6 +25,10 @@ public enum ErrorStatus implements ErrorCode {
     INQUIRE_ROUTE_NOT_FOUND(HttpStatus.OK, "INQUIRE405", "유효하지 않은 구독 경로입니다."),
 
 
+    // PRODUCT
+    PRODUCT_GET_ERROR(HttpStatus.OK, "PRD404", "상품을 찾을 수 없습니다"),
+    PRD_ID_ERROR(HttpStatus.OK, "PRD404", "상품 코드가 숫자가 아닙니다."),
+
     // Session
     SESSION_HEADER_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION400", "헤더에 세션 정보가 존재하지 않습니다."),
     SESSION_ACCESS_NOT_VALID(HttpStatus.UNAUTHORIZED, "SESSION401", "액세스 토큰 값이 유효하지 않습니다."),
@@ -44,6 +48,7 @@ public enum ErrorStatus implements ErrorCode {
     FILE_DELETE_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3407", "파일 삭제 도중 알 수 없는 에러가 발생했습니다."),
     FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3408", "파일 삭제를 실패했습니다."),
     FILE_UNVAILD_URL(HttpStatus.BAD_REQUEST, "S3409", "유효하지 않은 파일 경로입니다."),
+
 
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL501","서버 오류")
