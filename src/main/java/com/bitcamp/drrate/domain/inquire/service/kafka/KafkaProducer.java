@@ -1,16 +1,21 @@
-package com.bitcamp.drrate.domain.inquire.service;
+package com.bitcamp.drrate.domain.inquire.service.kafka;
 
 
-import java.util.Map;
-
+import com.bitcamp.drrate.domain.inquire.entity.ChatRoom;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.InquireServiceHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import com.bitcamp.drrate.domain.inquire.entity.ChatRoom;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KafkaProducer {
@@ -28,13 +33,15 @@ public class KafkaProducer {
 
             // JSON 직렬화
             String jsonMessage = objectMapper.writeValueAsString(messagePayload);
-
             // Kafka에 메시지 발행
             kafkaTemplate.send(chatRoom.getTopicName(), jsonMessage);
             System.out.println("Produced message to Kafka: " + jsonMessage);
+        } catch (JsonProcessingException e) {
+            throw new InquireServiceHandler(ErrorStatus.KAFKA_PUBLISH_MESSAGE_BADREQUEST);
+        } catch (KafkaException e) {
+            throw new InquireServiceHandler(ErrorStatus.KAFKA_BROKER_BADREQUEST);
         } catch (Exception e) {
-            System.err.println("Error sending message to Kafka: " + e.getMessage());
-            e.printStackTrace();
+            throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

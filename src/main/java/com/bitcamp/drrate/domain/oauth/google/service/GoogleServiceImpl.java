@@ -29,6 +29,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import static com.bitcamp.drrate.domain.users.entity.Role.ADMIN;
+
 @RequiredArgsConstructor
 @Service
 public class GoogleServiceImpl implements GoogleService {
@@ -101,8 +103,17 @@ public class GoogleServiceImpl implements GoogleService {
             //신규 가입자는 DB Insert, 기존 가입자의 경우 정보가 바뀌면 Update 아니면 지나침
             usersRepository.save(users);
 
-            String access = jwtUtil.createJwt(id, "access", "ROLE_USER", 600000L);
-            String refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
+
+            String access = null; String refresh = null;
+            System.out.println("role : "+users.getRole());
+            if(users.getRole().equals(ADMIN)){
+                access = jwtUtil.createJwt(id, "access", "ROLE_ADMIN", 86400000L);
+                refresh = jwtUtil.createJwt(id, "refresh", "ROLE_ADMIN", 86400000L);
+            }else{
+                access = jwtUtil.createJwt(id, "access", "ROLE_USER", 86400000L);
+                refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
+            }
+
 
             /* 우리 서버 token 값 */
             System.out.println("우리 서버 accessToken :  "+ access);
@@ -187,6 +198,11 @@ public class GoogleServiceImpl implements GoogleService {
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
         users.setUsername(googleInfo.getName());
-        users.setRole(Role.USER);
+        System.out.println(users.getRole());
+        if(String.valueOf(users.getRole())=="ADMIN"){
+            users.setRole(Role.ADMIN);
+        }else{
+            users.setRole(Role.USER);
+        }
     }
 }

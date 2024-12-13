@@ -63,11 +63,11 @@ public class CustomLogoutFilter extends GenericFilterBean {
         if (refreshToken == null) {
             /* (중요) access token이 재발급되고 refresh기간이 만료될 수도 있음 => 이 경우는 access token 유효기간에 따라 로그아웃 권한 부여 */
             if(jwtUtil.isExpired(accessToken)){
-                setUnauthorizedResponse(response, ErrorStatus.SESSION_ACCESS_NOT_VALID); return;
+                setUnauthorizedResponse(response, ErrorStatus.SESSION_ACCESS_INVALID); return;
             }else{
                 String category = jwtUtil.getCategory(refreshToken);
                 if(!category.equals("refresh")) {
-                    setUnauthorizedResponse(response,ErrorStatus.SESSION_REFRESH_NOT_VALID);
+                    setUnauthorizedResponse(response,ErrorStatus.SESSION_REFRESH_INVALID);
                     return;
                 }
             }
