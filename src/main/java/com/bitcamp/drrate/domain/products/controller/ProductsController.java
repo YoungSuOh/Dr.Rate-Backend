@@ -1,17 +1,13 @@
 package com.bitcamp.drrate.domain.products.controller;
 
 import com.bitcamp.drrate.domain.products.service.ProductsService;
-import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,19 +34,8 @@ public class ProductsController {
         return map;
     }
 
-    /* 즐겨찾기 넣기 */
-    @PostMapping(value="favoriteInsert/{prdId}")
-    public ResponseEntity<Void> favoriteInsert(
-                @AuthenticationPrincipal CustomUserDetails userDetails, // JWT, 인증된 사용자 정보
-                @PathVariable(value="prdId") String prd_id
-    ) {
-        // 데이터 처리 로직 추가
-        // Long prdUserId = usersServer.getUserId(userDetails.getId()); // UserId 확인 처리
-        // Long prdId = productService.getPrdId(prd_id);
 
-        return ResponseEntity.ok().build(); // HTTP 200 OK 응답
-    }
-    
+
     //241211 상품전체조회 - 오혜진
     @GetMapping(value = "getAllProducts")
     @ResponseBody
@@ -65,4 +50,5 @@ public class ProductsController {
         return productsService.getProductsByCtg(ctg);
     }
     
+
 }
