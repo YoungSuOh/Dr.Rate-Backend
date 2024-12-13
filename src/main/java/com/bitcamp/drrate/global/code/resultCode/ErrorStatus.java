@@ -19,7 +19,6 @@ public enum ErrorStatus implements ErrorCode {
     USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
 
 
-
     // inquire
     INQUIRE_INVALID_PATH(HttpStatus.OK, "INQUIRE401", "잘못된 경로입니다."),
     INQUIRE_INVALID_ARGUMENT(HttpStatus.OK, "INQUIRE402", "topic 또는 message가 null입니다."),
@@ -49,6 +48,22 @@ public enum ErrorStatus implements ErrorCode {
     FILE_UNVAILD_URL(HttpStatus.BAD_REQUEST, "S3409", "유효하지 않은 파일 경로입니다."),
 
 
+
+    // PRODUCT
+    PRD_ID_ERROR(HttpStatus.NOT_FOUND, "PRD400", "해당 코드의 상품을 찾을 수 없습니다."),
+    PRD_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD401", "알 수 없는 오류가 발생했습니다."),
+    PRD_ID_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "PRD402", "상품 ID 형식이 잘못되었습니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "상품을 찾을 수 없습니다"),
+    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "옵션을 찾을 수 없습니다"),
+    CONDITIONS_SPECIAL_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD405", "우대조건 파싱 중 오류가 발생했습니다."),
+    CONDITIONS_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD406", "옵션 파싱 중 오류가 발생했습니다"),
+
+    // INSERTPRODUCT
+    INSERT_ALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "모든 상품 등록에 실패했습니다."),
+    JSON_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS401", "JSON으로 가져오기에 실패했습니다."),
+    INSERT_PRD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "상품 등록에 실패했습니다."),
+    INSERT_DEPOPTIONS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "예금 상품 등록에 실패했습니다."),
+    INSERT_INSOPTIONS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "적금 상품 등록에 실패했습니다."),
 
     // Favorite
     FAVORITE_INVALID_USER_ID(HttpStatus.BAD_REQUEST, "FAV400", "유효하지 않은 사용자 ID입니다."),
