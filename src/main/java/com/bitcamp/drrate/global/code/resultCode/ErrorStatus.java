@@ -11,10 +11,13 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorStatus implements ErrorCode {
     // user
-    USER_ID_UNAVAILABLE(HttpStatus.OK,"USERID400", "중복된 id입니다."),
-    USER_JOIN_ERROR(HttpStatus.OK,"USER401", "회원 가입 실패"),
-    USER_LOGIN_ERROR(HttpStatus.OK,"USERID402", "로그인 실패"),
-    USER_ID_CANNOT_FOUND(HttpStatus.OK,"USERID403", "유효하지 않은 id입니다."),
+    USER_ID_UNAVAILABLE(HttpStatus.CONFLICT,"USER400", "중복된 사용자 ID입니다."),
+    USER_EMAIL_DUPLICATE(HttpStatus.CONFLICT, "USER401", "중복된 이메일입니다."),
+    USER_JOIN_ERROR(HttpStatus.BAD_REQUEST,"USER402", "회원 가입 중 오류가 발생했습니다."),
+    USER_LOGIN_ERROR(HttpStatus.UNAUTHORIZED,"USER403", "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다"),
+    USER_ID_CANNOT_FOUND(HttpStatus.NOT_FOUND,"USER404", "사용자를 찾을 수 없습니다. id가 유효하지 않습니다."),
+    USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
+
 
 
     // inquire

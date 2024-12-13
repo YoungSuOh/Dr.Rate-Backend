@@ -6,6 +6,8 @@ import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,7 +36,7 @@ public class UsersServiceImpl implements UsersService {
     public Long getUserId(CustomUserDetails user) {
         Long id = user.getId();
         Users users = usersRepository.findUsersById(id)
-            .orElseThrow(() -> new UsersHandler(ErrorStatus.USER_NOT_FOUND));
+            .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
         return users.getId();
     }
 
