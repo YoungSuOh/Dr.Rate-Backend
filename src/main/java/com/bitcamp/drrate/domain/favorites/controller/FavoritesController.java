@@ -7,6 +7,7 @@ import com.bitcamp.drrate.domain.favorites.dto.request.FavoritesRequestDTO;
 import com.bitcamp.drrate.domain.favorites.dto.response.FavoritesResponseDTO;
 import com.bitcamp.drrate.domain.favorites.service.FavoritesService;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
+import com.bitcamp.drrate.domain.users.service.UsersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class FavoritesController {
 
+  private final UsersService usersService;
   private final FavoritesService favoritesService;
 
 
@@ -31,8 +33,7 @@ public class FavoritesController {
       @PathVariable Long prdId // URL 경로에서 파라미터를 가져옴
   ) {
     // 1. 사용자 ID(PK)를 JWT에서 추출
-    Long faUserId = userDetails.getId();
-    // UsersService 호출에서 끝나야함 getUserId 호출 (나중에)
+    Long faUserId = usersService.getUserId(userDetails);
 
     // 2. 서비스 호출: 추출한 faUserId와 요청으로 전달된 faPrdId를 FavoritesService에 전달
     boolean isFavorite = favoritesService.isFavorite(faUserId, prdId);
@@ -50,7 +51,7 @@ public class FavoritesController {
       @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
   ) {
 
-    Long faUserId = userDetails.getId();
+    Long faUserId = usersService.getUserId(userDetails);
     Long faPrdId = request.getPrdId(); // 요청으로 전달된 상품 ID(request.getFaPrdId())를 faPrdId에 저장
 
     favoritesService.addFavorite(faUserId, faPrdId);
@@ -70,9 +71,8 @@ public class FavoritesController {
   public ResponseEntity<FavoritesResponseDTO.ProductFavoriteActionDTO> removeFavorite(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable Long prdId // URL 경로에서 상품 ID를 가져옴
-//      @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
   ) {
-    Long faUserId = userDetails.getId();
+    Long faUserId = usersService.getUserId(userDetails);
     Long faPrdId = prdId;
 
     favoritesService.removeFavorite(faUserId, faPrdId);
