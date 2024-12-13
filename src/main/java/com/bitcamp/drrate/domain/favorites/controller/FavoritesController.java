@@ -32,6 +32,7 @@ public class FavoritesController {
   ) {
     // 1. 사용자 ID(PK)를 JWT에서 추출
     Long faUserId = userDetails.getId();
+    // UsersService 호출에서 끝나야함 getUserId 호출 (나중에)
 
     // 2. 서비스 호출: 추출한 faUserId와 요청으로 전달된 faPrdId를 FavoritesService에 전달
     boolean isFavorite = favoritesService.isFavorite(faUserId, prdId);
@@ -64,14 +65,15 @@ public class FavoritesController {
 
 
   /* ProductDetailPage; 즐겨찾기 취소 */
-  @DeleteMapping("/removeFavorite")
+  @DeleteMapping("/removeFavorite/{prdId}")
   @Transactional
   public ResponseEntity<FavoritesResponseDTO.ProductFavoriteActionDTO> removeFavorite(
       @AuthenticationPrincipal CustomUserDetails userDetails,
-      @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
+      @PathVariable Long prdId // URL 경로에서 상품 ID를 가져옴
+//      @RequestBody @Valid FavoritesRequestDTO.ProductFavoriteDTO request
   ) {
     Long faUserId = userDetails.getId();
-    Long faPrdId = request.getPrdId();
+    Long faPrdId = prdId;
 
     favoritesService.removeFavorite(faUserId, faPrdId);
 

@@ -14,8 +14,8 @@ public class ProductsController {
     private final ProductsService productsService;
 
     /* 상품 상세페이지 상품 출력 */
-    @GetMapping(value="getOneProduct/{id}")
-    public Map<String, Object> getOneProduct(@PathVariable(value="id") String prd_id) {
+    @GetMapping(value="getOneProduct/{prdId}")
+    public Map<String, Object> getOneProduct(@PathVariable(value="prdId") String prd_id) {
 
         //System.out.println(prd_id);
         Map<String, Object> map = productsService.getOneProduct(prd_id);
