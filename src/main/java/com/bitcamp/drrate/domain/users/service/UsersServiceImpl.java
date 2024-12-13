@@ -2,14 +2,16 @@ package com.bitcamp.drrate.domain.users.service;
 
 
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO.UsersJoinDTO;
 import com.bitcamp.drrate.domain.users.entity.Role;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,16 @@ public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+
+    @Override
+    @Transactional
+    public Long getUserId(CustomUserDetails user) {
+        Long id = user.getId();
+        Users users = usersRepository.findUsersById(id)
+            .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
+        return users.getId();
+    }
 
     @Override
     public Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo) {

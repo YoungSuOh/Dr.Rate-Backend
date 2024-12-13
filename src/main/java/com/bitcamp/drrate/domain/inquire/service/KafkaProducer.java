@@ -1,14 +1,15 @@
 package com.bitcamp.drrate.domain.inquire.service;
 
 
-import com.bitcamp.drrate.domain.inquire.entity.ChatMessage;
-import com.bitcamp.drrate.domain.inquire.entity.ChatRoom;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import com.bitcamp.drrate.domain.inquire.entity.ChatRoom;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
