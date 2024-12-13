@@ -1,11 +1,5 @@
 package com.bitcamp.drrate.global.exception;
 
-import com.bitcamp.drrate.global.ApiResponse;
-import com.bitcamp.drrate.global.code.ErrorDTO;
-import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +9,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.bitcamp.drrate.global.ApiResponse;
+import com.bitcamp.drrate.global.code.ErrorDTO;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice(annotations = {RestController.class}) // 모든 RestController가 붙은 클래스에 대해 전역적인 예외처리를 진행한다.
@@ -75,6 +78,15 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {  // Respon
                 reason.getHttpStatus(),
                 webRequest
         );
+    }
+    
+    //241213 오혜진 상품서비스 예외처리 추가 
+    @ExceptionHandler(ProductServiceExceptionHandler.class)
+    public ResponseEntity<Object> handleProductServiceException(ProductServiceExceptionHandler e, HttpServletRequest request) {
+        log.error("ProductServiceException occurred: {}", e.getMessage());
+
+        ErrorDTO errorReason = e.getErrorReasonHttpStatus();
+        return handleExceptionRuntime(e, errorReason, null, request);
     }
 
 }
