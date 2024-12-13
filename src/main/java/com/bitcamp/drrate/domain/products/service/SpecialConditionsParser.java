@@ -160,7 +160,7 @@ public class SpecialConditionsParser {
 
     /* 제외사항 처리 */
     private static boolean containsUnwantedKeywords(String line) {
-        if (line.contains("최고우대금리") || line.contains("최대우대금리") || line.contains("최대한도") ||  line.contains("충족") || line.contains("※")) {
+        if (line.contains("최고우대금리") || line.contains("최대우대금리") || line.contains("최대한도") ||  line.contains("충족") || line.contains("※") || line.contains("각 연")) {
             return true;
         }
         return false;
