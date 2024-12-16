@@ -84,7 +84,7 @@ public class SpecialConditionsParser {
                 rate = BigDecimal.ZERO;
             }
 
-            // System.out.print("- " + parts[0] + ", - " + rate + "\n");
+            //  System.out.print("- " + parts[0] + ", - " + rate + "\n");
 
             // 금리 합산
             totalRate = totalRate.add(rate);
@@ -168,7 +168,7 @@ public class SpecialConditionsParser {
                 }
             }
         }
-        
+
         return addConditions;
 
         } catch (Exception e) {
