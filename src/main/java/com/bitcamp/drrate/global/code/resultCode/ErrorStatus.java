@@ -55,8 +55,11 @@ public enum ErrorStatus implements ErrorCode {
     PRD_ID_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "PRD402", "상품 ID 형식이 잘못되었습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "상품을 찾을 수 없습니다"),
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "옵션을 찾을 수 없습니다"),
-    CONDITIONS_SPECIAL_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD405", "우대조건 파싱 중 오류가 발생했습니다."),
-    CONDITIONS_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD406", "옵션 파싱 중 오류가 발생했습니다"),
+    CONDITIONS_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD405", "옵션 파싱 중 오류가 발생했습니다"),
+    CONDITIONS_SPECIAL_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD406", "우대조건 파싱 중 오류가 발생했습니다."),
+    CONDITIONS_SPECIAL_PARSERATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD407", "금리 처리 중 오류가 발생했습니다."),
+    CONDITIONS_SPECIAL_INSERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD408", "우대조건 리스트 저장 중 오류가 발생했습니다."),
+    CONDITIONS_SPECIAL_UNKNOWN_ERROR(HttpStatus.BAD_REQUEST, "PRD409", "우대조건을 가져올 수 없습니다"),
 
     // INSERTPRODUCT
     INSERT_ALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "모든 상품 등록에 실패했습니다."),
