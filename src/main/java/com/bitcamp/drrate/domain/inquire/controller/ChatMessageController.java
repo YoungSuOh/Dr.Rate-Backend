@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
-    @GetMapping("/paged")
+    @GetMapping("/list")
     public ApiResponse<Page<ChatMessage>> getChatMessagesByRoomId(
             @RequestParam String roomId,
             @RequestParam(defaultValue = "0") int page, // 기본 페이지 0

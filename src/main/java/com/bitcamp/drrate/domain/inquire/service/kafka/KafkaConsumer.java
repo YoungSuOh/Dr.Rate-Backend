@@ -15,6 +15,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -46,6 +47,7 @@ public class KafkaConsumer {
             chatMessage.setRoomId(roomId);
             chatMessage.setContent(messageContent);
             chatMessage.setSenderId(senderId);
+            chatMessage.setCreatedAt(LocalDateTime.now());
 
             // MongoDB에 저장
             try {
