@@ -144,7 +144,7 @@ public class ProductsServiceImpl implements ProductsService{
         } catch (ParsingException e) {
             throw new ProductServiceExceptionHandler(ErrorStatus.CONDITIONS_SPECIAL_PARSE_ERROR);
         } catch (Exception e) {
-            throw new ProductServiceExceptionHandler(ErrorStatus.CONDITIONS_UNKNOWN_ERROR);
+            throw new ProductServiceExceptionHandler(ErrorStatus.CONDITIONS_SPECIAL_UNKNOWN_ERROR);
         }
 
         map.put("conditions", conditions);
