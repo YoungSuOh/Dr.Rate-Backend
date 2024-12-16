@@ -1,12 +1,16 @@
 package com.bitcamp.drrate.domain.calendar.dto.response;
 
+import java.time.LocalDate;
+
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 public class CalendarResponseDTO {
-    private String depositName;  // 예금 이름
-    private String bankName;     // 은행 이름
-    private Double interestRate; // 이율
+	private String bank_name; // 은행명
+	private String installment_name; // 적금명
+	private LocalDate start_date; // 시작 날짜
+	private LocalDate end_date; // 종료 날짜
+	private Long amount; // 금액
 }
