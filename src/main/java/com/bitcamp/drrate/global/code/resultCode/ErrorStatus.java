@@ -17,6 +17,8 @@ public enum ErrorStatus implements ErrorCode {
     USER_LOGIN_ERROR(HttpStatus.UNAUTHORIZED,"USER403", "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다"),
     USER_ID_CANNOT_FOUND(HttpStatus.NOT_FOUND,"USER404", "사용자를 찾을 수 없습니다. id가 유효하지 않습니다."),
     USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
+    USER_LIST_GET_SUCCESS(HttpStatus.NOT_FOUND,"USER406", "유저 목록 조회 실패했습니다."),
+    USER_LIST_BAD_REQUEST(HttpStatus.BAD_REQUEST,"USER407", "잘못된 형식의 유저 목록 조회입니다."),
 
 
     // Session
@@ -65,6 +67,9 @@ public enum ErrorStatus implements ErrorCode {
     MONGODB_SAVE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO400", "Mongodb에 저장을 실패했습니다"),
     MONGODB_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO401", "Mongodb에 불러오기를 실패했습니다"),
     MONGODB_DELETE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO402", "Mongodb에 삭제를 실패했습니다"),
+
+    // mySQL
+    MYSQL_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MYSQL401", "MySql에 불러오기를 실패했습니다"),
 
 
     // PRODUCT
