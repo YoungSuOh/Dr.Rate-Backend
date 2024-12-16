@@ -4,6 +4,8 @@
 package com.bitcamp.drrate.domain.favorites.service;
 
 
+import com.bitcamp.drrate.domain.favorites.dto.response.FavoriteListDTO;
+import com.bitcamp.drrate.domain.favorites.dto.response.FavoritesResponseDTO;
 import com.bitcamp.drrate.domain.favorites.entity.Favorites;
 import com.bitcamp.drrate.domain.favorites.repository.FavoritesRepository;
 import com.bitcamp.drrate.domain.products.entity.Products;
@@ -14,9 +16,13 @@ import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.FavoritesServiceExceptionHandler;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -102,5 +108,79 @@ public class FavoriteServiceImpl implements FavoritesService {
       throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_DELETE_FAILED);
     }
   }
+
+
+
+  // getFavoriteList(), searchFavoriteList()
+  // favorites 테이블의 favoriteId
+  // products 테이블의 bankLogo
+  // products 테이블의 bankName
+  // products 테이블의 prdName
+
+  // 예금 즐겨찾기의 경우
+  // dep_options 테이블의 basic_rate
+  // dep_options 테이블의 spcl_rate
+
+  // 적금 즐겨찾기의 경우
+  // ins_options 테이블의 basic_rate
+  // ins_options 테이블의 spcl_rate
+
+  @Override
+  public List<FavoriteListDTO> getFavoriteList(Long faUserId, String category) {
+    try {
+      System.out.println("******** User ID: " + faUserId);
+      System.out.println("******** User ID:  Category: " + category);
+      // 예금 카테고리 조회
+      if ("deposit".equalsIgnoreCase(category)) {
+        return favoritesRepository.findDepositsByUserId(faUserId);
+      }
+      // 적금 카테고리 조회
+      else if ("installment".equalsIgnoreCase(category)) {
+        return favoritesRepository.findInstallmentsByUserId(faUserId);
+      }
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_QUERY_FAILED);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_QUERY_FAILED);
+    }
+  }
+
+  @Override
+  public List<FavoriteListDTO> searchFavoriteList(Long faUserId, String category, String searchKey, String searchValue) {
+    try {
+      if ("deposit".equalsIgnoreCase(category)) {
+        return favoritesRepository.searchDepositsByUserId(faUserId, searchKey, searchValue);
+      } else if ("installment".equalsIgnoreCase(category)) {
+        return favoritesRepository.searchInstallmentsByUserId(faUserId, searchKey, searchValue);
+      }
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_SEARCH_FAILED);
+    } catch (Exception e) {
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_SEARCH_FAILED);
+    }
+  }
+
+  @Override
+  public void deleteFavoriteList(Long faUserId, @NotNull Long[] favoriteIds) {
+    List<Long> failedIds = new ArrayList<>();
+    for (Long favoriteId : favoriteIds) {
+      try {
+        Favorites favorite = favoritesRepository.findById(favoriteId)
+            .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND));
+
+        if (!favorite.getUser().getId().equals(faUserId)) {
+          throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_USER_ID);
+        }
+
+        favoritesRepository.deleteById(favoriteId);
+      } catch (Exception e) {
+        failedIds.add(favoriteId);
+      }
+    }
+
+    if (!failedIds.isEmpty()) {
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_PARTIAL_DELETE_FAILED);
+    }
+  }
+
 
 }

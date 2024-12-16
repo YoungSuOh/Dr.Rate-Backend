@@ -20,18 +20,29 @@ public class FavoritesRequestDTO {
 
 
   /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 조회 요청 */
-  // favorites 테이블의 favoriteId
-  // products 테이블의 bankLogo
-  // products 테이블의 bankName
-  // products 테이블의 prdName
-  
-  // 예금 즐겨찾기의 경우
-  // dep_options 테이블의 basic_rate
-  // dep_options 테이블의 spcl_rate
+  @Builder
+  @Getter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class GetFavoriteDTO {
+    @NotNull
+    private String category; // "deposit" (예금) 또는 "installment" (적금)
+  }
 
-  // 적금 즐겨찾기의 경우
-  // ins_options 테이블의 basic_rate
-  // ins_options 테이블의 spcl_rate
+
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 검색 요청 */
+  @Builder
+  @Getter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class SearchFavoriteDTO {
+    @NotNull
+    private String category;   // "deposit" 또는 "installment"
+    @NotNull
+    private String searchKey;  // 검색 키워드 ("bankName" 또는 "prdName")
+    @NotNull
+    private String searchValue; // 검색값 (사용자가 입력한 값)
+  }
 
 
 

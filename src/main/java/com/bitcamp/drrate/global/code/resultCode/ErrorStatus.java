@@ -85,7 +85,12 @@ public enum ErrorStatus implements ErrorCode {
     FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "FAV403", "즐겨찾기 데이터를 찾을 수 없습니다."),
     FAVORITE_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV404", "즐겨찾기 조회에 실패했습니다."),
     FAVORITE_INSERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV405", "즐겨찾기 등록에 실패했습니다."),
-    FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV406", "즐겨찾기 삭제에 실패했습니다."),
+    FAVORITE_SEARCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV406", "즐겨찾기 검색에 실패했습니다."),
+    FAVORITE_NO_RESULTS(HttpStatus.OK, "FAV407", "검색된 즐겨찾기 데이터가 없습니다."),
+    FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV408", "즐겨찾기 삭제에 실패했습니다."),
+    FAVORITE_PARTIAL_DELETE_FAILED(HttpStatus.PARTIAL_CONTENT, "FAV409", "일부 즐겨찾기 삭제에 실패했습니다."),
+
+
 
 
     // 권한 에러

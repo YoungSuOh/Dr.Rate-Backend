@@ -4,6 +4,7 @@ package com.bitcamp.drrate.domain.favorites.controller;
 
 
 import com.bitcamp.drrate.domain.favorites.dto.request.FavoritesRequestDTO;
+import com.bitcamp.drrate.domain.favorites.dto.response.FavoriteListDTO;
 import com.bitcamp.drrate.domain.favorites.dto.response.FavoritesResponseDTO;
 import com.bitcamp.drrate.domain.favorites.service.FavoritesService;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
@@ -17,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -87,25 +90,55 @@ public class FavoritesController {
 
 
   /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 조회 */
-  // public viewFavorite {}
+  @GetMapping("/getFavorite")
+  public ApiResponse<List<FavoriteListDTO>> getFavorite(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam("category") String category // 예금("deposit") 또는 적금("installment")
+  ) {
+    Long faUserId = usersService.getUserId(userDetails);
+
+    List<FavoriteListDTO> favoriteList =
+        favoritesService.getFavoriteList(faUserId, category);
+
+    return ApiResponse.onSuccess(favoriteList, SuccessStatus.FAVORITE_QUERY_SUCCESS);
+  }
+
+
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 검색 */
+  @GetMapping("/searchFavorite")
+  public ApiResponse<List<FavoriteListDTO>> searchFavorite(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam("category") String category,
+      @RequestParam("searchKey") String searchKey, // 검색 기준: "bankName" 또는 "prdName"
+      @RequestParam("searchValue") String searchValue // 검색값
+  ) {
+    Long faUserId = usersService.getUserId(userDetails);
+
+    List<FavoriteListDTO> searchResults =
+        favoritesService.searchFavoriteList(faUserId, category, searchKey, searchValue);
+
+    return ApiResponse.onSuccess(searchResults, SuccessStatus.FAVORITE_QUERY_SUCCESS);
+  }
 
 
   /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 삭제 */
   // public deleteFavorite {}
   // 1 개 삭제 혹은 여러 개 삭제
-  // 여러 개 삭제 가능하도록 체크박스 입력 받음, 그 체크박스 상품 아이디를 배열로 받아야함
-  
-  
+  // 여러 개 삭제 가능하도록 체크박스 입력 받음, 그 체크박스 상품 아이디를 배열로 받아야함 (1개도 배열로 받음)
+
+  @DeleteMapping("/deleteFavorite")
+  @Transactional
+  public ApiResponse<Void> deleteFavorite(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestBody @Valid FavoritesRequestDTO.DeleteFavoriteDTO request
+  ) {
+    Long faUserId = usersService.getUserId(userDetails);
+
+    favoritesService.deleteFavoriteList(faUserId, request.getFavoriteIds());
+
+    return ApiResponse.onSuccess(null, SuccessStatus.FAVORITE_DELETE_SUCCESS);
+  }
 
 
 }
 
-//  @PostMapping(value="favoriteInsert/{id}")
-//  public ResponseEntity<Void> favoriteInsert(@PathVariable(value="id") String prd_id,
-//                                             @RequestHeader(value="userId") String user_id) {
-//    // 데이터 처리 로직 추가
-//    System.out.println("Product ID: " + prd_id);
-//    System.out.println("User ID: " + user_id);
-//
-//    return ResponseEntity.ok().build(); // HTTP 200 OK 응답
-//  }
