@@ -1,11 +1,13 @@
 package com.bitcamp.drrate.global.code.resultCode;
 
 
+import org.springframework.http.HttpStatus;
+
 import com.bitcamp.drrate.global.code.ErrorCode;
 import com.bitcamp.drrate.global.code.ErrorDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -17,6 +19,7 @@ public enum ErrorStatus implements ErrorCode {
     USER_LOGIN_ERROR(HttpStatus.UNAUTHORIZED,"USER403", "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다"),
     USER_ID_CANNOT_FOUND(HttpStatus.NOT_FOUND,"USER404", "사용자를 찾을 수 없습니다. id가 유효하지 않습니다."),
     USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
+    USER_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "USER406", "사용자의 인증에 실패하였습니다."),
 
 
     // Email
@@ -30,7 +33,7 @@ public enum ErrorStatus implements ErrorCode {
     SESSION_ACCESS_INVALID(HttpStatus.UNAUTHORIZED, "SESSION401", "액세스 토큰 값이 유효하지 않습니다."),
     SESSION_REFRESH_INVALID(HttpStatus.UNAUTHORIZED, "SESSION402", "리프레쉬 토큰 값이 유효하지 않습니다."),
     SESSION_ACCESS_EXPIRED(HttpStatus.UNAUTHORIZED, "SESSION403", "액세스 토큰이 만료되었습니다."),
-
+    SESSION_ACCESS_PARSE_ERROR(HttpStatus.NOT_FOUND, "SESSION404", "액세스 토큰이 없거나 분석할 수 없습니다."),
 
     // Inquire
     INQUIRE_LIST_GET_FAILED(HttpStatus.NOT_FOUND, "INQUIRE400", "문의 목록 불러오기 실패했습니다."),
@@ -61,6 +64,10 @@ public enum ErrorStatus implements ErrorCode {
     FILE_DELETE_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3407", "파일 삭제 도중 알 수 없는 에러가 발생했습니다."),
     FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3408", "파일 삭제를 실패했습니다."),
     FILE_UNVAILD_URL(HttpStatus.BAD_REQUEST, "S3409", "유효하지 않은 파일 경로입니다."),
+
+    // Social
+    SOCIAL_URL_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION405", "잘못된 요청 주소입니다."),
+    SOCIAL_PARAMETERS_INVALID(HttpStatus.NOT_FOUND, "SESSION406", "잘못된 매개변수를 설정하였습니다."),
 
 
     // Mongo db

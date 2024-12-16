@@ -18,7 +18,10 @@ import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
 import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+<<<<<<< HEAD
 import com.bitcamp.drrate.domain.users.service.EmailService;
+=======
+>>>>>>> be006f0f9b80bc1d3afeab9ff0fdf78c62b11ab8
 import com.bitcamp.drrate.domain.users.service.UsersService;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
@@ -65,7 +68,7 @@ public class UsersController {
 
             return ResponseEntity.ok().headers(headers).build();
         }
-        else return null; //이건 일반 로그인 사용하면 될듯. 컨트롤러는 UsersController에서 하나로 통합. GoogleController랑 Kakaocontroller는 필요없음.
+        else return ResponseEntity.badRequest().build();
     }
     // 이메일 로직 (임시)
     @PostMapping("/email/verification-request")
