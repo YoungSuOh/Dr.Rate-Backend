@@ -8,10 +8,8 @@ import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,15 +18,28 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @GetMapping("/inquireList")
-    public ApiResponse<Page<ChatRoom>> getChatRoomsSortedByUpdatedAt(
+    public ApiResponse<Page<ChatRoom>> getChatRoomsBySearchCriteria(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size
+            @RequestParam(defaultValue = "4") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword
     ) {
-        try{
-            Page<ChatRoom> result = chatRoomService.getChatRoomsSortedByUpdatedAt(page, size);
+        try {
+            Page<ChatRoom> result = chatRoomService.getChatRoomsBySearchCriteria(page, size, searchType, keyword);
             return ApiResponse.onSuccess(result, SuccessStatus.INQUIRE_LIST_GET_SUCCESS);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ApiResponse.onFailure(ErrorStatus.INQUIRE_LIST_GET_FAILED.getCode(), ErrorStatus.INQUIRE_LIST_GET_FAILED.getMessage(), null);
+        }
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<HttpStatus> deleteChatRoom(@PathVariable String id) {
+        try{
+            chatRoomService.deleteChatRoomById(id);
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.INQUIRE_ROOM_DELETE_SUCCESS);
+        }catch (Exception e){
+            return ApiResponse.onFailure(ErrorStatus.INQUIRE_DELETE_FAILED.getCode(), ErrorStatus.INQUIRE_DELETE_FAILED.getMessage(), null);
         }
     }
 }
