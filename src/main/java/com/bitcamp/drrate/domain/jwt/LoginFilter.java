@@ -46,12 +46,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             }
 
             //스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
+            //마지막의 null값은 사용자의 권한 즉 role 값인데 로그인 시점에서는 아직 인증된 상태가 아니기 때문에 null로 설정해줘야함.
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, password, null);
 
             //token에 담은 검증을 위한 AuthenticationManager로 전달
             return authenticationManager.authenticate(authToken);
         } catch (AuthenticationException e) {
-        // 예외 발생 시 상세 로깅 추가 (선택 사항)
         throw new UsersServiceExceptionHandler(ErrorStatus.USER_AUTHENTICATION_FAILED);
     }
     }
