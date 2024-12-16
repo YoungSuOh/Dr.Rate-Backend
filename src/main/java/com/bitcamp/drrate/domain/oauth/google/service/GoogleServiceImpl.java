@@ -24,12 +24,14 @@ import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import com.bitcamp.drrate.global.exception.exceptionhandler.UserServiceExceptionHandler;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import static com.bitcamp.drrate.domain.users.entity.Role.ADMIN;
 
 @RequiredArgsConstructor
 @Service
@@ -56,13 +58,13 @@ public class GoogleServiceImpl implements GoogleService {
                         "&response_type=code&scope=email profile";
             response.sendRedirect(url);
         } catch (IOException e) {
-            throw new UserServiceExceptionHandler(ErrorStatus.SOCIAL_URL_NOT_FOUND);
+            throw new UsersServiceExceptionHandler(ErrorStatus.SOCIAL_URL_NOT_FOUND);
         }
     }
 
 
     @Override
-    public String login(String code) throws UserServiceExceptionHandler {
+    public String login(String code) throws UsersServiceExceptionHandler {
         //System.out.println("code = " + code);
         //코드를 받고 AccessToken을 받음. 아래에 getAccessToken 메서드를 통해서 accessToken을 발급받음
         String accessToken = getAccessToken(code);
@@ -107,8 +109,16 @@ public class GoogleServiceImpl implements GoogleService {
             //신규 가입자는 DB Insert, 기존 가입자의 경우 정보가 바뀌면 Update 아니면 지나침
             usersRepository.save(users);
 
-            String access = jwtUtil.createJwt(id, "access", "ROLE_USER", 600000L);
-            String refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
+
+            String access = null; String refresh = null;
+            System.out.println("role : " + users.getRole());
+            if(users.getRole().equals(ADMIN)){
+                access = jwtUtil.createJwt(id, "access", "ROLE_ADMIN", 86400000L);
+                refresh = jwtUtil.createJwt(id, "refresh", "ROLE_ADMIN", 86400000L);
+            }else{
+                access = jwtUtil.createJwt(id, "access", "ROLE_USER", 86400000L);
+                refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
+            }
 
             /* 우리 서버 token 값 */
             System.out.println("우리 서버 accessToken :  "+ access);
@@ -119,7 +129,7 @@ public class GoogleServiceImpl implements GoogleService {
 
             return access;
         } catch(JsonProcessingException e){
-            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
+            throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
         }
     }
 
@@ -163,7 +173,7 @@ public class GoogleServiceImpl implements GoogleService {
     }
 
     // 받아온 accessToken 값을 파싱해서 내가 필요한 access_token값만 가져옴
-    public GoogleUserInfoResponseDTO.UserAccessTokenDTO parseAccessToken(String accessToken) throws UserServiceExceptionHandler {
+    public GoogleUserInfoResponseDTO.UserAccessTokenDTO parseAccessToken(String accessToken) throws UsersServiceExceptionHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Map<String, Object> parseToken = objectMapper.readValue(accessToken, Map.class);
@@ -184,13 +194,18 @@ public class GoogleServiceImpl implements GoogleService {
 
             return tokenDTO;
         } catch (JsonProcessingException e) {
-            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
+            throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
         }
     }
 
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
         users.setUsername(googleInfo.getName());
-        users.setRole(Role.USER);
+        System.out.println(users.getRole());
+        if(String.valueOf(users.getRole())=="ADMIN"){
+            users.setRole(Role.ADMIN);
+        }else{
+            users.setRole(Role.USER);
+        }
     }
 }

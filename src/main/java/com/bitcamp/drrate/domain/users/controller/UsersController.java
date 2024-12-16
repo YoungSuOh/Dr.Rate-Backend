@@ -56,7 +56,7 @@ public class UsersController {
 
             return ResponseEntity.ok().headers(headers).build();
         }
-        else return null;
+        else return ResponseEntity.badRequest().build();
     }
 
     /* 임시 !!*/

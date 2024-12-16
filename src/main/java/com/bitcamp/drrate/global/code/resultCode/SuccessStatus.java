@@ -29,8 +29,19 @@ public enum SuccessStatus implements SuccessCode {
     BOARDLIST_GET_SUCCESS(HttpStatus.OK,"BOARD201", "전체 게시판 조회 성공"),
 
 
+    // INQUIRE
+    INQUIRE_LIST_GET_SUCCESS(HttpStatus.OK,"INQUIRE200", "문의 목록 조회 성공"),
+    INQUIRE_MESSAGE_GET_SUCCESS(HttpStatus.OK,"INQUIRE201", "문의 메세지 조회 성공"),
+
+    // Object Storage(S3 api)
     FILE_UPLOAD_SUCCESS(HttpStatus.OK,"S3200", "파일 업로드 성공"),
-    FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공")
+    FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공"),
+
+
+    // Favorite
+    FAVORITE_QUERY_SUCCESS(HttpStatus.OK, "FAV200", "즐겨찾기 조회 성공"),
+    FAVORITE_ADD_SUCCESS(HttpStatus.OK, "FAV201", "즐겨찾기 등록 성공"),
+    FAVORITE_REMOVE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공")
     ;
 
 

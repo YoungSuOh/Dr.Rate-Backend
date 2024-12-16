@@ -1,7 +1,6 @@
 package com.bitcamp.drrate.domain.jwt;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,7 +11,7 @@ import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import com.bitcamp.drrate.global.exception.exceptionhandler.UserServiceExceptionHandler;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -44,17 +43,17 @@ public class JWTFilter extends OncePerRequestFilter {
         try{
             jwtUtil.isExpired(accessToken);
         } catch(ExpiredJwtException e) {
-            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_EXPIRED);
+            throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_EXPIRED);
         }
 
         // 토큰이 access인지 확인 access가 아니면 예외처리
         try {
             String category = jwtUtil.getCategory(accessToken);
             if(!category.equals("access")) {
-                throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_NOT_VALID);
+                throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_INVALID);
             }
         } catch(IllegalArgumentException e) {
-            throw new UserServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_NOT_VALID);
+            throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_INVALID);
         }
         
         Long userId = jwtUtil.getId(accessToken);
