@@ -49,7 +49,6 @@ public class KakaoServiceImpl implements KakaoService {
     @Override
     public void loginKakao(HttpServletResponse response) throws IOException {
         String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id +"&redirect_uri=" + redirect_uri;
-
         response.sendRedirect(location);
     }
 

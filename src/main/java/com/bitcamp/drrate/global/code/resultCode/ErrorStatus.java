@@ -19,6 +19,12 @@ public enum ErrorStatus implements ErrorCode {
     USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
 
 
+    // Email
+    UNABLE_TO_SEND_EMAIL(HttpStatus.BAD_REQUEST, "USER406", "이메일 전송 중 오류가 발생하였습니다."),
+    MAIL_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "USER407", "인증 메일 생성 중 오류가 발생하였습니다."),
+    EMAIL_VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "USER408", "이메일 인증에 실패하였습니다."),
+
+
     // Session
     SESSION_HEADER_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION400", "헤더에 세션 정보가 존재하지 않습니다."),
     SESSION_ACCESS_INVALID(HttpStatus.UNAUTHORIZED, "SESSION401", "액세스 토큰 값이 유효하지 않습니다."),

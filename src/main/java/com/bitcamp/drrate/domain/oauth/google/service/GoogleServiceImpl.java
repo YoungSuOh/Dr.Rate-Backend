@@ -1,13 +1,11 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

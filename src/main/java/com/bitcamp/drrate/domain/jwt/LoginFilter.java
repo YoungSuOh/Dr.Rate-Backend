@@ -44,16 +44,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
-        String userId = customUserDetails.getUserId();
+        
+        Long id = customUserDetails.getId();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
-
-        Users users = usersRepository.findByUserId(userId);
-
-        Long id = users.getId();
 
         String access = jwtUtil.createJwt(id, "access", role, 600000L);
         String refresh = jwtUtil.createJwt(id, "refresh", role, 86400000L);
