@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -24,6 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import static com.bitcamp.drrate.domain.users.entity.Role.ADMIN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -88,8 +91,16 @@ public class KakaoServiceImpl implements KakaoService {
 
         usersRepository.save(users);
 
-        String access = jwtUtil.createJwt(id, "access", "ROLE_USER", 600000L);
-        String refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
+        String access = null; String refresh = null;
+
+        System.out.println("role : "+users.getRole());
+        if(users.getRole().equals(ADMIN)){
+            access = jwtUtil.createJwt(id, "access", "ROLE_ADMIN", 86400000L);
+            refresh = jwtUtil.createJwt(id, "refresh", "ROLE_ADMIN", 86400000L);
+        }else{
+            access = jwtUtil.createJwt(id, "access", "ROLE_USER", 86400000L);
+            refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
+        }
 
         /* 우리 서버 token 값 */
         System.out.println("우리 서버 accessToken :  "+access);
@@ -134,6 +145,10 @@ public class KakaoServiceImpl implements KakaoService {
         if(userInfo.getKakaoAccount().getName() == null){
             users.setUsername(userInfo.getKakaoAccount().getProfile().getNickName());
         }
-        users.setRole(Role.USER);
+        if(users.getRole().equals("ADMIN")){
+            users.setRole(Role.ADMIN);
+        }else{
+            users.setRole(Role.USER);
+        }
     }
 }

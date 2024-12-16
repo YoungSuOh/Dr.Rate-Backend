@@ -35,14 +35,14 @@ public class FavoritesController {
       @AuthenticationPrincipal CustomUserDetails userDetails, // JWT; 인증된 사용자 정보 가져오기
       @PathVariable Long prdId // URL 경로에서 파라미터를 가져옴
   ) {
-    // 1. 사용자 ID(PK)를 JWT에서 추출
+    // 1. 사용자 ID(PK)를 JWT에서 추출 & 경로 변수로 전달받은 상품 ID를 설정
     Long faUserId = usersService.getUserId(userDetails);
     Long faPrdId = prdId;
 
     // 2. 서비스 호출: 추출한 faUserId와 요청으로 전달된 faPrdId를 FavoritesService 에 전달
     boolean isFavorite = favoritesService.isFavorite(faUserId, faPrdId);
 
-    // 3. HTTP 200 OK 응답; ResponseEntity는 HTTP 상태 코드와 함께 데이터를 반환하기 위한 객체
+    // 3. HTTP 200 OK 응답: 즐겨찾기 여부를 ApiResponse 객체로 클라이언트에 반환
     return ApiResponse.onSuccess(isFavorite, SuccessStatus.FAVORITE_QUERY_SUCCESS);
   }
 
