@@ -19,10 +19,12 @@ import com.bitcamp.drrate.global.exception.exceptionhandler.FavoritesServiceExce
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -114,8 +116,6 @@ public class FavoriteServiceImpl implements FavoritesService {
   @Override
   public List<FavoriteListDTO> getFavoriteList(Long faUserId, String category) {
     try {
-      System.out.println("******** User ID: " + faUserId);
-      System.out.println("******** User ID:  Category: " + category);
       // 예금 카테고리 조회
       if ("deposit".equalsIgnoreCase(category)) {
         return favoritesRepository.findDepositsByUserId(faUserId);
@@ -131,15 +131,11 @@ public class FavoriteServiceImpl implements FavoritesService {
     }
   }
 
+
   /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 검색 */
   @Override
   public List<FavoriteListDTO> searchFavoriteList(Long faUserId, String category, String searchKey, String searchValue) {
     try {
-      System.out.println("User ID: " + faUserId);
-      System.out.println("Category: " + category);
-      System.out.println("SearchKey: " + searchKey);
-      System.out.println("SearchValue: " + searchValue);
-
       if ("deposit".equalsIgnoreCase(category)) {
         return favoritesRepository.searchDepositsByUserId(faUserId, searchKey, searchValue);
       } else if ("installment".equalsIgnoreCase(category)) {
@@ -151,29 +147,47 @@ public class FavoriteServiceImpl implements FavoritesService {
     }
   }
 
+
   /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 삭제 */
   @Override
   public void deleteFavoriteList(Long faUserId, @NotNull Long[] favoriteIds) {
-    List<Long> failedIds = new ArrayList<>();
+    List<Long> notFoundIds = new ArrayList<>();
+    List<Long> validIds = new ArrayList<>(); // 유효한 ID 수집
+
+    // ID 검증
     for (Long favoriteId : favoriteIds) {
-      try {
-        Favorites favorite = favoritesRepository.findById(favoriteId)
-            .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND));
+      Optional<Favorites> optionalFavorite = favoritesRepository.findById(favoriteId);
 
-        if (!favorite.getUser().getId().equals(faUserId)) {
-          throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_USER_ID);
-        }
-
-        favoritesRepository.deleteById(favoriteId);
-      } catch (Exception e) {
-        failedIds.add(favoriteId);
+      // 존재하지 않는 ID 처리
+      if (optionalFavorite.isEmpty()) {
+        notFoundIds.add(favoriteId);
+        continue;
       }
+
+      Favorites favorite = optionalFavorite.get();
+
+      // 사용자 ID 불일치 처리
+      if (!favorite.getUser().getId().equals(faUserId)) {
+        throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_USER_ID);
+      }
+
+      validIds.add(favoriteId); // 유효한 ID만 수집
     }
 
-    if (!failedIds.isEmpty()) {
+    // 모든 ID가 존재하지 않을 경우
+    if (notFoundIds.size() == favoriteIds.length) {
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_NO_RESULTS);
+    }
+
+    // 일부 ID만 존재하지 않는 경우
+    if (!notFoundIds.isEmpty()) {
       throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_PARTIAL_DELETE_FAILED);
+    }
+
+    // 유효한 ID 삭제
+    for (Long favoriteId : validIds) {
+      favoritesRepository.deleteById(favoriteId);
     }
   }
 
 }
-
