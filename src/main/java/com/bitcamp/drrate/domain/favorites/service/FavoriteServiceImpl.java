@@ -110,21 +110,7 @@ public class FavoriteServiceImpl implements FavoritesService {
   }
 
 
-
-  // getFavoriteList(), searchFavoriteList()
-  // favorites 테이블의 favoriteId
-  // products 테이블의 bankLogo
-  // products 테이블의 bankName
-  // products 테이블의 prdName
-
-  // 예금 즐겨찾기의 경우
-  // dep_options 테이블의 basic_rate
-  // dep_options 테이블의 spcl_rate
-
-  // 적금 즐겨찾기의 경우
-  // ins_options 테이블의 basic_rate
-  // ins_options 테이블의 spcl_rate
-
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 조회 */
   @Override
   public List<FavoriteListDTO> getFavoriteList(Long faUserId, String category) {
     try {
@@ -145,9 +131,15 @@ public class FavoriteServiceImpl implements FavoritesService {
     }
   }
 
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 검색 */
   @Override
   public List<FavoriteListDTO> searchFavoriteList(Long faUserId, String category, String searchKey, String searchValue) {
     try {
+      System.out.println("User ID: " + faUserId);
+      System.out.println("Category: " + category);
+      System.out.println("SearchKey: " + searchKey);
+      System.out.println("SearchValue: " + searchValue);
+
       if ("deposit".equalsIgnoreCase(category)) {
         return favoritesRepository.searchDepositsByUserId(faUserId, searchKey, searchValue);
       } else if ("installment".equalsIgnoreCase(category)) {
@@ -159,6 +151,7 @@ public class FavoriteServiceImpl implements FavoritesService {
     }
   }
 
+  /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 삭제 */
   @Override
   public void deleteFavoriteList(Long faUserId, @NotNull Long[] favoriteIds) {
     List<Long> failedIds = new ArrayList<>();
@@ -182,5 +175,5 @@ public class FavoriteServiceImpl implements FavoritesService {
     }
   }
 
-
 }
+
