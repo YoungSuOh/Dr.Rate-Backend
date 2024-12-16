@@ -9,5 +9,5 @@ public interface FavoritesService {
 
   void addFavorite(Long faUserId, Long faPrdId);
 
-  void removeFavorite(Long faUserId, Long faPrdId);
+  void cancelFavorite(Long faUserId, Long faPrdId);
 }

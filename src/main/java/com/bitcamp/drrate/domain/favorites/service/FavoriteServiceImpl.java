@@ -85,7 +85,7 @@ public class FavoriteServiceImpl implements FavoritesService {
   /* ProductDetailPage; 즐겨찾기 취소 */
   @Override
   @Transactional
-  public void removeFavorite(Long faUserId, Long faPrdId) {
+  public void cancelFavorite(Long faUserId, Long faPrdId) {
     // Users 및 Products 엔티티를 조회
     Users user = usersRepository.findById(faUserId)
         .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_USER_ID));

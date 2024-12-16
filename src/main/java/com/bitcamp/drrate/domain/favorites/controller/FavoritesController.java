@@ -66,18 +66,18 @@ public class FavoritesController {
 
 
   /* ProductDetailPage; 즐겨찾기 취소 */
-  @DeleteMapping("/removeFavorite/{prdId}")
+  @DeleteMapping("/cancelFavorite/{prdId}")
   @Transactional
-  public ApiResponse<HttpStatus> removeFavorite(
+  public ApiResponse<HttpStatus> cancelFavorite(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable Long prdId // URL 경로에서 상품 ID를 가져옴
   ) {
     Long faUserId = usersService.getUserId(userDetails);
     Long faPrdId = prdId;
 
-    favoritesService.removeFavorite(faUserId, faPrdId);
+    favoritesService.cancelFavorite(faUserId, faPrdId);
 
-    return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.FAVORITE_REMOVE_SUCCESS);
+    return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.FAVORITE_DELETE_SUCCESS);
   }
 
 

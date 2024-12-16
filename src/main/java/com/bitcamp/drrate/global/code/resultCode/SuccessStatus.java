@@ -39,7 +39,7 @@ public enum SuccessStatus implements SuccessCode {
     // Favorite
     FAVORITE_QUERY_SUCCESS(HttpStatus.OK, "FAV200", "즐겨찾기 조회 성공"),
     FAVORITE_ADD_SUCCESS(HttpStatus.OK, "FAV201", "즐겨찾기 등록 성공"),
-    FAVORITE_REMOVE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공")
+    FAVORITE_DELETE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공")
     ;
 
 
