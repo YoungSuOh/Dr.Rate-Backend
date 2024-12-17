@@ -13,12 +13,13 @@ import com.bitcamp.drrate.domain.users.entity.Users;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails extends Users implements UserDetails {
  
     private final Users users;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
         Collection<GrantedAuthority> collection = new ArrayList<>();
         Role role = users.getRole();
         if (role == Role.ADMIN) {
@@ -28,15 +29,7 @@ public class CustomUserDetails implements UserDetails {
             }
         return collection;
     }
-
-    public Long getId() {
-        return users.getId();
-    }
-
-    public String getUserId() {
-        return users.getUserId();
-    }
-
+    
     @Override
     public String getPassword() {
         return users.getPassword();
@@ -47,6 +40,17 @@ public class CustomUserDetails implements UserDetails {
         return users.getUsername();
     }
 
+    @Override
+    public Long getId() {
+        return users.getId();
+    }
+
+    @Override
+    public String getUserId() {
+        return users.getUserId();
+    }
+
+    @Override
     public String getEmail() {
         return users.getEmail();
     }

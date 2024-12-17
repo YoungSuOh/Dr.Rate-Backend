@@ -1,11 +1,13 @@
 package com.bitcamp.drrate.global.code.resultCode;
 
 
+import org.springframework.http.HttpStatus;
+
 import com.bitcamp.drrate.global.code.SuccessCode;
 import com.bitcamp.drrate.global.code.SuccessDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor  // 열거형 필드가 3개(httpstatus, code, message)가 있고, @AllArgsConstructor를 했기 때문에 이게 열거형을 정의할 때도 적용이 된다.
