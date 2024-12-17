@@ -1,31 +1,30 @@
 package com.bitcamp.drrate.domain.users.controller;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-
+import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
+import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import com.bitcamp.drrate.domain.users.service.UsersService;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
-import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
-import com.bitcamp.drrate.domain.users.service.UsersService;
-
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,35 +60,25 @@ public class UsersController {
 
             return ResponseEntity.ok().headers(headers).build();
         }
-        else return null; //이건 일반 로그인 사용하면 될듯. 컨트롤러는 UsersController에서 하나로 통합. GoogleController랑 Kakaocontroller는 필요없음.
-    }
-
-    /* 임시 !!*/
-    @GetMapping("/api/user/{id}")
-    public String usersTest(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String id) {
-        System.out.println("id : "+id);
-        Optional<Users> user = usersRepository.findUsersById(Long.valueOf(id));
-        if(user.isPresent()){
-            return "exist";
-        }else{
-            return "not exist";
-        }
+        else return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/api/userList")
     public ApiResponse<Page<Users>>getUsersList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         try{
             if(usersService.getUserRole(customUserDetails)!= Role.ADMIN){
                 throw new UsersServiceExceptionHandler(ErrorStatus.AUTHORIZATION_INVALID);
             }
-            Page<Users>result = usersService.getUsersList(page, size);
+            Page<Users>result = usersService.getUsersList(page, size, searchType, keyword);
             return ApiResponse.onSuccess(result, SuccessStatus.USER_LIST_GET_SUCCESS);
         }catch (Exception e){
-            return ApiResponse.onFailure(ErrorStatus.USER_LIST_GET_SUCCESS.getCode(), ErrorStatus.USER_LIST_GET_SUCCESS.getMessage(), null);
+            return ApiResponse.onFailure(ErrorStatus.USER_LIST_GET_FAILED.getCode(), ErrorStatus.USER_LIST_GET_FAILED.getMessage(), null);
         }
     }
 
