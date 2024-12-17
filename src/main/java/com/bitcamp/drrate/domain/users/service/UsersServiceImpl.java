@@ -3,13 +3,19 @@ package com.bitcamp.drrate.domain.users.service;
 
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
+import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.InquireServiceHandler;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -36,6 +42,44 @@ public class UsersServiceImpl implements UsersService {
         Users users = usersRepository.findUsersById(id)
             .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
         return users.getId();
+    }
+
+    @Override
+    @Transactional
+    public Role getUserRole(CustomUserDetails user) {
+        Long id = user.getId();
+        Users users = usersRepository.findUsersById(id)
+                .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
+        return users.getRole();
+    }
+
+    @Override
+    @Transactional
+    public UsersResponseDTO.ChatRoomUserInfo getChatRoomUserInfo(Long userId) {
+        Users users = usersRepository.findUsersById(userId)
+                .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
+        return UsersResponseDTO.ChatRoomUserInfo.builder()
+                .name(users.getUsername())
+                .email(users.getEmail())
+                .build();
+    }
+
+    @Override
+    public Page<Users> getUsersList(int page, int size) {
+        try{
+            if (page < 0 || size <= 0) {
+                throw new UsersServiceExceptionHandler(ErrorStatus.USER_LIST_BAD_REQUEST);
+            }
+            Pageable pageable = PageRequest.of(page, size);
+            return usersRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }catch (IllegalArgumentException e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_LIST_BAD_REQUEST);
+        } catch (JpaSystemException e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.MYSQL_LOAD_FAILED);
+        } catch (Exception e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @Override

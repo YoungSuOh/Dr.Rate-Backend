@@ -20,6 +20,9 @@ public enum ErrorStatus implements ErrorCode {
     USER_ID_CANNOT_FOUND(HttpStatus.NOT_FOUND,"USER404", "사용자를 찾을 수 없습니다. id가 유효하지 않습니다."),
     USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
     USER_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "USER406", "사용자의 인증에 실패하였습니다."),
+    USER_LIST_GET_SUCCESS(HttpStatus.NOT_FOUND,"USER406", "유저 목록 조회 실패했습니다."),
+    USER_LIST_BAD_REQUEST(HttpStatus.BAD_REQUEST,"USER407", "잘못된 형식의 유저 목록 조회입니다."),
+
 
 
     // Session
@@ -34,7 +37,10 @@ public enum ErrorStatus implements ErrorCode {
     INQUIRE_MESSAGE_GET_FAILED(HttpStatus.NOT_FOUND,"INQUIRE401", "문의 메세지 조회 실패했습니다"),
     INQUIRE_LIST_BAD_REQUEST(HttpStatus.BAD_REQUEST,"INQUIRE402", "잘못된 형식의 문의 목록 요청입니다."),
     INQUIRE_MESSAGE_BAD_REQUEST(HttpStatus.BAD_REQUEST,"INQUIRE403", "잘못된 형식의 문의 메세지 요청입니다."),
-    INQUIRE_INVALID_PATH(HttpStatus.BAD_REQUEST,"INQUIRE403", "잘못된 형식의 문의 메세지 요청입니다."),
+    INQUIRE_INVALID_PATH(HttpStatus.BAD_REQUEST,"INQUIRE404", "잘못된 형식의 문의 메세지 요청입니다."),
+    INQUIRE_ROOMID_INVALID(HttpStatus.BAD_REQUEST,"INQUIRE405", "잘못된 문의방 요청입니다."),
+    INQUIRE_DELETE_FAILED(HttpStatus.NOT_FOUND,"INQUIRE406", "문의 종료를 실패했습니다"),
+    INQUIRE_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"INQUIRE407", "유효하지 않은 id 요청입니다"),
 
 
 
@@ -58,6 +64,7 @@ public enum ErrorStatus implements ErrorCode {
     FILE_DELETE_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3407", "파일 삭제 도중 알 수 없는 에러가 발생했습니다."),
     FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3408", "파일 삭제를 실패했습니다."),
     FILE_UNVAILD_URL(HttpStatus.BAD_REQUEST, "S3409", "유효하지 않은 파일 경로입니다."),
+    S3_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3409", "S3 삭제 중 오류가 발생했습니다."),
 
     // Social
     SOCIAL_URL_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION405", "잘못된 요청 주소입니다."),
@@ -67,6 +74,10 @@ public enum ErrorStatus implements ErrorCode {
     // Mongo db
     MONGODB_SAVE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO400", "Mongodb에 저장을 실패했습니다"),
     MONGODB_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO401", "Mongodb에 불러오기를 실패했습니다"),
+    MONGODB_DELETE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MONGO402", "Mongodb에 삭제를 실패했습니다"),
+
+    // mySQL
+    MYSQL_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MYSQL401", "MySql에 불러오기를 실패했습니다"),
 
 
     // PRODUCT
@@ -75,8 +86,11 @@ public enum ErrorStatus implements ErrorCode {
     PRD_ID_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "PRD402", "상품 ID 형식이 잘못되었습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "상품을 찾을 수 없습니다"),
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "PRD404", "옵션을 찾을 수 없습니다"),
-    CONDITIONS_SPECIAL_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD405", "우대조건 파싱 중 오류가 발생했습니다."),
-    CONDITIONS_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD406", "옵션 파싱 중 오류가 발생했습니다"),
+    CONDITIONS_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD405", "옵션 파싱 중 오류가 발생했습니다"),
+    CONDITIONS_SPECIAL_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD406", "우대조건 파싱 중 오류가 발생했습니다."),
+    CONDITIONS_SPECIAL_PARSERATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD407", "금리 처리 중 오류가 발생했습니다."),
+    CONDITIONS_SPECIAL_INSERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD408", "우대조건 리스트 저장 중 오류가 발생했습니다."),
+    CONDITIONS_SPECIAL_UNKNOWN_ERROR(HttpStatus.BAD_REQUEST, "PRD409", "우대조건을 가져올 수 없습니다"),
 
     // INSERTPRODUCT
     INSERT_ALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "모든 상품 등록에 실패했습니다."),

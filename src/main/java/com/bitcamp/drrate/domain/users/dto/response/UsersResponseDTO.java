@@ -32,4 +32,13 @@ public class UsersResponseDTO {
         private String sub;
         private String picture;
     }
+
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter@Setter
+    public static class ChatRoomUserInfo {
+        private String email;
+        private String name;
+    }
 }

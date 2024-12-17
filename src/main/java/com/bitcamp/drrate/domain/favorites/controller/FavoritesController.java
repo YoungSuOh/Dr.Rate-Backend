@@ -33,7 +33,7 @@ public class FavoritesController {
   @GetMapping("/checkFavorite/{prdId}")
   public ApiResponse<Boolean> checkFavorite(
       @AuthenticationPrincipal CustomUserDetails userDetails, // JWT; 인증된 사용자 정보 가져오기
-      @PathVariable Long prdId // URL 경로에서 파라미터를 가져옴
+      @PathVariable(value = "prdId") Long prdId // URL 경로에서 파라미터를 가져옴
   ) {
     // 1. 사용자 ID(PK)를 JWT에서 추출 & 경로 변수로 전달받은 상품 ID를 설정
     Long faUserId = usersService.getUserId(userDetails);
@@ -70,7 +70,7 @@ public class FavoritesController {
   @Transactional
   public ApiResponse<HttpStatus> removeFavorite(
       @AuthenticationPrincipal CustomUserDetails userDetails,
-      @PathVariable Long prdId // URL 경로에서 상품 ID를 가져옴
+      @PathVariable(value = "prdId") Long prdId // URL 경로에서 상품 ID를 가져옴
   ) {
     Long faUserId = usersService.getUserId(userDetails);
     Long faPrdId = prdId;
