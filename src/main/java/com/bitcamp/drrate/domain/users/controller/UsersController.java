@@ -18,10 +18,7 @@ import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
 import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-<<<<<<< HEAD
 import com.bitcamp.drrate.domain.users.service.EmailService;
-=======
->>>>>>> be006f0f9b80bc1d3afeab9ff0fdf78c62b11ab8
 import com.bitcamp.drrate.domain.users.service.UsersService;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
@@ -70,7 +67,7 @@ public class UsersController {
         }
         else return ResponseEntity.badRequest().build();
     }
-    // 이메일 로직 (임시)
+    // 인증번호 전송
     @PostMapping("/email/verification-request")
     public ApiResponse<Boolean> sendMessage(@RequestParam("email") String email) {
         //사용자에게 인증코드 이메일 전송

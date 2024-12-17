@@ -46,10 +46,6 @@ public class KakaoServiceImpl implements KakaoService {
 
     @Override
     public void loginKakao(HttpServletResponse response) throws IOException {
-<<<<<<< HEAD
-        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id +"&redirect_uri=" + redirect_uri;
-        response.sendRedirect(location);
-=======
         try {
             String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id +"&redirect_uri=" + redirect_uri;
 
@@ -57,7 +53,6 @@ public class KakaoServiceImpl implements KakaoService {
         } catch (IOException e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.SOCIAL_URL_NOT_FOUND);
         }
->>>>>>> be006f0f9b80bc1d3afeab9ff0fdf78c62b11ab8
     }
 
     @Override
