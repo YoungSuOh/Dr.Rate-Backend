@@ -1,13 +1,11 @@
 package com.bitcamp.drrate.global.code.resultCode;
 
 
-import org.springframework.http.HttpStatus;
-
 import com.bitcamp.drrate.global.code.ErrorCode;
 import com.bitcamp.drrate.global.code.ErrorDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -19,9 +17,10 @@ public enum ErrorStatus implements ErrorCode {
     USER_LOGIN_ERROR(HttpStatus.UNAUTHORIZED,"USER403", "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다"),
     USER_ID_CANNOT_FOUND(HttpStatus.NOT_FOUND,"USER404", "사용자를 찾을 수 없습니다. id가 유효하지 않습니다."),
     USER_DELETION_FAILED(HttpStatus.BAD_REQUEST, "USER405", "사용자 계정 삭제에 실패했습니다."),
-    USER_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "USER406", "사용자의 인증에 실패하였습니다."),
-    USER_LIST_GET_SUCCESS(HttpStatus.NOT_FOUND,"USER406", "유저 목록 조회 실패했습니다."),
-    USER_LIST_BAD_REQUEST(HttpStatus.BAD_REQUEST,"USER407", "잘못된 형식의 유저 목록 조회입니다."),
+    USER_LIST_GET_FAILED(HttpStatus.NOT_FOUND,"USER406", "유저 목록 조회 실패했습니다."),
+    USER_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "USER407", "사용자의 인증에 실패하였습니다."),
+    USER_LIST_GET_SUCCESS(HttpStatus.NOT_FOUND,"USER408", "유저 목록 조회 실패했습니다."),
+    USER_LIST_BAD_REQUEST(HttpStatus.BAD_REQUEST,"USER409", "잘못된 형식의 유저 목록 조회입니다."),
 
 
 
