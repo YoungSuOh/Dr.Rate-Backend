@@ -17,24 +17,25 @@ import jakarta.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CalendarRequestDTO {
-    @NotNull
-    private Long cal_user_id; // 사용자 ID
 
     @NotNull
-    private String installment_name; // 적금명
+    private Long cal_user_id;
 
     @NotNull
-    private String bank_name; // 은행명
-    
-    @NotNull
-    @Min(0)  //금액은 0 이상
-    private Long amount; //금액
+    private String installment_name;
 
     @NotNull
-    @FutureOrPresent // 현재 or 미래 날짜만 허용
-    private LocalDate start_date; // 시작 날짜
+    private String bank_name;
+
+    @NotNull
+    @Min(0)
+    private Long amount;
+
+    @NotNull
+    @FutureOrPresent
+    private LocalDate start_date;
 
     @NotNull
     @Future
-    private LocalDate end_date; // 종료 날짜
+    private LocalDate end_date;
 }

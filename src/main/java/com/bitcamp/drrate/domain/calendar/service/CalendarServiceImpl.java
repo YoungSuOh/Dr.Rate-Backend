@@ -6,6 +6,7 @@ import com.bitcamp.drrate.domain.calendar.entity.Calendar;
 import com.bitcamp.drrate.domain.calendar.repository.CalendarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CalendarServiceImpl implements CalendarService {
-    //Calendar 테이블에 접근
+    // Calendar 테이블에 접근
     private final CalendarRepository calendarRepository;
 
     @Override
@@ -35,6 +36,7 @@ public class CalendarServiceImpl implements CalendarService {
         List<Calendar> calendarEntries = calendarRepository.findAll();
         return calendarEntries.stream()
                 .map(entry -> CalendarResponseDTO.builder()
+                        .id(entry.getId()) // ID 추가
                         .installment_name(entry.getInstallment_name())
                         .bank_name(entry.getBank_name())
                         .start_date(entry.getStart_date())
@@ -45,28 +47,20 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
+    @Transactional
     public void updateCalendarEntry(Long id, CalendarRequestDTO request) {
-        Calendar calendarEntry = calendarRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 데이터가 없습니다: " + id));
-
-        calendarEntry.setCal_user_id(request.getCal_user_id());
+        Calendar calendarEntry = calendarRepository.findById(id).get();
         calendarEntry.setInstallment_name(request.getInstallment_name());
         calendarEntry.setBank_name(request.getBank_name());
         calendarEntry.setAmount(request.getAmount());
         calendarEntry.setStart_date(request.getStart_date());
         calendarEntry.setEnd_date(request.getEnd_date());
-
         calendarRepository.save(calendarEntry);
     }
 
     @Override
+    @Transactional
     public void deleteCalendarEntry(Long id) {
         calendarRepository.deleteById(id);
     }
-
-	@Override
-	public List<CalendarResponseDTO> getInstallmentProducts() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

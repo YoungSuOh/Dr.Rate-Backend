@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class CalendarResponseDTO {
+	private Long id; // 이벤트 ID
 	private String bank_name; // 은행명
 	private String installment_name; // 적금명
 	private LocalDate start_date; // 시작 날짜
