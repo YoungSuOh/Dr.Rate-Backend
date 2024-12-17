@@ -5,7 +5,6 @@ package com.bitcamp.drrate.domain.favorites.service;
 
 
 import com.bitcamp.drrate.domain.favorites.dto.response.FavoriteListDTO;
-import com.bitcamp.drrate.domain.favorites.dto.response.FavoritesResponseDTO;
 import com.bitcamp.drrate.domain.favorites.entity.Favorites;
 import com.bitcamp.drrate.domain.favorites.repository.FavoritesRepository;
 import com.bitcamp.drrate.domain.products.entity.Products;
@@ -19,12 +18,13 @@ import com.bitcamp.drrate.global.exception.exceptionhandler.FavoritesServiceExce
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +47,7 @@ public class FavoriteServiceImpl implements FavoritesService {
 
       // 상품 ID 검증
       productsRepository.findById(faPrdId)
-          .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_PRODUCT_ID));
+          .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.PRD_ID_ERROR));
 
       // 즐겨찾기 존재 여부 확인
       return favoritesRepository.existsByUserIdAndProductId(faUserId, faPrdId);
@@ -67,7 +67,7 @@ public class FavoriteServiceImpl implements FavoritesService {
     Users user = usersRepository.findById(faUserId)
         .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_USER_ID));
     Products product = productsRepository.findById(faPrdId)
-        .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_PRODUCT_ID));
+        .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.PRD_ID_ERROR));
 
     // 이미 즐겨찾기에 등록되어 있는지 확인
     if (favoritesRepository.existsByUserIdAndProductId(faUserId, faPrdId)) {
@@ -92,24 +92,39 @@ public class FavoriteServiceImpl implements FavoritesService {
 
   /* ProductDetailPage; 즐겨찾기 취소 */
   @Override
-  @Transactional
+  @Transactional(noRollbackFor = FavoritesServiceExceptionHandler.class)
   public void cancelFavorite(Long faUserId, Long faPrdId) {
-    // Users 및 Products 엔티티를 조회
+    // Users 엔티티 조회
     Users user = usersRepository.findById(faUserId)
         .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_USER_ID));
-    Products product = productsRepository.findById(faPrdId)
-        .orElseThrow(() -> new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_PRODUCT_ID));
 
-    if (!favoritesRepository.existsByUserIdAndProductId(user.getId(), product.getId())) {
-      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND);
+    boolean productExists = productsRepository.existsById(faPrdId);
+
+    // 상품 테이블에 데이터가 존재하는지 확인
+    if (!productExists) {
+      System.out.println("상품 테이블에 존재하지 않는 상품 ID: " + faPrdId);
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.PRD_ID_ERROR);
+    }
+
+    // 즐겨찾기 테이블에 데이터가 존재하는지 확인
+    if (!favoritesRepository.existsByUserIdAndProductId(user.getId(), faPrdId)) {
+      System.out.println("즐겨찾기 테이블에 존재하지 않는 데이터: 사용자 ID=" + faUserId + ", 상품 ID=" + faPrdId);
+      throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_INVALID_PRODUCT_ID);
     }
 
     try {
-      favoritesRepository.deleteByUserIdAndProductId(user.getId(), product.getId());
+      favoritesRepository.deleteByUserIdAndProductId(faUserId, faPrdId);
+    } catch (FavoritesServiceExceptionHandler e) {
+      // 비즈니스 예외 발생 시 롤백 방지
+      TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+      throw e; // 명시적으로 예외를 처리
     } catch (Exception e) {
+      // 예상치 못한 예외 처리
       throw new FavoritesServiceExceptionHandler(ErrorStatus.FAVORITE_DELETE_FAILED);
     }
   }
+
+
 
 
   /* MyDepositPage, MyInstallmentPage; 즐겨찾기 목록 조회 */
