@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,28 +52,74 @@ public class UsersController {
     //소셜 로그인 (DB저장, 토큰발급, Header세팅)
     @GetMapping("/login/oauth2/code/{provider}")
     public ResponseEntity<?> login(@RequestParam("code") String code, @PathVariable("provider") String provider) {
-        if(provider.equals("google")){
-            String access = googleService.login(code);
-            HttpHeaders headers = usersService.tokenSetting(access);
+        try {
+            String access = null;
+            HttpHeaders headers;
+    
+            // Provider별 처리
+            if (provider.equals("google")) { //구글
+                access = googleService.login(code);
+            } else if (provider.equals("kakao")) { //카카오
+                access = kakaoService.login(code);
+            } else { // 요청 실패시
+                return ResponseEntity
+                        .badRequest()
+                        .body(ApiResponse.onFailure(
+                                ErrorStatus.SOCIAL_URL_NOT_FOUND.getCode(),
+                                ErrorStatus.SOCIAL_URL_NOT_FOUND.getMessage(),
+                                null
+                        ));
+            }
+    
+            // 성공 시 처리
+            // 헤더 세팅
+            headers = usersService.tokenSetting(access);
 
-            return ResponseEntity.ok().headers(headers).build();
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(ApiResponse.onSuccess(null, SuccessStatus.USER_LOGIN_SUCCESS));
+    
+        } catch (IllegalArgumentException e) {
+            // 클라이언트의 잘못된 요청 (서버 요청주소 설정 오류)
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.onFailure(
+                            ErrorStatus.SOCIAL_PARAMETERS_INVALID.getCode(),
+                            ErrorStatus.SOCIAL_PARAMETERS_INVALID.getMessage(),
+                            null
+                    ));
+        } catch (Exception e) {
+            // 서버 내부 오류
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.onFailure(
+                            ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                            ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(),
+                            null
+                    ));
         }
-        else if(provider.equals("kakao")){
-            String access = kakaoService.login(code);
-            HttpHeaders headers = usersService.tokenSetting(access);
-
-            return ResponseEntity.ok().headers(headers).build();
-        }
-        else return ResponseEntity.badRequest().build();
     }
+
     // 인증번호 전송
     @PostMapping("/email/verification-request")
     public ApiResponse<Boolean> sendMessage(@RequestParam("email") String email) {
-        //사용자에게 인증코드 이메일 전송
-        emailService.sendCodeToEmail(email);
-        System.out.println("이메일 인증번호 발송 성공");
-        return ApiResponse.onSuccess(true, SuccessStatus.USER_VERIFYCATION_EMAIL);
+        try {
+            // 사용자에게 인증코드 이메일 전송
+            emailService.sendCodeToEmail(email);
+            System.out.println("이메일 인증번호 발송 성공");
+            return ApiResponse.onSuccess(true, SuccessStatus.USER_VERIFYCATION_EMAIL);
+        } catch (UsersServiceExceptionHandler e) {
+            return ApiResponse.onFailure(ErrorStatus.UNABLE_TO_SEND_EMAIL.getCode(), ErrorStatus.UNABLE_TO_SEND_EMAIL.getMessage(), null);
+        } catch (Exception e) {
+            // 예상치 못한 기타 예외 처리
+            return ApiResponse.onFailure(
+                    ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                    ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(),
+                    null
+            );
+        }
     }
+    
     // 인증번호 확인
     @GetMapping("/email/verifications")
     public ApiResponse<Boolean> verificationEmail(@RequestParam("email") String email,

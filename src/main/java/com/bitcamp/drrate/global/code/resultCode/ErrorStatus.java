@@ -84,6 +84,9 @@ public enum ErrorStatus implements ErrorCode {
     // mySQL
     MYSQL_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MYSQL401", "MySql에 불러오기를 실패했습니다"),
 
+    // redis
+    REDIS_SAVE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "REDIS400", "Redis에 저장을 실패했습니다."),
+
 
     // PRODUCT
     PRD_ID_ERROR(HttpStatus.NOT_FOUND, "PRD400", "해당 코드의 상품을 찾을 수 없습니다."),

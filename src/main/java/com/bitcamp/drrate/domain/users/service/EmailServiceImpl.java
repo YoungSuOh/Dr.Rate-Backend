@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,6 +17,8 @@ import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 
+import io.lettuce.core.RedisException;
+import jakarta.mail.SendFailedException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -56,15 +59,33 @@ public class EmailServiceImpl implements EmailService {
 
         return message;
     }
+    //이메일 발송 메서드에 전달 및 레디스 저장
     @Override
     public void sendCodeToEmail(String toEmail) {
-        checkDuplicatedEmail(toEmail); // 이메일 중복 체크 (2-1)
-        String title = "Dr.Rate 이메일 인증 번호";
-        String authCode = createCode(); // 인증번호 생성 (2-2)
-        sendEmail(toEmail, title, authCode); // 이메일 발송(2)
-        // 이메일 인증 요청 시 인증 번호 Redis에 저장 ( key = "AuthCode " + Email / value = AuthCode )
-        saveAuthEmail(toEmail, authCode, authCodeExpirationMillis); // redis 저장(2-3)
-        System.out.println("이메일 redis 저장완료");
+        try {
+            // 이메일 중복 체크 (2-1)
+            checkDuplicatedEmail(toEmail);
+
+            String title = "Dr.Rate 이메일 인증 번호";
+            String authCode = createCode(); // 인증번호 생성 (2-2)
+
+            // 이메일 발송
+            sendEmail(toEmail, title, authCode);
+
+            // Redis에 인증번호 저장 (2-3)
+            saveAuthEmail(toEmail, authCode, authCodeExpirationMillis);
+            System.out.println("이메일 redis 저장완료");
+
+        } catch (DuplicateKeyException e) {
+            // 중복된 이메일 예외 처리
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_EMAIL_DUPLICATE);
+        } catch (RedisException ea) {
+            // Redis 저장 실패 예외 처리
+            throw new UsersServiceExceptionHandler(ErrorStatus.REDIS_SAVE_FAILED);
+        } catch (Exception eb) {
+            // 기타 예외 처리
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // 중복 이메일 체크
