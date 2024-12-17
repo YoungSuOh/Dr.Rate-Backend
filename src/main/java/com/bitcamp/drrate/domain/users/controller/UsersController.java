@@ -1,24 +1,10 @@
 package com.bitcamp.drrate.domain.users.controller;
 
-import java.io.IOException;
-import java.util.Optional;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
 import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
+import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
-import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-import com.bitcamp.drrate.domain.users.service.EmailService;
 import com.bitcamp.drrate.domain.users.service.UsersService;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
@@ -28,7 +14,21 @@ import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptio
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-@Controller
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+
+import com.bitcamp.drrate.domain.users.service.EmailService;
+
+@RestController
 @RequiredArgsConstructor
 public class UsersController {
 
@@ -36,8 +36,6 @@ public class UsersController {
     private final KakaoService kakaoService;
     private final UsersService usersService;
     private final EmailService emailService;
-    /* 임시 */
-    private final UsersRepository usersRepository;
 
     //소셜 로그인 인가코드 요청
     @GetMapping("/login/{provider}")
@@ -94,15 +92,22 @@ public class UsersController {
         }
     }
 
-    /* 임시 !!*/
-    @GetMapping("/api/user/{id}") @ResponseBody
-    public String usersTest(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String id) {
-        System.out.println("id : "+id);
-        Optional<Users> user = usersRepository.findUsersById(Long.valueOf(id));
-        if(user.isPresent()){
-            return "exist";
-        }else{
-            return "not exist";
+    @GetMapping("/api/userList")
+    public ApiResponse<Page<Users>>getUsersList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        try{
+            if(usersService.getUserRole(customUserDetails)!= Role.ADMIN){
+                throw new UsersServiceExceptionHandler(ErrorStatus.AUTHORIZATION_INVALID);
+            }
+            Page<Users>result = usersService.getUsersList(page, size, searchType, keyword);
+            return ApiResponse.onSuccess(result, SuccessStatus.USER_LIST_GET_SUCCESS);
+        }catch (Exception e){
+            return ApiResponse.onFailure(ErrorStatus.USER_LIST_GET_FAILED.getCode(), ErrorStatus.USER_LIST_GET_FAILED.getMessage(), null);
         }
     }
 

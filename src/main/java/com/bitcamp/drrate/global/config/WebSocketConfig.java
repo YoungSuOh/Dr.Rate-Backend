@@ -35,6 +35,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 .addEndpoint("/ws")  // 엔드 포인트 : /websocket
                 .setAllowedOrigins("*"); // * 나중에 허용 도메인 추가 *
-       /* registry.setErrorHandler(stompExceptionHandler);*/
+        /* registry.setErrorHandler(stompExceptionHandler);*/
     }
 }

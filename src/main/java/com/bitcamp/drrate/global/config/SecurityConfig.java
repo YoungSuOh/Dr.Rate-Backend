@@ -52,7 +52,6 @@ public class SecurityConfig {
         authFilter.setUsernameParameter("userId"); //스프링 시큐리티에서 사용자 인증을 위해 필요로 하는 인자값은 username과 password임
         //그런데 보통 id값과 password값을 많이 사용하는데 이걸 변경해주는 코드가 UsernamePasswordAuthenticationFilter내부에있음.
         authFilter.setPasswordParameter("password");
-
         //csrf disable
         http.csrf(auth -> auth.disable());
 
@@ -72,7 +71,7 @@ public class SecurityConfig {
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm", "/ws/**", "/product/**", "/api/**").permitAll()
+                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm", "/ws/**", "/product/**", "/api/**", "/chat/**").permitAll()
                 .requestMatchers("/email/**").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
@@ -93,7 +92,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 쿠키 포함 허용
-        config.addAllowedOrigin("https://jiangxy.github.io"); // websocket test용 origin
+        config.addAllowedOriginPattern("https://jiangxy.github.io"); // websocket test용 origin
         config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 Origin
         config.addAllowedHeader("*"); // 모든 헤더 허용
         config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용

@@ -65,6 +65,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     //implementation 'javax.mail:javax.mail-api:1.6.2' 스프링부트3.x버전부터 사용안함. 아래껄로 바뀜
     implementation 'org.eclipse.angus:jakarta.mail:2.0.3'
+    
+    // JAXB
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+    implementation 'javax.activation:activation:1.1.1'
 
     // test
     testImplementation 'io.projectreactor:reactor-test'

@@ -4,6 +4,7 @@ import com.bitcamp.drrate.domain.inquire.entity.ChatRoom;
 import org.springframework.data.domain.Page;
 
 public interface ChatRoomService {
-    public ChatRoom getOrCreateChatRoom(String senderId);
-    Page<ChatRoom> getChatRoomsSortedByUpdatedAt(int page, int size);
+    ChatRoom getOrCreateChatRoom(String senderId);
+    Page<ChatRoom> getChatRoomsBySearchCriteria(int page, int size, String searchType, String keyword);
+    void deleteChatRoomById(String id);
 }
