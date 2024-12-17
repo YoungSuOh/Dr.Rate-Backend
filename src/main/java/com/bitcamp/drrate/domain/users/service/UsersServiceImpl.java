@@ -40,7 +40,7 @@ public class UsersServiceImpl implements UsersService {
     public Long getUserId(CustomUserDetails user) {
         Long id = user.getId();
         Users users = usersRepository.findUsersById(id)
-            .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
+                .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
         return users.getId();
     }
 
@@ -65,21 +65,34 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public Page<Users> getUsersList(int page, int size) {
-        try{
+    public Page<Users> getUsersList(int page, int size, String searchType, String keyword) {
+        try {
             if (page < 0 || size <= 0) {
                 throw new UsersServiceExceptionHandler(ErrorStatus.USER_LIST_BAD_REQUEST);
             }
+
             Pageable pageable = PageRequest.of(page, size);
-            return usersRepository.findAllByOrderByCreatedAtDesc(pageable);
-        }catch (IllegalArgumentException e) {
+
+            // 검색 조건 처리
+            if (searchType != null && keyword != null) {
+                if (searchType.equalsIgnoreCase("name")) {
+                    return usersRepository.findByUsernameContainingIgnoreCaseOrderByCreatedAtDesc(keyword, pageable);
+                } else if (searchType.equalsIgnoreCase("email")) {
+                    return usersRepository.findByEmailContainingIgnoreCaseOrderByCreatedAtDesc(keyword, pageable);
+                } else {
+                    throw new UsersServiceExceptionHandler(ErrorStatus.USER_LIST_BAD_REQUEST);
+                }
+            } else {
+                // 검색 조건이 없을 경우
+                return usersRepository.findAllByOrderByCreatedAtDesc(pageable);
+            }
+        } catch (IllegalArgumentException e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.USER_LIST_BAD_REQUEST);
         } catch (JpaSystemException e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.MYSQL_LOAD_FAILED);
         } catch (Exception e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @Override
@@ -110,7 +123,7 @@ public class UsersServiceImpl implements UsersService {
 
         Boolean isExist = usersRepository.existsByEmail(email);
 
-        if(isExist) {
+        if (isExist) {
             return;
         }
 

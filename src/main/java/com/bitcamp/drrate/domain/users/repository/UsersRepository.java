@@ -15,6 +15,12 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     Page<Users> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
+    // 이름으로 검색
+    Page<Users> findByUsernameContainingIgnoreCaseOrderByCreatedAtDesc(String username, Pageable pageable);
+
+    // 이메일로 검색
+    Page<Users> findByEmailContainingIgnoreCaseOrderByCreatedAtDesc(String email, Pageable pageable);
+
     Optional<Users> findByEmail(String email);
 
     Boolean existsByEmail(String email);

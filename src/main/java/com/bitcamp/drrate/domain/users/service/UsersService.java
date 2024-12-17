@@ -14,7 +14,7 @@ public interface UsersService {
     Long getUserId(CustomUserDetails user);
     Role getUserRole(CustomUserDetails user);
     UsersResponseDTO.ChatRoomUserInfo getChatRoomUserInfo(Long userId);
-    Page<Users>getUsersList(int page, int size);
+    Page<Users>getUsersList(int page, int size, String searchType, String keyword);
     Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo);
     void joinProc(UsersJoinDTO joinDTO);
     HttpHeaders tokenSetting(String access);

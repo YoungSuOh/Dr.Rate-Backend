@@ -80,16 +80,18 @@ public class UsersController {
     public ApiResponse<Page<Users>>getUsersList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         try{
             if(usersService.getUserRole(customUserDetails)!= Role.ADMIN){
                 throw new UsersServiceExceptionHandler(ErrorStatus.AUTHORIZATION_INVALID);
             }
-            Page<Users>result = usersService.getUsersList(page, size);
+            Page<Users>result = usersService.getUsersList(page, size, searchType, keyword);
             return ApiResponse.onSuccess(result, SuccessStatus.USER_LIST_GET_SUCCESS);
         }catch (Exception e){
-            return ApiResponse.onFailure(ErrorStatus.USER_LIST_GET_SUCCESS.getCode(), ErrorStatus.USER_LIST_GET_SUCCESS.getMessage(), null);
+            return ApiResponse.onFailure(ErrorStatus.USER_LIST_GET_FAILED.getCode(), ErrorStatus.USER_LIST_GET_FAILED.getMessage(), null);
         }
     }
 
