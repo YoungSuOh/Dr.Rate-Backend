@@ -8,7 +8,6 @@ import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import com.bitcamp.drrate.global.exception.exceptionhandler.InquireServiceHandler;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 import lombok.RequiredArgsConstructor;
 
