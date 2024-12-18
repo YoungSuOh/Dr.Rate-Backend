@@ -1,18 +1,6 @@
 package com.bitcamp.drrate.domain.users.controller;
 
-import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
-import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
-import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
-import com.bitcamp.drrate.domain.users.entity.Role;
-import com.bitcamp.drrate.domain.users.entity.Users;
-import com.bitcamp.drrate.domain.users.service.UsersService;
-import com.bitcamp.drrate.global.ApiResponse;
-import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
-import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
-
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -25,9 +13,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
+import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
+import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
+import com.bitcamp.drrate.domain.users.entity.Role;
+import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.service.EmailService;
+import com.bitcamp.drrate.domain.users.service.UsersService;
+import com.bitcamp.drrate.global.ApiResponse;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
+
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,8 +53,8 @@ public class UsersController {
     public ResponseEntity<?> login(@RequestParam("code") String code, @PathVariable("provider") String provider) {
         try {
             String access = null;
-            HttpHeaders headers;
-    
+            
+            
             // Provider별 처리
             if (provider.equals("google")) { //구글
                 access = googleService.login(code);
@@ -70,13 +69,18 @@ public class UsersController {
                                 null
                         ));
             }
+
+            // 리다이렉트 경로 설정. access토큰을 쿼리 파라미터에 포함
+            String redirectUrl = "http://localhost:5173/oauthHandler#access=" + access;
     
             // 성공 시 처리
             // 헤더 세팅
-            headers = usersService.tokenSetting(access);
+            HttpHeaders headers = usersService.tokenSetting(access);
 
-            return ResponseEntity.ok()
-                    .headers(headers)
+            return ResponseEntity
+                    .status(HttpStatus.FOUND)
+                    //.headers(headers)
+                    .header(HttpHeaders.LOCATION, redirectUrl)
                     .body(ApiResponse.onSuccess(null, SuccessStatus.USER_LOGIN_SUCCESS));
     
         } catch (IllegalArgumentException e) {
@@ -149,6 +153,7 @@ public class UsersController {
     ){
         try{
             if(usersService.getUserRole(customUserDetails)!= Role.ADMIN){
+            //if(customUserDetails.getRole() != Role.ADMIN) {
                 throw new UsersServiceExceptionHandler(ErrorStatus.AUTHORIZATION_INVALID);
             }
             Page<Users>result = usersService.getUsersList(page, size, searchType, keyword);
