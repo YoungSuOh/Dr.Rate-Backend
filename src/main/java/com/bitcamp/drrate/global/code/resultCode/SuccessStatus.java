@@ -50,9 +50,14 @@ public enum SuccessStatus implements SuccessCode {
     // Favorite
     FAVORITE_QUERY_SUCCESS(HttpStatus.OK, "FAV200", "즐겨찾기 조회 성공"),
     FAVORITE_ADD_SUCCESS(HttpStatus.OK, "FAV201", "즐겨찾기 등록 성공"),
-    FAVORITE_DELETE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공")
-    ;
-
+    FAVORITE_DELETE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공"),
+    
+	// Calendar
+    CALENDAR_SAVE_SUCCESS(HttpStatus.OK, "CAL200", "이벤트 저장 성공"),
+    CALENDAR_QUERY_SUCCESS(HttpStatus.OK, "CAL201", "이벤트 조회 성공"),
+    CALENDAR_UPDATE_SUCCESS(HttpStatus.OK, "CAL202", "이벤트 수정 성공"),
+    CALENDAR_DELETE_SUCCESS(HttpStatus.OK, "CAL203", "이벤트 삭제 성공"),
+	;
 
     private final HttpStatus httpStatus;
     private final String code;
