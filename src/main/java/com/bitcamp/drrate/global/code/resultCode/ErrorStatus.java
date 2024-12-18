@@ -111,7 +111,7 @@ public enum ErrorStatus implements ErrorCode {
     INSERT_INSOPTIONS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "적금 상품 등록에 실패했습니다."),
 
     // Favorite
-    FAVORITE_INVALID_USER_ID(HttpStatus.BAD_REQUEST, "FAV400", "유효하지 않은 사용자 ID입니다."),
+    FAVORITE_INVALID_USER_ID(HttpStatus.BAD_REQUEST, "FAV400", "존재하지 않는 상품입니다."),
     FAVORITE_INVALID_PRODUCT_ID(HttpStatus.BAD_REQUEST, "FAV401", "유효하지 않은 상품 ID입니다."),
     FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "FAV402", "이미 즐겨찾기에 등록되어 있습니다."),
     FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "FAV403", "즐겨찾기 데이터를 찾을 수 없습니다."),
