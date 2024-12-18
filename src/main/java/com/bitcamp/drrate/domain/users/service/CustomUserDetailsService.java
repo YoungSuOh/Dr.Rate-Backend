@@ -19,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UsersRepository usersRepository;
 
-    @Override
+    @Override // 이 메서드를 사용하려면 폼 로그인 기반의 설정을 따로 해주어야함. 지금은 사용하지 않는 메서드
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         // usersRepository에서 userId로 사용자 찾기
         Users users = usersRepository.findByUserId(userId);

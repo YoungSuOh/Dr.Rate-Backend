@@ -44,22 +44,24 @@ public class JWTFilter extends OncePerRequestFilter {
             jwtUtil.isExpired(accessToken);
         } catch(ExpiredJwtException e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_EXPIRED);
-        }
+        } // try/catch
 
-        // 토큰이 access인지 확인 access가 아니면 예외처리
+        // 토큰이 access인지 확인 (발급시 페이로드에 명시)
         try {
             String category = jwtUtil.getCategory(accessToken);
             if(!category.equals("access")) {
                 throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_INVALID);
             }
-        } catch(IllegalArgumentException e) {
+        } catch(UsersServiceExceptionHandler e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_INVALID);
         }
-        
-        Long userId = jwtUtil.getId(accessToken);
 
-        Users users = usersRepository.findUsersById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userId));
+        Long id = jwtUtil.getId(accessToken);
+
+        System.out.println("user_pk_id: " + id);
+
+        Users users = usersRepository.findUsersById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
 
         
         CustomUserDetails customUserDetails = new CustomUserDetails(users);

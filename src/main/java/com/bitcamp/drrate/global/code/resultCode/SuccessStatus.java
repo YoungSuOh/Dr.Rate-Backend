@@ -23,6 +23,8 @@ public enum SuccessStatus implements SuccessCode {
     USER_MYPAGE_SUCCESS(HttpStatus.OK,"USER203", "마이페이지 조회 성공"),
     USER_LOGOUT_SUCCESS(HttpStatus.OK,"USER204", "로그아웃 성공"),
     USER_LIST_GET_SUCCESS(HttpStatus.OK,"USER205", "유저 목록 조회 성공"),
+    USER_VERIFYCATION_EMAIL(HttpStatus.OK, "USER206", "인증번호 전송 성공"),
+    USER_VERIFY_EMAIL_SUCCESS(HttpStatus.OK, "USER207", "인증번호 일치"),
 
 
 
@@ -48,7 +50,7 @@ public enum SuccessStatus implements SuccessCode {
     // Favorite
     FAVORITE_QUERY_SUCCESS(HttpStatus.OK, "FAV200", "즐겨찾기 조회 성공"),
     FAVORITE_ADD_SUCCESS(HttpStatus.OK, "FAV201", "즐겨찾기 등록 성공"),
-    FAVORITE_REMOVE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공")
+    FAVORITE_DELETE_SUCCESS(HttpStatus.OK, "FAV202", "즐겨찾기 취소 성공")
     ;
 
 

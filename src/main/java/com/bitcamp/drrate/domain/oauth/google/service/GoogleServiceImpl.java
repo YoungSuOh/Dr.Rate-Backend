@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
-import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
@@ -20,9 +18,11 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
 import com.bitcamp.drrate.domain.jwt.JWTUtil;
+import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import com.bitcamp.drrate.domain.oauth.google.dto.response.GoogleUserInfoResponseDTO;
 import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO.GoogleUserInfo;
 import com.bitcamp.drrate.domain.users.entity.Role;
+import static com.bitcamp.drrate.domain.users.entity.Role.ADMIN;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
@@ -32,8 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
-import static com.bitcamp.drrate.domain.users.entity.Role.ADMIN;
 
 @RequiredArgsConstructor
 @Service

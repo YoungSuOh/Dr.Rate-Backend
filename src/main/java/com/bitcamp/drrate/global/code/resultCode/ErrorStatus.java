@@ -24,6 +24,12 @@ public enum ErrorStatus implements ErrorCode {
 
 
 
+    // Email
+    UNABLE_TO_SEND_EMAIL(HttpStatus.BAD_REQUEST, "USER406", "이메일 전송 중 오류가 발생하였습니다."),
+    MAIL_CREATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "USER407", "인증 메일 생성 중 오류가 발생하였습니다."),
+    EMAIL_VERIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "USER408", "이메일 인증에 실패하였습니다."),
+
+
     // Session
     SESSION_HEADER_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION400", "헤더에 세션 정보가 존재하지 않습니다."),
     SESSION_ACCESS_INVALID(HttpStatus.UNAUTHORIZED, "SESSION401", "액세스 토큰 값이 유효하지 않습니다."),
@@ -111,7 +117,12 @@ public enum ErrorStatus implements ErrorCode {
     FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "FAV403", "즐겨찾기 데이터를 찾을 수 없습니다."),
     FAVORITE_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV404", "즐겨찾기 조회에 실패했습니다."),
     FAVORITE_INSERT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV405", "즐겨찾기 등록에 실패했습니다."),
-    FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV406", "즐겨찾기 삭제에 실패했습니다."),
+    FAVORITE_SEARCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV406", "즐겨찾기 검색에 실패했습니다."),
+    FAVORITE_NO_RESULTS(HttpStatus.OK, "FAV407", "조회된 즐겨찾기 데이터가 없습니다."),
+    FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV408", "즐겨찾기 삭제에 실패했습니다."),
+    FAVORITE_PARTIAL_DELETE_FAILED(HttpStatus.PARTIAL_CONTENT, "FAV409", "일부 즐겨찾기 삭제에 실패했습니다."),
+
+
 
 
     // 권한 에러
