@@ -18,7 +18,6 @@ import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 
 import io.lettuce.core.RedisException;
-import jakarta.mail.SendFailedException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -59,6 +58,7 @@ public class EmailServiceImpl implements EmailService {
 
         return message;
     }
+
     //이메일 발송 메서드에 전달 및 레디스 저장
     @Override
     public void sendCodeToEmail(String toEmail) {
