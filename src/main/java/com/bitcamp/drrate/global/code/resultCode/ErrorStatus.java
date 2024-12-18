@@ -58,8 +58,6 @@ public enum ErrorStatus implements ErrorCode {
     KAFKA_TOPIC_CREATE_BADREQUEST(HttpStatus.BAD_REQUEST, "KAFKA403", "Kafka에 잘못된 Topic 형식의 요청을 했습니다."),
     KAFKA_TOPIC_EXIST_ERROR(HttpStatus.CONFLICT, "KAFKA403", "Kafka에 중복된 Topic이 존재합니다.."),
 
-
-
     // Object Storage
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S3400", "파일을 찾을 수 없습니다"),
     FILE_METADATA_ERROR(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "S3401", "파일 메타데이터를 처리하는 중 오류가 발생했습니다"),
@@ -121,9 +119,14 @@ public enum ErrorStatus implements ErrorCode {
     FAVORITE_NO_RESULTS(HttpStatus.OK, "FAV407", "조회된 즐겨찾기 데이터가 없습니다."),
     FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAV408", "즐겨찾기 삭제에 실패했습니다."),
     FAVORITE_PARTIAL_DELETE_FAILED(HttpStatus.PARTIAL_CONTENT, "FAV409", "일부 즐겨찾기 삭제에 실패했습니다."),
-
-
-
+    
+    // Calendar
+    CALENDAR_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "CAL001", "유효하지 않은 요청 데이터입니다."),
+    CALENDAR_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL002", "이벤트 저장에 실패했습니다."),
+    CALENDAR_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL003", "이벤트 조회에 실패했습니다."),
+    CALENDAR_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL004", "이벤트 수정에 실패했습니다."),
+    CALENDAR_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL005", "이벤트 삭제에 실패했습니다."),
+    CALENDAR_EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CAL006", "해당 이벤트를 찾을 수 없습니다."),
 
     // 권한 에러
     AUTHORIZATION_INVALID(HttpStatus.UNAUTHORIZED, "AUTHORIZATION400", "접근 권한이 없습니다."),
