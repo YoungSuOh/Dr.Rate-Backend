@@ -1,6 +1,7 @@
 package com.bitcamp.drrate.domain.inquire.repository;
 
 import com.bitcamp.drrate.domain.inquire.entity.ChatRoom;
+import com.bitcamp.drrate.domain.inquire.entity.ChatRoomStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -20,4 +21,6 @@ public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
     // 이름 검색
     Page<ChatRoom> findByUserNameContainingIgnoreCaseOrderByUpdatedAt(String name, Pageable pageable);
 
+
+    long countByStatus(ChatRoomStatus status);
 }

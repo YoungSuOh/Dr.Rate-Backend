@@ -18,9 +18,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final KafkaTopicService kafkaTopicService;
     private final UsersService usersService;
     private final S3Service s3Service;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public ChatRoom getOrCreateChatRoom(String senderId) {
         try {
@@ -163,6 +166,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     ChatRoom chatRoom = chatRoomOptional.get();
                     chatRoom.setStatus(ChatRoomStatus.CLOSED); // 상태를 CLOSED로 변경
                     chatRoomRepository.save(chatRoom); // 변경된 상태 저장
+                    decrementOpenChatRoomCountInRedis();
                 }else {
                     throw new InquireServiceHandler(ErrorStatus.INQUIRE_ROOM_NOT_FOUND);
                 }
@@ -178,4 +182,28 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         }
     }
 
+    // Redis에 OPEN 상태 문의 수 저장
+    // Redis에 OPEN 상태 문의 수 저장
+    @Override
+    public void saveOpenChatRoomCountToRedis() {
+        long openCount = chatRoomRepository.countByStatus(ChatRoomStatus.OPEN);
+        String redisKey = "daily_inquiries:open:" + LocalDate.now();
+
+        redisTemplate.opsForValue().set(redisKey, String.valueOf(openCount));
+    }
+
+    // Redis에서 문의 수 감소
+    @Override
+    public void decrementOpenChatRoomCountInRedis() {
+        String redisKey = "daily_inquiries:open:" + LocalDate.now();
+        redisTemplate.opsForValue().decrement(redisKey);
+    }
+
+    // Redis에서 문의 수 조회
+    @Override
+    public int getOpenChatRoomCountFromRedis() {
+        String redisKey = "daily_inquiries:open:" + LocalDate.now();
+        String count = redisTemplate.opsForValue().get(redisKey);
+        return count != null ? Integer.parseInt(count) : 0;
+    }
 }

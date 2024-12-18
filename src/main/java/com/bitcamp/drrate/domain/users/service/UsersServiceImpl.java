@@ -1,30 +1,28 @@
 package com.bitcamp.drrate.domain.users.service;
 
 
-import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
-import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
-import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO;
-import com.bitcamp.drrate.domain.users.entity.Users;
-import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-
-import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
-import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.orm.jpa.JpaSystemException;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
 import org.springframework.http.HttpHeaders;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO.UsersJoinDTO;
-import com.bitcamp.drrate.domain.users.entity.Role;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
+import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO.UsersJoinDTO;
+import com.bitcamp.drrate.domain.users.dto.response.UsersResponseDTO;
+import com.bitcamp.drrate.domain.users.entity.Role;
+import com.bitcamp.drrate.domain.users.entity.Users;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -142,6 +140,7 @@ public class UsersServiceImpl implements UsersService {
         HttpHeaders headers = new HttpHeaders();
 
         headers.set("Authorization", "Bearer " + access);
+        headers.add("Access-Control-Expose-Headers", "Authorization");
         return headers;
     }
 }
