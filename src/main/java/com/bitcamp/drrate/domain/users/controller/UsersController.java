@@ -152,8 +152,8 @@ public class UsersController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         try{
-            // if(usersService.getUserRole(customUserDetails)!= Role.ADMIN){
-            if(customUserDetails.getRole() != Role.ADMIN) {
+            if(usersService.getUserRole(customUserDetails)!= Role.ADMIN){
+            //if(customUserDetails.getRole() != Role.ADMIN) {
                 throw new UsersServiceExceptionHandler(ErrorStatus.AUTHORIZATION_INVALID);
             }
             Page<Users>result = usersService.getUsersList(page, size, searchType, keyword);
