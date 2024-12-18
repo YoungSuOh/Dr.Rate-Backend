@@ -41,7 +41,9 @@ public enum ErrorStatus implements ErrorCode {
     INQUIRE_DELETE_FAILED(HttpStatus.NOT_FOUND,"INQUIRE406", "문의 종료를 실패했습니다"),
     INQUIRE_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"INQUIRE407", "유효하지 않은 id 요청입니다"),
 
-
+    // VISIT
+    VISIT_RECORD_FAILED(HttpStatus.BAD_REQUEST,"VISIT400", "일일 방문자 데이터 저장을 실패했습니다."),
+    VISIT_RECORD_LOAD_FAILED(HttpStatus.NOT_FOUND,"VISIT401", "방문자 데이터 불러오기를 실패했습니다."),
 
     // Kafka
     KAFKA_BROKER_BADREQUEST(HttpStatus.SERVICE_UNAVAILABLE, "KAFKA400", "Kafka에 BROKER에 전송을 실패했습니다."),
@@ -77,6 +79,10 @@ public enum ErrorStatus implements ErrorCode {
 
     // mySQL
     MYSQL_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "MYSQL401", "MySql에 불러오기를 실패했습니다"),
+
+    // Redis
+    REDIS_SAVE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "REDIS400", "Redis에 저장을 실패했습니다"),
+    REDIS_LOAD_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "REDIS401", "Redis에 불러오기를 실패했습니다"),
 
 
     // PRODUCT
