@@ -1,10 +1,12 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -38,6 +40,7 @@ public class GoogleServiceImpl implements GoogleService {
     private final UsersRepository usersRepository;
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
 
@@ -108,6 +111,7 @@ public class GoogleServiceImpl implements GoogleService {
             String email = googleInfo.getEmail();
             //DB 조회
             Optional<Users> optionalUsers = usersRepository.findByEmail(email);
+            boolean isNewUser = optionalUsers.isEmpty(); // 신규 가입자 여부 판단
 
             Users users = optionalUsers.orElseGet(() -> new Users());
 
@@ -116,6 +120,11 @@ public class GoogleServiceImpl implements GoogleService {
             Long id = users.getId();
             //신규 가입자는 DB Insert, 기존 가입자의 경우 정보가 바뀌면 Update 아니면 지나침
             usersRepository.save(users);
+
+            // 신규 가입자일 경우 Redis 카운트 증가
+            if (isNewUser) {
+                incrementNewUserCount();
+            }
 
 
             String access = null; String refresh = null;
@@ -222,10 +231,18 @@ public class GoogleServiceImpl implements GoogleService {
         users.setEmail(googleInfo.getEmail());
         users.setUsername(googleInfo.getName());
         System.out.println(users.getRole());
-        if(String.valueOf(users.getRole())=="ADMIN"){
+        if (Role.ADMIN.equals(users.getRole())) {
             users.setRole(Role.ADMIN);
-        }else{
+        } else {
             users.setRole(Role.USER);
         }
+    }
+
+    private void incrementNewUserCount() {
+        String today = LocalDate.now().toString();
+        String redisKey = "daily_new_members:" + today;
+
+        // Redis 값 증가
+        redisTemplate.opsForValue().increment(redisKey);
     }
 }
