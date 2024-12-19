@@ -143,7 +143,7 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/api/userList")
+    @GetMapping("/api/admin/userList")
     public ApiResponse<Page<Users>>getUsersList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size,
