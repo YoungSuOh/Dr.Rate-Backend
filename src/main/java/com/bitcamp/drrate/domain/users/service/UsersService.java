@@ -18,6 +18,6 @@ public interface UsersService {
     UsersResponseDTO.ChatRoomUserInfo getChatRoomUserInfo(Long userId);
     Page<Users>getUsersList(int page, int size, String searchType, String keyword);
     Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo);
-    void joinProc(UsersJoinDTO joinDTO);
     HttpHeaders tokenSetting(String access);
+    void signUp(UsersJoinDTO usersJoinDTO);
 }

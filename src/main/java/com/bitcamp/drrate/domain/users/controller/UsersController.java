@@ -2,16 +2,15 @@ package com.bitcamp.drrate.domain.users.controller;
 
 import java.io.IOException;
 
+import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
 import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
@@ -36,6 +35,7 @@ public class UsersController {
     private final KakaoService kakaoService;
     private final UsersService usersService;
     private final EmailService emailService;
+    private final UsersRepository usersRepository;
 
     //소셜 로그인 인가코드 요청
     @GetMapping("/login/{provider}")
@@ -103,29 +103,44 @@ public class UsersController {
                     ));
         }
     }
-
-    // 인증번호 전송
-    @PostMapping("/email/verification-request")
-    public ApiResponse<Boolean> sendMessage(@RequestParam("email") String email) {
+    //이메일 인증 번호 전송
+    @PostMapping("/api/email/verify")
+    public ApiResponse<Void> sendMessage(@RequestParam("email") String email) {
         try {
-            // 사용자에게 인증코드 이메일 전송
+            // 이메일 중복 체크
+            if (usersRepository.existsByEmail(email)) {
+                return ApiResponse.onFailure(
+                        ErrorStatus.USER_EMAIL_DUPLICATE.getCode(), // 오류 코드
+                        ErrorStatus.USER_EMAIL_DUPLICATE.getMessage(), // 오류 메시지
+                        null // 데이터는 없음
+                );
+            }
+
+            // 인증 코드 전송 로직
             emailService.sendCodeToEmail(email);
             System.out.println("이메일 인증번호 발송 성공");
-            return ApiResponse.onSuccess(true, SuccessStatus.USER_VERIFYCATION_EMAIL);
+
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_VERIFYCATION_EMAIL); // 성공 시
         } catch (UsersServiceExceptionHandler e) {
-            return ApiResponse.onFailure(ErrorStatus.UNABLE_TO_SEND_EMAIL.getCode(), ErrorStatus.UNABLE_TO_SEND_EMAIL.getMessage(), null);
+            // 메일 전송 실패 시
+            return ApiResponse.onFailure(
+                    ErrorStatus.UNABLE_TO_SEND_EMAIL.getCode(),
+                    ErrorStatus.UNABLE_TO_SEND_EMAIL.getMessage(),
+                    null
+            );
         } catch (Exception e) {
-            // 예상치 못한 기타 예외 처리
+            // 예상치 못한 서버 오류
             return ApiResponse.onFailure(
                     ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
-                    ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(),
+                    "서버 오류가 발생했습니다.",
                     null
             );
         }
     }
+
     
     // 인증번호 확인
-    @GetMapping("/email/verifications")
+    @GetMapping("/api/email/verifications")
     public ApiResponse<Boolean> verificationEmail(@RequestParam("email") String email,
                                             @RequestParam("code") String authCode) {
         System.out.println("email = " + email + "\n" + "code = " + authCode);
@@ -162,6 +177,66 @@ public class UsersController {
             return ApiResponse.onFailure(ErrorStatus.USER_LIST_GET_FAILED.getCode(), ErrorStatus.USER_LIST_GET_FAILED.getMessage(), null);
         }
     }
+
+    // 회원가입 처리
+    @PostMapping("/api/signup")
+    public ResponseEntity<ApiResponse> signUp(@RequestBody @Valid UsersRequestDTO.UsersJoinDTO usersJoinDTO) {
+        try {
+            // 회원가입 서비스 호출
+            usersService.signUp(usersJoinDTO);
+
+            // 회원가입 성공 응답
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.onSuccess(null, SuccessStatus.USER_JOIN_SUCCESS));
+        } catch (UsersServiceExceptionHandler e) {
+
+            // 예외 처리: 이메일 중복 (USER_EMAIL_DUPLICATE)
+            if (e.getCode() == ErrorStatus.USER_EMAIL_DUPLICATE) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.onFailure(ErrorStatus.USER_EMAIL_DUPLICATE.getCode(),
+                                ErrorStatus.USER_EMAIL_DUPLICATE.getMessage(), null));
+            }
+
+            // 그 외의 예외: 서버 내부 오류 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                            ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(), null));
+        } catch (Exception e) {
+            // 예상치 못한 기타 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                            ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/api/existId")
+    public ResponseEntity<ApiResponse> checkUserId(@RequestParam("userId") String userId) {
+        try {
+            System.out.println("Checking user_id: " + userId);
+
+            if (userId == null || userId.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.onFailure(ErrorStatus.USER_ID_UNAVAILABLE.getCode(),
+                                "아이디를 입력해주세요.", null));
+            }
+
+            if (usersRepository.existsByUserId(userId)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.onFailure(ErrorStatus.USER_ID_UNAVAILABLE.getCode(),
+                                "이미 가입된 아이디입니다.", null));
+            }
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.onSuccess(null, SuccessStatus.USER_ID_AVAILABLE));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                            "서버 오류가 발생했습니다.", null));
+        }
+    }
+
+
 
 
 }

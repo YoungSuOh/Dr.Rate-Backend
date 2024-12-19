@@ -2,6 +2,7 @@ package com.bitcamp.drrate.domain.users.dto.request;
 
 import com.bitcamp.drrate.domain.users.entity.Role;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
