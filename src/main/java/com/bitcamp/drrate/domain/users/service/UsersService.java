@@ -20,4 +20,5 @@ public interface UsersService {
     Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo);
     void joinProc(UsersJoinDTO joinDTO);
     HttpHeaders tokenSetting(String access);
+    Users getMyInfo(Long id);
 }
