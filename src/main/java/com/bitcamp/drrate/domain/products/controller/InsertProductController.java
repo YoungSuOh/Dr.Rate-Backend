@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@CrossOrigin
 @RequestMapping(value="api/products")
 @RequiredArgsConstructor
 public class InsertProductController {

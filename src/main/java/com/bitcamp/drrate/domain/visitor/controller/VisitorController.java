@@ -38,7 +38,7 @@ public class VisitorController {
         }
     }
 
-    @GetMapping("/visitor-summary")
+    @GetMapping("/admin/visitor-summary")
     public ApiResponse<Map<String, Object>> getVisitorSummary() {
         try {
             Map<String, Object> result = new HashMap<>();
@@ -47,8 +47,7 @@ public class VisitorController {
             Long todayMembersCount = visitorService.getTodayMembersCount();
             Long todayGuestCount = visitorService.getTodayGuestCount();
             Long todayNewMembersCount = visitorService.getTodayNewMembersCount();
-            Long todayTotalMembersCount = todayMembersCount + todayGuestCount;
-            Long todayInquiriesCount = visitorService.getTodayInquiriesCount();
+            Long todayTotalMembersCount = todayMembersCount + todayGuestCount;;
 
 
             // MySQL에서 최근 4일 방문자 수, 가입자 수, 문의 수 가져오기
@@ -59,14 +58,12 @@ public class VisitorController {
             int last7DaysGuestCount = visitorService.getLast7DaysGuestVisitorCount();
             int last7DaysTotalCount = visitorService.getLast7DaysTotalVisitorCount();
             int last7DaysNewMembersCount = visitorService.getLast7DaysNewMembersCount();
-            int last7DaysInquiriesCount = visitorService.getLast7DaysInquiriesCount();
 
 
             int thisMonthMemberCount =  visitorService.getThisMonthTotalMemberCount();
             int thisMonthGuestCount = visitorService.getThisMonthGuestVisitorCount();
             int thisMonthTotalCount = visitorService.getThisMonthVisitorTotalCount();
             int thisMonthNewMembersCount = visitorService.getThisMonthNewMembersCount();
-            int thisMonthInquiriesCount = visitorService.getThisMonthInquiriesCount();
 
 
             // 데이터 병합
@@ -74,23 +71,20 @@ public class VisitorController {
                     "totalMembersCount", todayTotalMembersCount,
                     "membersCount", todayMembersCount,
                     "todayGuestCount", todayGuestCount,
-                    "newMembersCount", todayNewMembersCount,
-                    "inquiriesCount", todayInquiriesCount
+                    "newMembersCount", todayNewMembersCount
             ));
             result.put("last4Days", last4DaysVisitors);
             result.put("last7DaysTotal", Map.of(
                     "visitorMemberCount", last7DaysMemberCount,
                     "visitorGuestCount", last7DaysGuestCount,
                     "visitorTotalCount", last7DaysTotalCount,
-                    "newMembersCount", last7DaysNewMembersCount,
-                    "inquiriesCount", last7DaysInquiriesCount
+                    "newMembersCount", last7DaysNewMembersCount
             ));
             result.put("thisMonthTotal", Map.of(
                     "visitorMemberCount", thisMonthMemberCount,
                     "visitorGuestCount", thisMonthGuestCount,
                     "visitorTotalCount", thisMonthTotalCount,
-                    "newMembersCount", thisMonthNewMembersCount,
-                    "inquiriesCount", thisMonthInquiriesCount
+                    "newMembersCount", thisMonthNewMembersCount
             ));
 
             return ApiResponse.onSuccess(result, SuccessStatus.VISIT_RECORD_LOAD_SUCCESS);

@@ -115,25 +115,6 @@ public class VisitorServiceImpl implements VisitorService {
         }
     }
 
-    @Override
-    public Long getTodayInquiriesCount() {
-        try {
-            String today = LocalDate.now().toString();
-            String redisKey = "daily_inquiries:open:" + today;
-
-            Long size = redisTemplate.opsForSet().size(redisKey);
-            return size != null ? size: 0;
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            throw new VisitServiceExceptionHandler(ErrorStatus.REDIS_LOAD_FAILED);
-        } catch (RedisConnectionFailureException e) {
-            e.printStackTrace();
-            throw new VisitServiceExceptionHandler(ErrorStatus.REDIS_LOAD_FAILED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new VisitServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
     // 지난 4일 데이터 불러옴
     @Override
     public List<DailyVisitor> getLast4DaysVisitorCounts() {
@@ -199,19 +180,6 @@ public class VisitorServiceImpl implements VisitorService {
             throw new VisitServiceExceptionHandler(ErrorStatus.MYSQL_LOAD_FAILED);
         }
     }
-    // 일주일 간 문의 수
-    @Override
-    public int getLast7DaysInquiriesCount() {
-        try {
-            LocalDate today = LocalDate.now();
-            LocalDate sevenDaysAgo = today.minusDays(7);
-            Integer total = dailyVisitorRepository.findTotalInquiriesBetweenDates(sevenDaysAgo, today);
-            return total != null ? total : 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new VisitServiceExceptionHandler(ErrorStatus.MYSQL_LOAD_FAILED);
-        }
-    }
 
     // 한달 간 데이터 불러옴
 
@@ -256,21 +224,6 @@ public class VisitorServiceImpl implements VisitorService {
             LocalDate today = LocalDate.now();
             LocalDate startOfMonth = today.withDayOfMonth(1);
             Integer total = dailyVisitorRepository.findTotalNewMembersBetweenDates(startOfMonth, today);
-            return total != null ? total : 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new VisitServiceExceptionHandler(ErrorStatus.MYSQL_LOAD_FAILED);
-        }
-    }
-
-    
-    // 한달 간 문의 수
-    @Override
-    public int getThisMonthInquiriesCount() {
-        try {
-            LocalDate today = LocalDate.now();
-            LocalDate startOfMonth = today.withDayOfMonth(1);
-            Integer total = dailyVisitorRepository.findTotalInquiriesBetweenDates(startOfMonth, today);
             return total != null ? total : 0;
         } catch (Exception e) {
             e.printStackTrace();

@@ -158,7 +158,7 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/api/userList")
+    @GetMapping("/api/admin/userList")
     public ApiResponse<Page<Users>>getUsersList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size,
@@ -237,6 +237,16 @@ public class UsersController {
     }
 
 
+    //내 정보 불러오기
+    @PostMapping("/api/myInfo")
+    public ApiResponse<Users> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try{
+            Users users = usersService.getMyInfo(userDetails.getId());
+            return ApiResponse.onSuccess(users, SuccessStatus.USER_MYPAGE_SUCCESS);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.USER_ID_CANNOT_FOUND.getCode(), ErrorStatus.USER_ID_CANNOT_FOUND.getMessage(), null);
+        }
+    }
 
 
 }

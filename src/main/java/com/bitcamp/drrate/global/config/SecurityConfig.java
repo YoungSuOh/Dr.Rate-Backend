@@ -71,9 +71,9 @@ public class SecurityConfig {
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/", "/join", "/reissue", "/login/**", "/loginForm", "/ws/**", "/product/**", "/api/**", "/chat/**").permitAll()
-                .requestMatchers("/email/**").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
+                .requestMatchers("/login/**", "/join", "/reissue","/ws/**", "/api/product/**", "/api/products/**" , "/chat/**",  "/email/**").permitAll()
+                .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar").authenticated()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
         http.addFilterBefore(new JWTFilter(jwtUtil, usersRepository), LoginFilter.class);
@@ -92,7 +92,6 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 쿠키 포함 허용
-        config.addAllowedOriginPattern("https://jiangxy.github.io"); // websocket test용 origin
         config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 Origin
         config.addAllowedHeader("*"); // 모든 헤더 허용
         config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용

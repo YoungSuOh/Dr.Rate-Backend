@@ -37,12 +37,16 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             }
             return chatMessages;
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.INQUIRE_MESSAGE_BAD_REQUEST);
         } catch (NoSuchElementException e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.INQUIRE_MESSAGE_BAD_REQUEST);
         } catch (MongoException e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.MONGODB_LOAD_FAILED);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }

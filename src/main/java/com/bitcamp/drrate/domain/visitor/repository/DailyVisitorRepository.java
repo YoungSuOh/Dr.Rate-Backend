@@ -31,7 +31,4 @@ public interface DailyVisitorRepository extends JpaRepository<DailyVisitor, Loca
             "WHERE d.visitDate BETWEEN :startDate AND :endDate")
     Integer findTotalNewMembersBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT SUM(d.inquiriesCount) FROM DailyVisitor d " +
-            "WHERE d.visitDate BETWEEN :startDate AND :endDate")
-    Integer findTotalInquiriesBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

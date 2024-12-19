@@ -15,8 +15,6 @@ public interface VisitorService {
 
     Long getTodayNewMembersCount();
 
-    Long getTodayInquiriesCount();
-
     List<DailyVisitor> getLast4DaysVisitorCounts();
 
     int getLast7DaysMemberVisitorCount();
@@ -27,7 +25,6 @@ public interface VisitorService {
 
     int getLast7DaysNewMembersCount();
 
-    int getLast7DaysInquiriesCount();
 
     int getThisMonthTotalMemberCount();
 
@@ -37,7 +34,6 @@ public interface VisitorService {
 
     int getThisMonthNewMembersCount();
 
-    int getThisMonthInquiriesCount();
 
 
 }

@@ -142,4 +142,11 @@ public class UsersServiceImpl implements UsersService {
         headers.add("Access-Control-Expose-Headers", "Authorization");
         return headers;
     }
+
+    @Override
+    public Users getMyInfo(Long id) {
+        Users users = usersRepository.findUsersById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
+        return users;
+    }
 }
