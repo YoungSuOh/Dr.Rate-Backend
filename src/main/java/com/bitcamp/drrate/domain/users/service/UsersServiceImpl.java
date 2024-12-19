@@ -109,31 +109,30 @@ public class UsersServiceImpl implements UsersService {
 
         return usersRepository.save(newUsers);
     }
+    @Override
+    @Transactional
+    public void signUp(UsersJoinDTO usersJoinDTO) {
 
-
-    @Override //일반 사용자 회원가입
-    public void joinProc(UsersJoinDTO joinDTO) {
-        String username = joinDTO.getUsername();
-        String userId = joinDTO.getUserId();
-        String password = joinDTO.getPassword();
-        String email = joinDTO.getEmail();
-
-        Boolean isExist = usersRepository.existsByEmail(email);
-
-        if (isExist) {
-            return;
+        // 이메일 중복 체크
+        if(usersRepository.existsByEmail(usersJoinDTO.getEmail())){
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_EMAIL_DUPLICATE);
         }
 
-        Users users = new Users();
+        // 비밀번호 암호화
+        String encodedPassword = bCryptPasswordEncoder.encode(usersJoinDTO.getPassword());
 
-        users.setUsername(username);
-        users.setEmail(email);
-        users.setRole(Role.USER);
-        users.setPassword(bCryptPasswordEncoder.encode(password));
-        users.setUserId(userId);
+        // 새 사용자 객체 생성
+        Users newUser = Users.builder()
+                .userId(usersJoinDTO.getUserId())
+                .email(usersJoinDTO.getEmail())
+                .username(usersJoinDTO.getUsername())
+                .password(encodedPassword)
+                .role(Role.USER)
+                .build();
 
-        usersRepository.save(users);
+        usersRepository.save(newUser);
     }
+
 
     @Override // 소셜로그인으로 로그인 시 Header에 AccessToken 전달
     public HttpHeaders tokenSetting(String access) {
