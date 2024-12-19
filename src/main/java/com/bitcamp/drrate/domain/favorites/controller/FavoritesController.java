@@ -24,7 +24,6 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin
 @RequestMapping(value="/api/favorite")
 @RequiredArgsConstructor
 public class FavoritesController {

@@ -38,7 +38,7 @@ public class VisitorController {
         }
     }
 
-    @GetMapping("/visitor-summary")
+    @GetMapping("/admin/visitor-summary")
     public ApiResponse<Map<String, Object>> getVisitorSummary() {
         try {
             Map<String, Object> result = new HashMap<>();
