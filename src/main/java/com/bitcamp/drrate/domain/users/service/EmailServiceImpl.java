@@ -42,6 +42,9 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmail(String toEmail, String title, String text) {
         SimpleMailMessage emailForm = createEmailForm(toEmail, title, text);
         try {
+            // 발송자 이름과 이메일 주소 설정
+            emailForm.setFrom("DR_Rate <anfto023@gmail.com>");
+
             emailSender.send(emailForm);
             logger.info("이메일 전송 성공: {}", toEmail);
         } catch (RuntimeException e) {

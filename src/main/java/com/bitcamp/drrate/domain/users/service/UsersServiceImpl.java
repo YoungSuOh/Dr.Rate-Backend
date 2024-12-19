@@ -112,6 +112,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public void signUp(UsersJoinDTO usersJoinDTO) {
+
         // 이메일 중복 체크
         if(usersRepository.existsByEmail(usersJoinDTO.getEmail())){
             throw new UsersServiceExceptionHandler(ErrorStatus.USER_EMAIL_DUPLICATE);
