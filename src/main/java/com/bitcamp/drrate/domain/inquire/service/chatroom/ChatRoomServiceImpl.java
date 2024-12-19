@@ -166,7 +166,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     ChatRoom chatRoom = chatRoomOptional.get();
                     chatRoom.setStatus(ChatRoomStatus.CLOSED); // 상태를 CLOSED로 변경
                     chatRoomRepository.save(chatRoom); // 변경된 상태 저장
-                    decrementOpenChatRoomCountInRedis();
                 }else {
                     throw new InquireServiceHandler(ErrorStatus.INQUIRE_ROOM_NOT_FOUND);
                 }
@@ -180,30 +179,5 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         } catch (Exception e) {
             throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    // Redis에 OPEN 상태 문의 수 저장
-    // Redis에 OPEN 상태 문의 수 저장
-    @Override
-    public void saveOpenChatRoomCountToRedis() {
-        long openCount = chatRoomRepository.countByStatus(ChatRoomStatus.OPEN);
-        String redisKey = "daily_inquiries:open:" + LocalDate.now();
-
-        redisTemplate.opsForValue().set(redisKey, String.valueOf(openCount));
-    }
-
-    // Redis에서 문의 수 감소
-    @Override
-    public void decrementOpenChatRoomCountInRedis() {
-        String redisKey = "daily_inquiries:open:" + LocalDate.now();
-        redisTemplate.opsForValue().decrement(redisKey);
-    }
-
-    // Redis에서 문의 수 조회
-    @Override
-    public int getOpenChatRoomCountFromRedis() {
-        String redisKey = "daily_inquiries:open:" + LocalDate.now();
-        String count = redisTemplate.opsForValue().get(redisKey);
-        return count != null ? Integer.parseInt(count) : 0;
     }
 }

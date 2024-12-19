@@ -30,7 +30,6 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
         String memberKey = "daily_visitors:member:" + today;
         String guestKey = "daily_visitors:guest:" + today;
         String newMembersKey = "daily_new_members:" + today;
-        String inquiriesKey = "daily_inquiries:open:" + today;
 
         try {
             // Redis에서 방문자 수 가져오기
@@ -41,8 +40,6 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
             // Redis에서 신규 가입자 수 가져오기
             Integer newMembersCount = getRedisValueAsInteger(newMembersKey);
 
-            // Redis에서 OPEN 상태 문의 수 가져오기
-            Integer inquiriesCount = getRedisValueAsInteger(inquiriesKey);
 
 
             // MySQL에 데이터 저장
@@ -51,15 +48,13 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
                     memberCount != null ? memberCount.intValue() : 0,
                     guestCount != null ? guestCount.intValue() : 0,
                     totalCount != null ? totalCount.intValue() : 0,
-                    newMembersCount != null ? newMembersCount : 0,
-                    inquiriesCount != null ? inquiriesCount : 0
+                    newMembersCount != null ? newMembersCount : 0
             ));
 
             // Redis 데이터 삭제
             redisTemplate.delete(memberKey);
             redisTemplate.delete(guestKey);
             redisTemplate.delete(newMembersKey);
-            redisTemplate.delete(inquiriesKey);
 
         } catch (RedisConnectionFailureException e) {
             throw new VisitServiceExceptionHandler(ErrorStatus.REDIS_LOAD_FAILED);

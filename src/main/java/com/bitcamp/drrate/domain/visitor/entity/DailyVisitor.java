@@ -29,7 +29,4 @@ public class DailyVisitor {
 
     @Column(name = "new_members_count")
     private int newMembersCount;
-
-    @Column(name = "inquiries_count")
-    private int inquiriesCount;
 }

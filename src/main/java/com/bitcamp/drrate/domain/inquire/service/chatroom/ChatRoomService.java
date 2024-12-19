@@ -7,7 +7,4 @@ public interface ChatRoomService {
     ChatRoom getOrCreateChatRoom(String senderId);
     Page<ChatRoom> getChatRoomsBySearchCriteria(int page, int size, String searchType, String keyword);
     void deleteChatRoomById(String id);
-    void saveOpenChatRoomCountToRedis();
-    void decrementOpenChatRoomCountInRedis();
-    int getOpenChatRoomCountFromRedis();
 }
