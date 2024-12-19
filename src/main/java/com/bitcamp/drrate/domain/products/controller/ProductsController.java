@@ -16,7 +16,7 @@ import com.bitcamp.drrate.domain.products.entity.Products;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping(value="product")
+@RequestMapping(value="/api/product")
 @RequiredArgsConstructor
 public class ProductsController {
     private final ProductsService productsService;
@@ -36,6 +36,9 @@ public class ProductsController {
 
 
 
+    
+    
+    
     //241211 상품전체조회 - 오혜진
     @GetMapping(value = "getAllProducts")
     @ResponseBody
