@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .requestMatchers("/login/**", "/join", "/reissue","/ws/**", "/api/product/**", "/api/products/**" , "/chat/**",  "/email/**").permitAll()
                 .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().permitAll());
+                .anyRequest().authenticated());
 
         http.addFilterBefore(new JWTFilter(jwtUtil, usersRepository), LoginFilter.class);
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
