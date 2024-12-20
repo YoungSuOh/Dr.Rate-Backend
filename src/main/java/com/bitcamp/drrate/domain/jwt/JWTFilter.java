@@ -10,6 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
+import com.bitcamp.drrate.domain.users.service.UsersService;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 
@@ -30,6 +31,12 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = request.getHeader("Authorization");
 
+        //요청주소가 /reissue면 필터검증을 건너뜀
+        String requestURI = request.getRequestURI();
+        if ("/reissue".equals(requestURI)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         // 토큰이 없으면 다음 필터로 넘김
         if (accessToken == null || !accessToken.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);

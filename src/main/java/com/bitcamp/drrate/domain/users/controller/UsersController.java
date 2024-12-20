@@ -1,18 +1,22 @@
 package com.bitcamp.drrate.domain.users.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
 import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
@@ -38,7 +42,7 @@ public class UsersController {
     private final EmailService emailService;
 
     //소셜 로그인 인가코드 요청
-    @GetMapping("/login/{provider}")
+    @RequestMapping(value="/login/{provider}", method=RequestMethod.GET)
     public void userLogin(HttpServletResponse response, @PathVariable("provider") String provider) throws IOException {
         if(provider.equals("google")){
             googleService.loginGoogle(response);
@@ -49,7 +53,7 @@ public class UsersController {
     }
 
     //소셜 로그인 (DB저장, 토큰발급, Header세팅)
-    @GetMapping("/login/oauth2/code/{provider}")
+    @RequestMapping(value="/login/oauth2/code/{provider}", method=RequestMethod.GET)
     public ResponseEntity<?> login(@RequestParam("code") String code, @PathVariable("provider") String provider) {
         try {
             String access = null;
@@ -105,7 +109,7 @@ public class UsersController {
     }
 
     // 인증번호 전송
-    @PostMapping("/email/verification-request")
+    @RequestMapping(value="/email/verification-request", method=RequestMethod.POST)
     public ApiResponse<Boolean> sendMessage(@RequestParam("email") String email) {
         try {
             // 사용자에게 인증코드 이메일 전송
@@ -125,7 +129,7 @@ public class UsersController {
     }
     
     // 인증번호 확인
-    @GetMapping("/email/verifications")
+    @RequestMapping(value="/email/verifications", method=RequestMethod.GET)
     public ApiResponse<Boolean> verificationEmail(@RequestParam("email") String email,
                                             @RequestParam("code") String authCode) {
         System.out.println("email = " + email + "\n" + "code = " + authCode);
@@ -143,7 +147,7 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/api/admin/userList")
+    @RequestMapping(value="/api/userList", method=RequestMethod.GET)
     public ApiResponse<Page<Users>>getUsersList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size,
@@ -164,7 +168,7 @@ public class UsersController {
     }
     
     //내 정보 불러오기
-    @PostMapping("/api/myInfo")
+    @RequestMapping(value="/api/myInfo", method=RequestMethod.POST)
     public ApiResponse<Users> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try{
             Users users = usersService.getMyInfo(userDetails.getId());
@@ -174,4 +178,24 @@ public class UsersController {
         }
     }
 
+    @RequestMapping(value="/reissue", method=RequestMethod.POST)
+    public ApiResponse<?> tokenRefresh(@RequestBody Map<String, String> requestBody) {
+        // 요청 본문에서 access_token 추출
+        String accessToken = requestBody.get("access_token");
+        try {
+            if (accessToken == null || accessToken.isEmpty()) {
+                // access_token이 없으면 에러 반환
+                return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+            }
+            // accesstoken 검증 로직 및 새로운 accesstoken 발급, 토큰이 없으면 에러 반환
+            String token = usersService.invalidAccessToken(accessToken);
+            if (token.equals("") || token.isEmpty() ) {
+                return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+            }
+            return ApiResponse.onSuccess(token, SuccessStatus.USER_TOKEN_REISSUE_SUCCESS); // 토큰이 담겨왔으면 토큰 반환
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+        }
+        
+    }
 }

@@ -71,7 +71,7 @@ public class SecurityConfig {
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login/**", "/join", "/reissue","/ws/**", "/api/product/**", "/api/products/**" , "/chat/**",  "/email/**").permitAll()
+                .requestMatchers("/login/**", "/join", "/reissue","/ws/**", "/api/product/**", "/api/products/**" , "/chat/**",  "/email/**", "/api/auth/refresh").permitAll()
                 .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated());

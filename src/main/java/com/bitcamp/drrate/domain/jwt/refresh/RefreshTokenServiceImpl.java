@@ -1,6 +1,7 @@
 package com.bitcamp.drrate.domain.jwt.refresh;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
