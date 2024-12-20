@@ -1,11 +1,13 @@
 package com.bitcamp.drrate.global.code.resultCode;
 
 
+import org.springframework.http.HttpStatus;
+
 import com.bitcamp.drrate.global.code.ErrorCode;
 import com.bitcamp.drrate.global.code.ErrorDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -36,6 +38,7 @@ public enum ErrorStatus implements ErrorCode {
     SESSION_REFRESH_INVALID(HttpStatus.UNAUTHORIZED, "SESSION402", "리프레쉬 토큰 값이 유효하지 않습니다."),
     SESSION_ACCESS_EXPIRED(HttpStatus.UNAUTHORIZED, "SESSION403", "액세스 토큰이 만료되었습니다."),
     SESSION_ACCESS_PARSE_ERROR(HttpStatus.NOT_FOUND, "SESSION404", "액세스 토큰이 없거나 분석할 수 없습니다."),
+    SESSION_FORMAT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SESSION405", "잘못된 형식의 값이 들어왔습니다."),
 
     // Inquire
     INQUIRE_LIST_GET_FAILED(HttpStatus.NOT_FOUND, "INQUIRE400", "문의 목록 불러오기 실패했습니다."),

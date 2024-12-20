@@ -1,22 +1,29 @@
 package com.bitcamp.drrate.domain.users.controller;
 
 import java.io.IOException;
+import java.util.Map;
 
-import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO;
-import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.bitcamp.drrate.domain.oauth.google.service.GoogleService;
 import com.bitcamp.drrate.domain.oauth.kakao.service.KakaoService;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
+import com.bitcamp.drrate.domain.users.dto.request.UsersRequestDTO;
 import com.bitcamp.drrate.domain.users.entity.Role;
 import com.bitcamp.drrate.domain.users.entity.Users;
+import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.domain.users.service.EmailService;
 import com.bitcamp.drrate.domain.users.service.UsersService;
 import com.bitcamp.drrate.global.ApiResponse;
@@ -25,6 +32,7 @@ import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,7 +46,7 @@ public class UsersController {
     private final UsersRepository usersRepository;
 
     //소셜 로그인 인가코드 요청
-    @GetMapping("/login/{provider}")
+    @RequestMapping(value="/api/signIn/{provider}", method=RequestMethod.GET)
     public void userLogin(HttpServletResponse response, @PathVariable("provider") String provider) throws IOException {
         if(provider.equals("google")){
             googleService.loginGoogle(response);
@@ -49,7 +57,7 @@ public class UsersController {
     }
 
     //소셜 로그인 (DB저장, 토큰발급, Header세팅)
-    @GetMapping("/login/oauth2/code/{provider}")
+    @RequestMapping(value="/api/signIn/oauth2/code/{provider}", method=RequestMethod.GET)
     public ResponseEntity<?> login(@RequestParam("code") String code, @PathVariable("provider") String provider) {
         try {
             String access = null;
@@ -104,7 +112,7 @@ public class UsersController {
         }
     }
     //이메일 인증 번호 전송
-    @PostMapping("/api/email/verify")
+    @RequestMapping(value="/api/email/verify", method=RequestMethod.POST)
     public ApiResponse<Void> sendMessage(@RequestParam("email") String email) {
         try {
             // 이메일 중복 체크
@@ -140,7 +148,7 @@ public class UsersController {
 
     
     // 인증번호 확인
-    @GetMapping("/api/email/verifications")
+    @RequestMapping(value="/api/email/verifications", method=RequestMethod.GET)
     public ApiResponse<Boolean> verificationEmail(@RequestParam("email") String email,
                                             @RequestParam("code") String authCode) {
         System.out.println("email = " + email + "\n" + "code = " + authCode);
@@ -157,8 +165,8 @@ public class UsersController {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping("/api/admin/userList")
+    
+    @RequestMapping(value="/api/userList", method=RequestMethod.GET)
     public ApiResponse<Page<Users>>getUsersList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size,
@@ -179,7 +187,7 @@ public class UsersController {
     }
 
     // 회원가입 처리
-    @PostMapping("/api/signup")
+    @RequestMapping(value="/api/signUp", method=RequestMethod.POST)
     public ResponseEntity<ApiResponse> signUp(@RequestBody @Valid UsersRequestDTO.UsersJoinDTO usersJoinDTO) {
         try {
             // 회원가입 서비스 호출
@@ -209,7 +217,7 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/api/existId")
+    @RequestMapping(value="/api/signUp/existId", method=RequestMethod.GET)
     public ResponseEntity<ApiResponse> checkUserId(@RequestParam("userId") String userId) {
         try {
             System.out.println("Checking user_id: " + userId);
@@ -236,9 +244,8 @@ public class UsersController {
         }
     }
 
-
     //내 정보 불러오기
-    @PostMapping("/api/myInfo")
+    @RequestMapping(value="/api/myInfo", method=RequestMethod.POST)
     public ApiResponse<Users> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try{
             Users users = usersService.getMyInfo(userDetails.getId());
@@ -248,5 +255,24 @@ public class UsersController {
         }
     }
 
-
+    //토큰 재발급
+    @RequestMapping(value="/api/reissue", method=RequestMethod.POST)
+    public ApiResponse<?> tokenRefresh(@RequestBody Map<String, String> requestBody) {
+        // 요청 본문에서 access_token 추출
+        String accessToken = requestBody.get("access_token");
+        try {
+            if (accessToken == null || accessToken.isEmpty()) {
+                // access_token이 없으면 에러 반환
+                return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+            }
+            // accesstoken 검증 로직 및 새로운 accesstoken 발급, 토큰이 없으면 에러 반환
+            String token = usersService.invalidAccessToken(accessToken);
+            if (token.equals("") || token.isEmpty() ) {
+                return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+            }
+            return ApiResponse.onSuccess(token, SuccessStatus.USER_TOKEN_REISSUE_SUCCESS); // 토큰이 담겨왔으면 토큰 반환
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+        }
+    }
 }
