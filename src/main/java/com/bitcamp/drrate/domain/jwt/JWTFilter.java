@@ -30,6 +30,12 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = request.getHeader("Authorization");
 
+        //요청주소가 /reissue면 필터검증을 건너뜀
+        String requestURI = request.getRequestURI();
+        if ("/api/reissue".equals(requestURI)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         // 토큰이 없으면 다음 필터로 넘김
         if (accessToken == null || !accessToken.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);

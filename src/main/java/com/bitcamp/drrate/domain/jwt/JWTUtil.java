@@ -9,6 +9,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 
 
@@ -46,5 +48,26 @@ public class JWTUtil {
             .expiration(new Date(System.currentTimeMillis() + expiredMs))
             .signWith(secretKey)
             .compact();
+    }
+
+    public Long getIdWithoutValidation(String token) {
+        if (token == null || token.isEmpty()) {
+            System.out.println("토큰이 비어 있거나 null입니다: " + token);
+            throw new IllegalArgumentException("JWT 토큰이 비어 있거나 null입니다.");
+        }
+
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey) // 서명 검증은 수행
+                    .build()
+                    .parseSignedClaims(token) // 토큰 파싱
+                    .getPayload(); // 클레임 추출
+
+            return claims.get("id", Long.class);
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰의 경우에도 클레임 추출
+            System.out.println("만료된 토큰에서 클레임 추출: " + e.getClaims());
+            return e.getClaims().get("id", Long.class);
+        }
     }
 }

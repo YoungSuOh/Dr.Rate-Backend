@@ -71,8 +71,8 @@ public class SecurityConfig {
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login/**", "/join", "/reissue","/ws/**", "/api/product/**", "/api/products/**" , "/chat/**",  "/email/**").permitAll()
-                .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar").authenticated()
+                .requestMatchers("/api/signIn/**", "/api/signUp/**", "/ws/**", "/api/product/**", "/api/products/**" , "/chat/**",  "/api/email/**", "/api/reissue").permitAll()
+                .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar", "/api/myInfo").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
@@ -93,7 +93,6 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 쿠키 포함 허용
         config.addAllowedOriginPattern("http://localhost:5173"); // 허용할 Origin
-        config.addAllowedOriginPattern("https://www.dr-rate.store");
         config.addAllowedHeader("*"); // 모든 헤더 허용
         config.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         source.registerCorsConfiguration("/**", config);
