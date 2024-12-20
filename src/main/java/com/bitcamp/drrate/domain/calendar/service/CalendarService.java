@@ -6,13 +6,11 @@ import com.bitcamp.drrate.domain.calendar.dto.response.CalendarResponseDTO;
 import java.util.List;
 
 public interface CalendarService {
-    //List<CalendarResponseDTO> getInstallmentProducts(); // 적금 상품 목록 조회
+	void saveCalendarEntries(List<CalendarRequestDTO> requests); // 이벤트 저장
     
-    void saveCalendarEntry(CalendarRequestDTO request); // 이벤트 저장
+    List<CalendarResponseDTO> getCalendarEvents(Long userId); // 목록 조회
     
-	List<CalendarResponseDTO> getCalendarEvents(); // 이벤트 목록 조회
-	
-	void updateCalendarEntry(Long id, CalendarRequestDTO request); //이벤트 수정
-	
-	void deleteCalendarEntry(Long id); //이벤트 삭제
+    void updateCalendarGroup(Long id, Long userId, CalendarRequestDTO request); // 그룹 수정
+    
+    void deleteCalendarGroup(Long id, Long userId); // 그룹 삭제
 }
