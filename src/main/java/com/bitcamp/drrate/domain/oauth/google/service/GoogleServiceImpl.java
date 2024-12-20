@@ -133,7 +133,7 @@ public class GoogleServiceImpl implements GoogleService {
                 access = jwtUtil.createJwt(id, "access", "ROLE_ADMIN", 86400000L);
                 refresh = jwtUtil.createJwt(id, "refresh", "ROLE_ADMIN", 86400000L);
             }else{
-                access = jwtUtil.createJwt(id, "access", "ROLE_USER", 10000L);
+                access = jwtUtil.createJwt(id, "access", "ROLE_USER", 86400000L);
                 refresh = jwtUtil.createJwt(id, "refresh", "ROLE_USER", 86400000L);
             }
 
