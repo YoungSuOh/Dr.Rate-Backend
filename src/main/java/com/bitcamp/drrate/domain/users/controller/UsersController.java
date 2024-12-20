@@ -46,7 +46,7 @@ public class UsersController {
     private final UsersRepository usersRepository;
 
     //소셜 로그인 인가코드 요청
-    @RequestMapping(value="/login/{provider}", method=RequestMethod.GET)
+    @RequestMapping(value="/api/signIn/{provider}", method=RequestMethod.GET)
     public void userLogin(HttpServletResponse response, @PathVariable("provider") String provider) throws IOException {
         if(provider.equals("google")){
             googleService.loginGoogle(response);
@@ -112,7 +112,7 @@ public class UsersController {
         }
     }
     //이메일 인증 번호 전송
-    @PostMapping("/api/email/verify")
+    @RequestMapping(value="/api/email/verify", method=RequestMethod.POST)
     public ApiResponse<Void> sendMessage(@RequestParam("email") String email) {
         try {
             // 이메일 중복 체크
@@ -148,7 +148,7 @@ public class UsersController {
 
     
     // 인증번호 확인
-    @GetMapping("/api/email/verifications")
+    @RequestMapping(value="/api/email/verifications", method=RequestMethod.GET)
     public ApiResponse<Boolean> verificationEmail(@RequestParam("email") String email,
                                             @RequestParam("code") String authCode) {
         System.out.println("email = " + email + "\n" + "code = " + authCode);
@@ -187,7 +187,7 @@ public class UsersController {
     }
 
     // 회원가입 처리
-    @PostMapping("/api/signup")
+    @RequestMapping(value="/api/signUp", method=RequestMethod.POST)
     public ResponseEntity<ApiResponse> signUp(@RequestBody @Valid UsersRequestDTO.UsersJoinDTO usersJoinDTO) {
         try {
             // 회원가입 서비스 호출
@@ -217,7 +217,7 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/api/existId")
+    @RequestMapping(value="/api/signUp/existId", method=RequestMethod.GET)
     public ResponseEntity<ApiResponse> checkUserId(@RequestParam("userId") String userId) {
         try {
             System.out.println("Checking user_id: " + userId);
@@ -256,7 +256,7 @@ public class UsersController {
     }
 
     //토큰 재발급
-    @RequestMapping(value="/reissue", method=RequestMethod.POST)
+    @RequestMapping(value="/api/reissue", method=RequestMethod.POST)
     public ApiResponse<?> tokenRefresh(@RequestBody Map<String, String> requestBody) {
         // 요청 본문에서 access_token 추출
         String accessToken = requestBody.get("access_token");

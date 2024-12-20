@@ -10,7 +10,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-import com.bitcamp.drrate.domain.users.service.UsersService;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptionHandler;
 
@@ -33,7 +32,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //요청주소가 /reissue면 필터검증을 건너뜀
         String requestURI = request.getRequestURI();
-        if ("/reissue".equals(requestURI)) {
+        if ("/api/reissue".equals(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
