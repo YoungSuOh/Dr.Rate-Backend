@@ -3,19 +3,20 @@ package com.bitcamp.drrate.domain.calendar.controller;
 import com.bitcamp.drrate.domain.calendar.dto.request.CalendarRequestDTO;
 import com.bitcamp.drrate.domain.calendar.dto.response.CalendarResponseDTO;
 import com.bitcamp.drrate.domain.calendar.service.CalendarService;
+import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.CalendarServiceExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/calendar")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class CalendarController {
 
@@ -23,9 +24,11 @@ public class CalendarController {
 
     // 달력 이벤트 저장
     @PostMapping("/save")
-    public ApiResponse<HttpStatus> saveCalendarEntry(@RequestBody CalendarRequestDTO request) {
+    public ApiResponse<HttpStatus> saveCalendarEntries(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody List<CalendarRequestDTO> requests) {
         try {
-            calendarService.saveCalendarEntry(request);
+            Long userId = userDetails.getId();
+            requests.forEach(request -> request.setCal_user_id(userId));
+            calendarService.saveCalendarEntries(requests);
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.CALENDAR_SAVE_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
             return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
@@ -36,9 +39,10 @@ public class CalendarController {
 
     // 목록 가져오기
     @GetMapping("/events")
-    public ApiResponse<List<CalendarResponseDTO>> getCalendarEvents() {
+    public ApiResponse<List<CalendarResponseDTO>> getCalendarEvents(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            List<CalendarResponseDTO> events = calendarService.getCalendarEvents();
+            Long userId = userDetails.getId();
+            List<CalendarResponseDTO> events = calendarService.getCalendarEvents(userId);
             return ApiResponse.onSuccess(events, SuccessStatus.CALENDAR_QUERY_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
             return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
@@ -48,10 +52,11 @@ public class CalendarController {
     }
 
     // 수정
-    @PutMapping("/update/{id}")
-    public ApiResponse<HttpStatus> updateCalendarEntry(@PathVariable("id") Long id, @RequestBody CalendarRequestDTO request) {
+    @PutMapping("/update/group/{id}")
+    public ApiResponse<HttpStatus> updateCalendarGroup(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable("id") Long id, @RequestBody CalendarRequestDTO request) {
         try {
-            calendarService.updateCalendarEntry(id, request);
+            Long userId = userDetails.getId();
+            calendarService.updateCalendarGroup(id, userId, request);
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.CALENDAR_UPDATE_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
             return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
@@ -61,10 +66,11 @@ public class CalendarController {
     }
 
     // 삭제
-    @DeleteMapping("/delete/{id}")
-    public ApiResponse<HttpStatus> deleteCalendarEntry(@PathVariable("id") Long id) {
+    @DeleteMapping("/delete/group/{id}")
+    public ApiResponse<HttpStatus> deleteCalendarGroup(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable("id") Long id) {
         try {
-            calendarService.deleteCalendarEntry(id);
+            Long userId = userDetails.getId();
+            calendarService.deleteCalendarGroup(id, userId);
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.CALENDAR_DELETE_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
             return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);

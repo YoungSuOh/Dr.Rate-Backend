@@ -35,10 +35,15 @@ public class Calendar {
 
     @Column(name = "end_date", nullable = false)
     private LocalDate end_date;
+    
+    @Column(name = "group_id", nullable = false)
+    private String groupId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime created_at; // 생성 날짜
-	private LocalDateTime updated_at; // 수정 날짜
+    private LocalDateTime created_at;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updated_at;
 
     @PrePersist
     public void prePersist() {
@@ -51,12 +56,13 @@ public class Calendar {
     }
 
     @Builder
-    public Calendar(Long cal_user_id, String installment_name, String bank_name, Long amount, LocalDate start_date, LocalDate end_date) {
+    public Calendar(Long cal_user_id, String installment_name, String bank_name, Long amount, LocalDate start_date, LocalDate end_date, String groupId) {
         this.cal_user_id = cal_user_id;
         this.installment_name = installment_name;
         this.bank_name = bank_name;
         this.amount = amount;
         this.start_date = start_date;
         this.end_date = end_date;
+        this.groupId = groupId;
     }
 }
