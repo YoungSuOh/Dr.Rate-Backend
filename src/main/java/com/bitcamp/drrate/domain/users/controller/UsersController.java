@@ -57,7 +57,7 @@ public class UsersController {
     }
 
     //소셜 로그인 (DB저장, 토큰발급, Header세팅)
-    @RequestMapping(value="/login/oauth2/code/{provider}", method=RequestMethod.GET)
+    @RequestMapping(value="/api/signIn/oauth2/code/{provider}", method=RequestMethod.GET)
     public ResponseEntity<?> login(@RequestParam("code") String code, @PathVariable("provider") String provider) {
         try {
             String access = null;
