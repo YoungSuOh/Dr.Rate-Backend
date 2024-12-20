@@ -1,31 +1,19 @@
 package com.bitcamp.drrate.domain.inquire.entity;
 
 
-import com.bitcamp.drrate.domain.users.entity.Users;
 import com.bitcamp.drrate.global.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
 @Getter
 @Setter
-@Builder
-@Table(name = "chat_message")
-@NoArgsConstructor
-@AllArgsConstructor
+@Document(collection = "chat_message")  // MongoDB의 컬렉션 이름
 public class ChatMessage extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false)
-    private InquireRoom room; // InquireRoom과의 관계 추가
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Users sender;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String message;
+    private String id; // MongoDB에서 고유 식별자로 사용될 필드
+    private String roomId;    // 채팅방 식별자
+    private String senderId;  // 보낸 사람 ID
+    private String content;   // 메시지 내용
 }

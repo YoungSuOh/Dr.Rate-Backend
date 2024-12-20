@@ -1,15 +1,16 @@
 package com.bitcamp.drrate.global.handler.stomp;
 
-import com.bitcamp.drrate.domain.inquire.repository.InquireRoomRepository;
+
+import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.exception.exceptionhandler.StompServiceExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +19,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
-    // private final JwtTokenProvider jwtTokenProvider; -> JWT 토큰 발급 이후에
-    private final InquireRoomRepository inquireRoomRepository;
     private final UsersRepository usersRepository;
-
-    private static final int LIMIT_MEMBER = 2;
+    private final JWTUtil jwtUtil;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -35,39 +33,54 @@ public class StompHandler implements ChannelInterceptor {
         } else if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
             handleDisconnect(accessor);
         }
-
         return message;
     }
 
+
     private void handleConnect(StompHeaderAccessor accessor) {
-        String userIdHeader = accessor.getFirstNativeHeader("userId");
-        if (userIdHeader == null) {
-            throw new IllegalArgumentException(ErrorStatus.SESSION_HEADER_NOT_FOUND.getMessage());
+        // STOMP 메시지 헤더에서 Authorization 토큰 추출
+        log.info("연결 세션 id: {}", accessor.getSessionId());
+        String token = accessor.getFirstNativeHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            log.error("Authorization 헤더가 누락되었거나 잘못됨");
+            throw new StompServiceExceptionHandler(ErrorStatus.SESSION_HEADER_NOT_FOUND);
         }
 
-        Long userId = Long.parseLong(userIdHeader);
-        if (usersRepository.findUsersById(userId).isEmpty()) {
-            throw new IllegalArgumentException(ErrorStatus.USER_ID_CANNOT_FOUND.getMessage());
+        token = token.substring(7);
+        try {
+            if (jwtUtil.isExpired(token)) {
+                log.error("JWT 토큰이 만료됨");
+                throw new StompServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_EXPIRED);
+            }
+
+            Long userId = jwtUtil.getId(token);
+
+            if (usersRepository.findUsersById(userId).isEmpty()){
+                log.error("사용자를 찾을 수 없음");
+                throw new StompServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND);
+            }
+            String role = jwtUtil.getRole(token);
+            // 세션에 userId & role 저장
+            accessor.getSessionAttributes().put("userId", userId);
+            accessor.getSessionAttributes().put("role", role);
+
+        } catch (Exception e) {
+            log.error("JWT 검증 실패: {}", e.getMessage());
+            throw new StompServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_INVALID);
         }
     }
 
     private void handleSubscribe(StompHeaderAccessor accessor) {
         String destination = accessor.getDestination();
+        log.info("구독 세션 id: {}", accessor.getSessionId());
         if (destination == null || !destination.startsWith("/sub/chat/")) {
-            throw new IllegalArgumentException(ErrorStatus.INQUIRE_INVALID_PATH.getMessage());
+            throw new StompServiceExceptionHandler(ErrorStatus.INQUIRE_INVALID_PATH);
         }
-
-        // 채팅방 ID 추출
-        String roomIdStr = destination.replace("/sub/chat/", "");
-        Long roomId = Long.parseLong(roomIdStr);
-
-        // 채팅방 존재 여부 확인
-        inquireRoomRepository.findById(roomId).orElseThrow(() ->
-                new IllegalArgumentException(ErrorStatus.INQUIRE_ROOM_NOT_FOUND.getMessage()));
     }
     /* 세션 활성화되면 추후 수정 예정  */
     private void handleDisconnect(StompHeaderAccessor accessor) {
         String sessionId = accessor.getSessionId();
         log.info("세션 종료: {}", sessionId);
     }
+
 }

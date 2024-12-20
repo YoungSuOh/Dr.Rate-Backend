@@ -42,14 +42,34 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.18.1'
 
-    // thymeleaf
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    //Webflux
+    // Webflux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+    // mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // object storage
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.610'
+    //Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+    //JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    //Email Verify
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    //implementation 'javax.mail:javax.mail-api:1.6.2' 스프링부트3.x버전부터 사용안함. 아래껄로 바뀜
+    implementation 'org.eclipse.angus:jakarta.mail:2.0.3'
+    
+    // JAXB
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+    implementation 'javax.activation:activation:1.1.1'
 
     // test
     testImplementation 'io.projectreactor:reactor-test'
