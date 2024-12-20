@@ -19,118 +19,127 @@ import com.bitcamp.drrate.global.exception.exceptionhandler.UsersServiceExceptio
 
 import io.lettuce.core.RedisException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
-    
+
     private final JavaMailSender emailSender;
     private final RedisTemplate<String, String> redisTemplate;
     private final UsersRepository usersRepository;
 
-    private static final String AUTH_CODE_PREFIX = "AuthCode ";
+    private static final String AUTH_CODE_PREFIX = "AuthCode:";
+    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
-    @Value("${spring.mail.auth-code-expiration-millis}") // 이메일 인증 키 만료시간
+    @Value("${spring.mail.auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
 
-    //이메일 전송
+    // 이메일 전송
     @Override
-    public void sendEmail(String toEmail, //이메인 인증 요청시 입력한 이메일
-                          String title, // 관리자가 설정한 제목
-                          String text) { // 이메일 내용
-        SimpleMailMessage emailForm = createEmailForm(toEmail, title, text); // 폼생성 메서드 실행(1)
+    public void sendEmail(String toEmail, String title, String text) {
+        SimpleMailMessage emailForm = createEmailForm(toEmail, title, text);
         try {
-            emailSender.send(emailForm); // 이메일 발송(2)
+            // 발송자 이름과 이메일 주소 설정
+            emailForm.setFrom("DR_Rate <anfto023@gmail.com>");
+
+            emailSender.send(emailForm);
+            logger.info("이메일 전송 성공: {}", toEmail);
         } catch (RuntimeException e) {
+            logger.error("이메일 전송 실패: {}", toEmail, e);
             throw new UsersServiceExceptionHandler(ErrorStatus.UNABLE_TO_SEND_EMAIL);
         }
     }
 
-    // 발신할 이메일 데이터 세팅
-    private SimpleMailMessage createEmailForm(String toEmail,
-                                             String title,
-                                             String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject(title);
-        message.setText(text);
-
-        return message;
-    }
-
-    //이메일 발송 메서드에 전달 및 레디스 저장
+    // 이메일 발송 및 Redis 저장
     @Override
     public void sendCodeToEmail(String toEmail) {
         try {
-            // 이메일 중복 체크 (2-1)
+            // 중복 이메일 체크
             checkDuplicatedEmail(toEmail);
 
             String title = "Dr.Rate 이메일 인증 번호";
-            String authCode = createCode(); // 인증번호 생성 (2-2)
+            String authCode = createCode();
 
-            // 이메일 발송
-            sendEmail(toEmail, title, authCode);
+            // 이메일 전송
+            sendEmail(toEmail, title, "인증 코드: " + authCode);
 
-            // Redis에 인증번호 저장 (2-3)
+            // Redis에 인증번호 저장
             saveAuthEmail(toEmail, authCode, authCodeExpirationMillis);
-            System.out.println("이메일 redis 저장완료");
-
+            logger.info("이메일 인증 코드 Redis 저장 완료: {}", toEmail);
         } catch (DuplicateKeyException e) {
-            // 중복된 이메일 예외 처리
+            logger.warn("중복된 이메일 요청: {}", toEmail);
             throw new UsersServiceExceptionHandler(ErrorStatus.USER_EMAIL_DUPLICATE);
-        } catch (RedisException ea) {
-            // Redis 저장 실패 예외 처리
+        } catch (RedisException e) {
+            logger.error("Redis 저장 실패: {}", toEmail, e);
             throw new UsersServiceExceptionHandler(ErrorStatus.REDIS_SAVE_FAILED);
-        } catch (Exception eb) {
-            // 기타 예외 처리
+        } catch (Exception e) {
+            logger.error("이메일 인증 코드 전송 중 오류 발생: {}", toEmail, e);
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // 인증 코드 검증
+    @Override
+    public boolean verifiedCode(String email, String authCode) {
+        String redisAuthCode = getAuthEmailValue(email);
+        boolean isVerified = checkExistsValue(email) && redisAuthCode.equals(authCode);
+
+        if (isVerified) {
+            logger.info("이메일 인증 성공: {}", email);
+        } else {
+            logger.warn("이메일 인증 실패: {}, 입력된 코드: {}", email, authCode);
+        }
+        return isVerified;
     }
 
     // 중복 이메일 체크
     private void checkDuplicatedEmail(String email) {
         if (usersRepository.findByEmail(email).isPresent()) {
-            System.out.println("이미 가입된 이메일");
             throw new UsersServiceExceptionHandler(ErrorStatus.USER_EMAIL_DUPLICATE);
         }
     }
-    // 인증번호 생성
+
+    // 인증 코드 생성
     private String createCode() {
-        int lenth = 6;
+        int length = 6;
         try {
             Random random = SecureRandom.getInstanceStrong();
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < lenth; i++) {
+            for (int i = 0; i < length; i++) {
                 builder.append(random.nextInt(10));
             }
             return builder.toString();
         } catch (NoSuchAlgorithmException e) {
+            logger.error("인증 코드 생성 실패", e);
             throw new UsersServiceExceptionHandler(ErrorStatus.MAIL_CREATE_FAILED);
         }
     }
-    // 만들어준 인증코드와 사용자가 보낸 인증코드가 일치하는지 확인
-    @Override
-    public boolean verifiedCode(String email, String authCode) {
-        // redis에서 key 값 조회해서 value값 가져오기기
-        String redisAuthCode = getAuthEmailValue(email); 
-         // redis에서 값이 있는지 조회, 사용자가 보낸 인증코드와 조회한 value값이 맞는지 확인
-        //boolean authResult = checkExistsValue(email) && redisAuthCode.equals(authCode); 리턴값
-        // 값이 있고 value와 보내준 코드가 맞으면 true 반환 아니면 false 반환
-        return checkExistsValue(email) && redisAuthCode.equals(authCode);
-    }
 
-    // ---- redis -----
+    // Redis 인증 코드 저장
     private void saveAuthEmail(String email, String authCode, long expired) {
         redisTemplate.opsForValue().set(AUTH_CODE_PREFIX + email, authCode);
-        redisTemplate.expire(email, expired, TimeUnit.SECONDS); // 만료 시간 설정
+        redisTemplate.expire(AUTH_CODE_PREFIX + email, expired, TimeUnit.MILLISECONDS);
     }
+
     private String getAuthEmailValue(String email) {
         return (String) redisTemplate.opsForValue().get(AUTH_CODE_PREFIX + email);
     }
+
     private boolean checkExistsValue(String email) {
         String key = AUTH_CODE_PREFIX + email;
         Boolean exists = redisTemplate.hasKey(key);
-        return exists != null && exists; // RedisTemplate.hasKey()는 Null을 반환할 가능성이 있으므로 Null 체크 필요
+        return exists != null && exists;
+    }
+
+    // 이메일 폼 생성
+    private SimpleMailMessage createEmailForm(String toEmail, String title, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject(title);
+        message.setText(text);
+        return message;
     }
 }
