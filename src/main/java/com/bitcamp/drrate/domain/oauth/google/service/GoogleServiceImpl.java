@@ -126,7 +126,6 @@ public class GoogleServiceImpl implements GoogleService {
                 incrementNewUserCount();
             }
 
-
             String access = null; String refresh = null;
             System.out.println("role : " + users.getRole());
             if(users.getRole().equals(ADMIN)){

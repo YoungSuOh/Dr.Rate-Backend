@@ -100,18 +100,19 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     return chatRoomRepository.findByEmailContainingIgnoreCaseOrderByUpdatedAt(keyword, pageable);
                 } else if ("name".equalsIgnoreCase(searchType)) { // 이름 검색
                     return chatRoomRepository.findByUserNameContainingIgnoreCaseOrderByUpdatedAt(keyword, pageable);
-                } else {
-                    throw new InquireServiceHandler(ErrorStatus.INQUIRE_LIST_BAD_REQUEST);
                 }
             }
 
             // 검색 조건이 없으면 전체 목록 반환
             return chatRoomRepository.findAllByOrderByUpdatedAtDesc(pageable);
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.INQUIRE_LIST_BAD_REQUEST);
         } catch (MongoException e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.MONGODB_LOAD_FAILED);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
