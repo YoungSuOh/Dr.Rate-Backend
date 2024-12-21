@@ -166,12 +166,12 @@ public class UsersController {
         }
     }
     
-    @RequestMapping(value="/api/userList", method=RequestMethod.GET)
+    @RequestMapping(value="/api/admin/userList", method=RequestMethod.GET)
     public ApiResponse<Page<Users>>getUsersList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size,
-            @RequestParam(required = false) String searchType,
-            @RequestParam(required = false) String keyword,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "4") int size,
+            @RequestParam(name = "searchType", required = false) String searchType,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         try{
