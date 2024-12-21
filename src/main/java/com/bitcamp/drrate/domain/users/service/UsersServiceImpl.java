@@ -156,22 +156,22 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public String invalidAccessToken(String invalidAccessToken) {
         try {
+            invalidAccessToken = invalidAccessToken.substring(7); // Remove "Bearer " prefix
             Long id = jwtUtil.getIdWithoutValidation(invalidAccessToken); // 만료된 토큰에서 사용자 id값 추출
 
             Users users = usersRepository.findUsersById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id)); // 사용자 pk id 값으로 DB조회
+            System.out.println("users = " + users);
 
             Role role = users.getRole(); // 유저 권한 추출
-
             String redisAccessToken = refreshTokenService.getAccessToken(String.valueOf(id)); //redis에 user pk id 값으로 access토큰 조회
             String access = "";
-            
             if(redisAccessToken.equals(invalidAccessToken)) { // 유저가 보낸 만료된 access토큰과 redis에 있는 access 토큰 비교 둘이 같으면
                 String refreshToken = refreshTokenService.getRefreshToken(String.valueOf(id)); // redis에 있는 refresh 토큰 가져옴
                 boolean token = jwtUtil.isExpired(refreshToken); // refresh 토큰의 만료 여부 확인
                 if(!token) { // refresh 토큰이 만료되지 않았으면 토큰 재발급 .. access refresh 둘다 재발급해서 redis에 저장
-                    access = jwtUtil.createJwt(users.getId(), "access", String.valueOf(role), 86400000L); // 새로운 토큰 발급
-                    String refresh = jwtUtil.createJwt(users.getId(), "refresh", String.valueOf(role), 86400000L); // 새로운 refresh 토큰 발급
+                    access = jwtUtil.createJwt(users.getId(), "access", "ROLE_" + String.valueOf(role), 86400000L); // 새로운 토큰 발급
+                    String refresh = jwtUtil.createJwt(users.getId(), "refresh", "ROLE_" + String.valueOf(role), 86400000L); // 새로운 refresh 토큰 발급
                     refreshTokenService.saveTokens(String.valueOf(id), access, refresh); // redis에 새로운 access, refresh 토큰 저장
                 }
                 return access; // 새로운 access 토큰
