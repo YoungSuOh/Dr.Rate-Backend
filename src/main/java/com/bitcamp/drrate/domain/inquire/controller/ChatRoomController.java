@@ -19,10 +19,10 @@ public class ChatRoomController {
 
     @GetMapping("/inquireList")
     public ApiResponse<Page<ChatRoom>> getChatRoomsBySearchCriteria(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size,
-            @RequestParam(required = false) String searchType,
-            @RequestParam(required = false) String keyword
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "4") int size,
+            @RequestParam(value = "searchType",required = false) String searchType,
+            @RequestParam(value = "keyword", required = false) String keyword
     ) {
         try {
             Page<ChatRoom> result = chatRoomService.getChatRoomsBySearchCriteria(page, size, searchType, keyword);
