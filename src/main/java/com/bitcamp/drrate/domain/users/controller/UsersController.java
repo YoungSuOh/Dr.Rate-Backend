@@ -274,11 +274,9 @@ public class UsersController {
             // accesstoken 검증 로직 및 새로운 accesstoken 발급, 토큰이 없으면 에러 반환
             String token = usersService.invalidAccessToken(accessToken);
             
-            System.out.println(token);
             if (token.equals("") || token.isEmpty() ) {
                 return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
             }
-            System.out.println(token);
             return ApiResponse.onSuccess(token, SuccessStatus.USER_TOKEN_REISSUE_SUCCESS); // 토큰이 담겨왔으면 토큰 반환
         } catch (Exception e) {
             return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
