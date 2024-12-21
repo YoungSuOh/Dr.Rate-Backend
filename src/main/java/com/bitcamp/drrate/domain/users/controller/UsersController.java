@@ -8,9 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -89,7 +87,7 @@ public class UsersController {
                     .status(HttpStatus.FOUND)
                     //.headers(headers)
                     .header(HttpHeaders.LOCATION, redirectUrl)
-                    .body(ApiResponse.onSuccess(null, SuccessStatus.USER_LOGIN_SUCCESS));
+                    .body(ApiResponse.onSuccess(null, SuccessStatus.USER_LOGIN_SUCCESS)); 
     
         } catch (IllegalArgumentException e) {
             // 클라이언트의 잘못된 요청 (서버 요청주소 설정 오류)
@@ -255,6 +253,14 @@ public class UsersController {
         }
     }
 
+    // //내 정보 수정 페이지
+    // @RequestMapping(value="/api/myInfoEdit", method=RequestMethod.POST)
+    // public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO usersJoinDTO) {
+    //     try{
+    //         Users users = usersService.getMyInfo(userDetails.getId());
+    //     }
+    // }
+
     //토큰 재발급
     @RequestMapping(value="/api/reissue", method=RequestMethod.POST)
     public ApiResponse<?> tokenRefresh(@RequestBody Map<String, String> requestBody) {
@@ -267,6 +273,7 @@ public class UsersController {
             }
             // accesstoken 검증 로직 및 새로운 accesstoken 발급, 토큰이 없으면 에러 반환
             String token = usersService.invalidAccessToken(accessToken);
+            
             if (token.equals("") || token.isEmpty() ) {
                 return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
             }

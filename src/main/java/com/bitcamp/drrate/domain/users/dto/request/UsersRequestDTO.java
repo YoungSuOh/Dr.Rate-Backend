@@ -26,6 +26,7 @@ public class UsersRequestDTO {
         @NotNull
         private String username;
 
+        private String birthdate;
         private Role role;
     }
 
