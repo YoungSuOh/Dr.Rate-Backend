@@ -157,6 +157,7 @@ public class UsersServiceImpl implements UsersService {
     public String invalidAccessToken(String invalidAccessToken) {
         try {
             invalidAccessToken = invalidAccessToken.substring(7); // Remove "Bearer " prefix
+
             Long id = jwtUtil.getIdWithoutValidation(invalidAccessToken); // 만료된 토큰에서 사용자 id값 추출
 
             Users users = usersRepository.findUsersById(id)
