@@ -92,6 +92,7 @@ public class KakaoServiceImpl implements KakaoService {
             setUserInfo(users, userInfo);
 
             Long id = users.getId();
+            users.setSocial("Kakao");
 
             usersRepository.save(users);
 

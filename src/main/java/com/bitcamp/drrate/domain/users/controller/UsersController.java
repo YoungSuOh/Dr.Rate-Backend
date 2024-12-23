@@ -80,9 +80,6 @@ public class UsersController {
             String redirectUrl = "http://localhost:5173/oauthHandler#access=" + access;
     
             // 성공 시 처리
-            // 헤더 세팅
-            HttpHeaders headers = usersService.tokenSetting(access);
-
             return ResponseEntity
                     .status(HttpStatus.FOUND)
                     //.headers(headers)
@@ -258,6 +255,10 @@ public class UsersController {
     @RequestMapping(value="/api/myInfoEdit", method=RequestMethod.POST)
     public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO.UsersJoinDTO requestDTO) {
         try {
+            boolean exists = usersRepository.existsBySocial(userDetails.getSocial());
+            if(exists) {
+                return ApiResponse.onFailure(ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getCode(), ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getMessage(), null);
+            }
             Users users = usersRepository.findUsersById(userDetails.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userDetails.getId()));
 
@@ -293,6 +294,17 @@ public class UsersController {
             return ApiResponse.onSuccess(token, SuccessStatus.USER_TOKEN_REISSUE_SUCCESS); // 토큰이 담겨왔으면 토큰 반환
         } catch (Exception e) {
             return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+        }
+    }
+
+    //로그아웃
+    @RequestMapping(value="/api/logout", method=RequestMethod.POST)
+    public ApiResponse<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            usersService.logout(userDetails);
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_LOGOUT_SUCCESS);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
         }
     }
 }
