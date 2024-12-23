@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class EmailInquireSaveRequestDTO {
-    private String inquireCtg; // 문의 카테고리 (예: 서비스 개선, 시스템 오류)
+    private String inquireCtg; // 문의 카테고리
     private Long inquireId; // 사용자 ID
     private String inquireEmail; // 사용자 이메일
     private String inquireTitle; // 문의 제목
