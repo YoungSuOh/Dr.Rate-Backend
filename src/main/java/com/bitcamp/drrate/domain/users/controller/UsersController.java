@@ -246,6 +246,7 @@ public class UsersController {
     @RequestMapping(value="/api/myInfo", method=RequestMethod.POST)
     public ApiResponse<Users> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try{
+            System.out.println("내정보 호출");
             Users users = usersService.getMyInfo(userDetails.getId());
             return ApiResponse.onSuccess(users, SuccessStatus.USER_MYPAGE_SUCCESS);
         } catch (Exception e) {
@@ -253,13 +254,25 @@ public class UsersController {
         }
     }
 
-    // //내 정보 수정 페이지
-    // @RequestMapping(value="/api/myInfoEdit", method=RequestMethod.POST)
-    // public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO usersJoinDTO) {
-    //     try{
-    //         Users users = usersService.getMyInfo(userDetails.getId());
-    //     }
-    // }
+    //내 정보 수정 페이지
+    @RequestMapping(value="/api/myInfoEdit", method=RequestMethod.POST)
+    public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO.UsersJoinDTO requestDTO) {
+        try {
+            Users users = usersRepository.findUsersById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userDetails.getId()));
+
+            users.setEmail(requestDTO.getEmail());
+            users.setUsername(requestDTO.getUsername());
+            users.setPassword(requestDTO.getPassword());
+
+            usersService.myInfoEdit(users, requestDTO.getEmail());
+            
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_INFO_UPDATE_SUCCESS);
+        } catch(Exception e) {
+             return ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(), ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(), null);
+        }
+        
+    }
 
     //토큰 재발급
     @RequestMapping(value="/api/reissue", method=RequestMethod.POST)
