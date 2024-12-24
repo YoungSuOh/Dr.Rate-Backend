@@ -29,15 +29,23 @@ public interface CalendarRepository extends JpaRepository<Calendar, Long> {
     void updateByGroupId(@Param("groupId") String groupId, 
                          @Param("installmentName") String installmentName, 
                          @Param("bankName") String bankName, 
-                         @Param("amount") Long long1,
-    					 @Param("endDate") LocalDate localDate);
+                         @Param("amount") Long amount,
+    					 @Param("endDate") LocalDate endDate);
    
     // 삭제
     @Transactional
     @Modifying
     @Query("DELETE FROM Calendar c WHERE c.groupId = :groupId")
-    void deleteByGroupId(@Param("groupId") String groupId); 
+    void deleteByGroupId(@Param("groupId") String groupId);
+    
+    
+    
+    /////////////////////////////////////////////////////
+    // 은행명 및 로고 가져오기
+    @Query("SELECT DISTINCT p.bankName, p.bankLogo FROM Products p WHERE p.ctg = 'i'")
+    List<Object[]> findDistinctBankNamesAndLogos(); 
+    
+    // 특정 은행의 적금명 가져오기
+    @Query("SELECT p.prdName FROM Products p WHERE p.ctg = 'i' AND p.bankName = :bankName")
+    List<String> findProductNamesByBankName(@Param("bankName") String bankName); 
 }
-
-
-

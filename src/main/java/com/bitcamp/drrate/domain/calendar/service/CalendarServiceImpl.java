@@ -11,7 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
 public class CalendarServiceImpl implements CalendarService {
 
     private final CalendarRepository calendarRepository;
-    
+
     // 입력(저장)
     @Override
     @Transactional
@@ -44,7 +47,7 @@ public class CalendarServiceImpl implements CalendarService {
             throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_SAVE_FAILED);
         }
     }
-    
+
     // 목록
     @Override
     public List<CalendarResponseDTO> getCalendarEvents(Long userId) {
@@ -63,12 +66,12 @@ public class CalendarServiceImpl implements CalendarService {
             throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_QUERY_FAILED);
         }
     }
-    
+
     // 수정
     @Override
     @Transactional
     public void updateCalendarGroup(Long id, Long userId, CalendarRequestDTO request) {
-    	try {
+        try {
             Calendar calendarEntry = calendarRepository.findById(id)
                     .orElseThrow(() -> new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_EVENT_NOT_FOUND));
 
@@ -76,7 +79,6 @@ public class CalendarServiceImpl implements CalendarService {
                 throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_EVENT_NOT_FOUND);
             }
 
-            // groupId로 모든 관련 이벤트 업데이트
             calendarRepository.updateByGroupId(
                 calendarEntry.getGroupId(),
                 request.getInstallment_name(),
@@ -88,7 +90,7 @@ public class CalendarServiceImpl implements CalendarService {
             throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_UPDATE_FAILED);
         }
     }
-    
+
     // 삭제
     @Override
     @Transactional
@@ -96,7 +98,7 @@ public class CalendarServiceImpl implements CalendarService {
         try {
             Calendar calendarEntry = calendarRepository.findById(id)
                     .orElseThrow(() -> new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_EVENT_NOT_FOUND));
-            
+
             if (!calendarEntry.getCal_user_id().equals(userId)) {
                 throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_EVENT_NOT_FOUND);
             }
@@ -106,7 +108,25 @@ public class CalendarServiceImpl implements CalendarService {
             throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_DELETE_FAILED);
         }
     }
+
+    
+    // ---- Products 데이터 관련 ----
+    public List<Map<String, String>> getDistinctBankNamesAndLogos() {
+        List<Object[]> results = calendarRepository.findDistinctBankNamesAndLogos();
+        List<Map<String, String>> bankList = new ArrayList<>();
+
+        for (Object[] result : results) {
+            Map<String, String> bank = new HashMap<>();
+            bank.put("bankName", (String) result[0]); // 은행명
+            bank.put("bankLogo", (String) result[1]); // 은행 로고
+            bankList.add(bank);
+        }
+        
+        return bankList;
+    }
+
+    public List<String> getProductNamesByBankName(String bankName) {
+        return calendarRepository.findProductNamesByBankName(bankName);
+    }
 }
-
-
 

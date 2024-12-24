@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/calendar")
@@ -77,5 +78,19 @@ public class CalendarController {
         } catch (Exception e) {
             return ApiResponse.onFailure(ErrorStatus.CALENDAR_DELETE_FAILED.getCode(), ErrorStatus.CALENDAR_DELETE_FAILED.getMessage(), null);
         }
+    }
+    
+    // 은행명 및 로고 가져오기
+    @GetMapping("/banks")
+    public List<Map<String, String>> getDistinctBankNamesAndLogos() {
+        List<Map<String, String>> banks = calendarService.getDistinctBankNamesAndLogos();
+        return banks;
+    }
+
+    // 특정 은행의 적금명 가져오기
+    @GetMapping("/banks/{bankName}/products")
+    public List<String> getProductNamesByBankName(@PathVariable("bankName") String bankName) {
+        List<String> productNames = calendarService.getProductNamesByBankName(bankName);
+        return productNames;
     }
 }
