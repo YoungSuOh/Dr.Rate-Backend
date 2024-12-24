@@ -201,7 +201,9 @@ public class UsersServiceImpl implements UsersService {
     public void logout(CustomUserDetails userDetails) {
         try {
             String id = String.valueOf(userDetails.getId());
+
             refreshTokenService.deleteTokens(id);
+            
         } catch(UsersServiceExceptionHandler ex) {
             throw new UsersServiceExceptionHandler(ErrorStatus.JSON_PROCESSING_ERROR);
         } catch(Exception e) {
