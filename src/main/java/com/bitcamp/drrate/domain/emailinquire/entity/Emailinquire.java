@@ -23,6 +23,9 @@ public class Emailinquire extends BaseEntity {
     @Column(name = "inquire_id", nullable = false)
     private Long inquireId; // 이메일 문의자 아이디(users 테이블의 id)
 
+    @Column(name = "user_name", nullable = false)
+    private String inquireUser;
+
     @Column(name = "inquire_email", nullable = false)
     private String inquireEmail; // 이메일 문의자 이메일
 
