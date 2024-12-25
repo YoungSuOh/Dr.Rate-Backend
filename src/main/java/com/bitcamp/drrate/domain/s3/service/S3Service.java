@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 
 public interface S3Service {
-    public String uploadFile(MultipartFile multipartFile);
-    public File convertMultipartFileToFile(MultipartFile multipartFile);
-    public void deleteFile(FileRequestDTO.FileDeleteRequest fileUrl);
+    String uploadFile(MultipartFile multipartFile);
+    File convertMultipartFileToFile(MultipartFile multipartFile);
+    void deleteFile(FileRequestDTO.FileDeleteRequest fileUrl);
 }
