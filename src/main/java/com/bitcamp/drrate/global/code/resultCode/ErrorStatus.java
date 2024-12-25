@@ -60,6 +60,7 @@ public enum ErrorStatus implements ErrorCode {
     KAFKA_SUBSCRIBE_MESSAGE_BADREQUEST(HttpStatus.BAD_REQUEST, "KAFKA402", "Kafka에 잘못된 형식의 메세지를 Subscribe를 시도했습니다."),
     KAFKA_TOPIC_CREATE_BADREQUEST(HttpStatus.BAD_REQUEST, "KAFKA403", "Kafka에 잘못된 Topic 형식의 요청을 했습니다."),
     KAFKA_TOPIC_EXIST_ERROR(HttpStatus.CONFLICT, "KAFKA403", "Kafka에 중복된 Topic이 존재합니다.."),
+    KAFKA_TOPIC_NOT_FOUND(HttpStatus.NOT_FOUND, "KAFKA404", "토픽 조회 실패했습니다."),
 
     // Object Storage
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S3400", "파일을 찾을 수 없습니다"),

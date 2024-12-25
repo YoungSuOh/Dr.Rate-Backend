@@ -15,10 +15,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.util.List;
 
+
 @Configuration
 public class RedisConfig {
-
-    @Value("${spring.data.redis.cluster.nodes[0]}")
+     @Value("${spring.data.redis.cluster.nodes[0]}")
     private String node1;
 
     @Value("${spring.data.redis.cluster.nodes[1]}")
@@ -36,6 +36,7 @@ public class RedisConfig {
         clusterConfiguration.addClusterNode(new RedisNode(node3.split(":")[0], Integer.parseInt(node3.split(":")[1])));
         return new LettuceConnectionFactory(clusterConfiguration);
     }
+
     @Bean
     @Primary
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {

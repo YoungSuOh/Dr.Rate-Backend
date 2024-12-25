@@ -21,7 +21,6 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
     private final DailyVisitorRepository dailyVisitorRepository;
 
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정 실행
-    @Transactional
     @Override
     public void transferDailyVisitorsToDB() {
         String today = LocalDate.now().toString();

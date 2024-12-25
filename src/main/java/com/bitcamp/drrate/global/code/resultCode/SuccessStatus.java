@@ -47,6 +47,9 @@ public enum SuccessStatus implements SuccessCode {
     FILE_UPLOAD_SUCCESS(HttpStatus.OK,"S3200", "파일 업로드 성공"),
     FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공"),
 
+    // kafka
+    KAFKA_TOPIC_GET_SUCCESS(HttpStatus.OK,"KAFKA200", "토픽 조회 성공"),
+
 
     // Favorite
     FAVORITE_QUERY_SUCCESS(HttpStatus.OK, "FAV200", "즐겨찾기 조회 성공"),
