@@ -22,9 +22,9 @@ public class ChatMessageController {
 
     @GetMapping("/list")
     public ApiResponse<Page<ChatMessage>> getChatMessagesByRoomId(
-            @RequestParam String roomId,
-            @RequestParam(defaultValue = "0") int page, // 기본 페이지 0
-            @RequestParam(defaultValue = "15") int size // 기본 크기 15
+            @RequestParam(value = "roomId") String roomId,
+            @RequestParam(value="page",defaultValue = "0") int page, // 기본 페이지 0
+            @RequestParam(value="size",defaultValue = "15") int size // 기본 크기 15
     ) {
         try{
             Page<ChatMessage>result = chatMessageService.getMessagesByRoomId(roomId, page, size);

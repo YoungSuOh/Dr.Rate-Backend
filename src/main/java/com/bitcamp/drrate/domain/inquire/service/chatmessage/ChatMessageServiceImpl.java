@@ -24,7 +24,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         try {
             // 페이지 번호와 크기 검증
             if (page < 0 || size <= 0) {
-                throw new IllegalArgumentException("Page number or size must be greater than zero.");
+                throw new InquireServiceHandler(ErrorStatus.INQUIRE_MESSAGE_BAD_REQUEST);
             }
 
             // 페이징 요청
