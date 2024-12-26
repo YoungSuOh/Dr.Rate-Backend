@@ -78,6 +78,7 @@ public enum ErrorStatus implements ErrorCode {
     // Social
     SOCIAL_URL_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION405", "잘못된 요청 주소입니다."),
     SOCIAL_PARAMETERS_INVALID(HttpStatus.NOT_FOUND, "SESSION406", "잘못된 매개변수를 설정하였습니다."),
+    SOCIAL_AUTHORIZATION_INVALID(HttpStatus.UNAUTHORIZED, "SESSION407", "소셜 로그인 사용자는 정보수정이 불가능 합니다."),
 
 
     // Mongo db
