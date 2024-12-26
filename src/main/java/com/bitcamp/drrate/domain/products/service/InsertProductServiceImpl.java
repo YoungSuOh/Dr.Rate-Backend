@@ -99,7 +99,7 @@ public class InsertProductServiceImpl implements InsertProductService{
                     logo = "tossLogo.png";
                 } else if ("우리은행".equals(bankName)) {
                     logo = "wooriLogo.png";
-                } else if ("기업은행".equals(bankName)) {
+                } else if ("중소기업은행".equals(bankName)) {
                     logo = "ibkLogo.png";
                 } else if ("부산은행".equals(bankName)) {
                     logo = "bnkLogo.png";
