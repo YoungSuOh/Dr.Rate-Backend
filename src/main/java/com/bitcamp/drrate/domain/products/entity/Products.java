@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "Products")
+@Table(name = "products")
 @Data
 @JsonIgnoreProperties({"depOptions"})
 public class Products {
