@@ -38,6 +38,8 @@ public class KafkaConsumer {
             String messageContent = messagePayload.get("message");
             String senderId = messagePayload.get("senderId");
 
+            System.out.println("Consumer : "+"roomId: " + roomId+" messageContent: " + messageContent+" senderId: " + senderId);
+
             if (roomId == null || messageContent == null || senderId == null) {
                 throw new InquireServiceHandler(ErrorStatus.KAFKA_SUBSCRIBE_MESSAGE_BADREQUEST);
             }
