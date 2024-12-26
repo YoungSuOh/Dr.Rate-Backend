@@ -83,38 +83,29 @@ public class CalendarController {
     
     // 은행명 및 로고 가져오기
     @GetMapping("/banks")
-    public List<Map<String, String>> getDistinctBankNamesAndLogos() {
+    public ApiResponse<List<Map<String, String>>> getDistinctBankNamesAndLogos() {
         try {
-            return calendarService.getDistinctBankNamesAndLogos();
+            List<Map<String, String>> result = calendarService.getDistinctBankNamesAndLogos();
+            return ApiResponse.onSuccess(result, SuccessStatus.CALENDAR_BANK_QUERY_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST, 
-                e.getErrorReason().getMessage()
-            );
+            return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
         } catch (Exception e) {
-            throw new ResponseStatusException(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
-                ErrorStatus.CALENDAR_BANK_QUERY_FAILED.getMessage()
-            );
+            return ApiResponse.onFailure(ErrorStatus.CALENDAR_BANK_QUERY_FAILED.getCode(), ErrorStatus.CALENDAR_BANK_QUERY_FAILED.getMessage(), null);
         }
     }
 
     // 특정 은행의 적금목록 가져오기
     @GetMapping("/banks/{bankName}/products")
-    public List<String> getProductNamesByBankName(@PathVariable("bankName") String bankName) {
+    public ApiResponse<List<String>> getProductNamesByBankName(@PathVariable("bankName") String bankName) {
         try {
-            // 데이터 반환
-            return calendarService.getProductNamesByBankName(bankName);
+            List<String> result = calendarService.getProductNamesByBankName(bankName);
+            return ApiResponse.onSuccess(result, SuccessStatus.CALENDAR_PRODUCT_QUERY_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST, 
-                e.getErrorReason().getMessage()
-            );
+            return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
         } catch (Exception e) {
-            throw new ResponseStatusException(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
-                ErrorStatus.CALENDAR_PRODUCT_QUERY_FAILED.getMessage()
-            );
+            return ApiResponse.onFailure(ErrorStatus.CALENDAR_PRODUCT_QUERY_FAILED.getCode(), ErrorStatus.CALENDAR_PRODUCT_QUERY_FAILED.getMessage(), null);
         }
     }
 }
+
+
