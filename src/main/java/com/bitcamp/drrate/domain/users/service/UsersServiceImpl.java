@@ -176,21 +176,10 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public void myInfoEdit(Users users, String requestEmail) {
         try{
-            // 이메일 중복 체크
-            if(usersRepository.existsByEmail(requestEmail)){
-                throw new UsersServiceExceptionHandler(ErrorStatus.USER_EMAIL_DUPLICATE);
-            }
             String encodedPassword = bCryptPasswordEncoder.encode(users.getPassword());
-
-            Users editUser = Users.builder()
-                .userId(users.getUserId())
-                .email(users.getEmail())
-                .username(users.getUsername())
-                .password(encodedPassword)
-                .role((Role)users.getRole())
-                .build();
-
-            usersRepository.save(editUser);
+            users.setPassword(encodedPassword);
+            
+            usersRepository.save(users);
 
         } catch(UsersServiceExceptionHandler e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);

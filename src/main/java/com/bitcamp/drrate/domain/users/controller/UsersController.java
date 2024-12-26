@@ -243,7 +243,6 @@ public class UsersController {
     @RequestMapping(value="/api/myInfo", method=RequestMethod.POST)
     public ApiResponse<Users> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try{
-            System.out.println("내정보 호출");
             Users users = usersService.getMyInfo(userDetails.getId());
             return ApiResponse.onSuccess(users, SuccessStatus.USER_MYPAGE_SUCCESS);
         } catch (Exception e) {
@@ -256,7 +255,7 @@ public class UsersController {
     public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO.UsersJoinDTO requestDTO) {
         try {
             boolean exists = usersRepository.existsBySocial(userDetails.getSocial());
-            if(exists) {
+            if(!exists) {
                 return ApiResponse.onFailure(ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getCode(), ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getMessage(), null);
             }
             Users users = usersRepository.findUsersById(userDetails.getId())
