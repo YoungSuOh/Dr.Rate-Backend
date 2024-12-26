@@ -4,19 +4,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "Products")
+@Table(name = "products")
 @Data
 @JsonIgnoreProperties({"depOptions"})
 public class Products {
@@ -38,6 +30,9 @@ public class Products {
     @Column(name = "bank_co", nullable = true)
     private Long bankCo;
 
+    @Column(name = "join_member_age", nullable = true)
+    private Integer joinMemberAge;
+
     @Column(name = "bank_name", length = 300, nullable = true)
     private String bankName;
 
@@ -56,11 +51,8 @@ public class Products {
     @Column(name = "spcl_cnd", columnDefinition = "TEXT", nullable = true)
     private String spclCnd;
 
-    @Column(name = "join_member", length = 300, nullable = true)
-    private String joinMember;
-
-    @Column(name = "etc", columnDefinition = "TEXT", nullable = true)
-    private String etc;
+    @Column(name = "etc", nullable = true)
+    private Integer etc;
 
     @Column(name = "max", nullable = true)
     private Long max;

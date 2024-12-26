@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +45,9 @@ public class InsertProductServiceImpl implements InsertProductService{
             // JSON 응답을 Java 객체로 변환
             ObjectMapper objectMapper = new ObjectMapper();
             ProductResponseDTO responseDTO;
-            DepResponseDTO depResponseDTO;
-            InsResponseDTO insResponseDTO;
+            DepResponseDTO depResponseDTO = null;
+            InsResponseDTO insResponseDTO = null;
+
 
             try {
                 responseDTO = objectMapper.readValue(result, ProductResponseDTO.class);
@@ -56,9 +59,8 @@ public class InsertProductServiceImpl implements InsertProductService{
 
             // 제품 리스트 추출
             List<ProductResponseDTO.ProductApiDto> productList = responseDTO.getResult().getBaseList();
-            List<?> optionList = type ? depResponseDTO.getResult().getOptionList() : insResponseDTO.getResult().getOptionList();
+            List<?> optionList = type ? depResponseDTO.getResult().getOptionList() : insResponseDTO.getResult().getOptionList();  // 여기서 타입 별로  추출
 
-            System.out.println("옵션 리스트: " + optionList);
 
             // 각 상품 엔티티 객체로 변환 후 DB에 저장
             for (ProductResponseDTO.ProductApiDto apiDto : productList) {
@@ -78,9 +80,14 @@ public class InsertProductServiceImpl implements InsertProductService{
                 product.setJoinWay(apiDto.getJoinWay());
                 product.setMtrtInt(apiDto.getMtrtInt());
                 product.setSpclCnd(apiDto.getSpclCnd());
-                product.setJoinMember(apiDto.getJoinMember());
-                product.setEtc(apiDto.getEtc());
                 product.setMax(apiDto.getMax());
+
+                // join_member 관련 데이터 설정
+                parseJoinMember(apiDto.getJoinMember(), product);
+
+                // 가입 기간 관련 데이터 설정
+                parseEtc(apiDto.getEtc(), product);
+
 
                 String bankName = apiDto.getBankName();
                 String logo = "remainLogo.png";  // 기본값
@@ -169,4 +176,63 @@ public class InsertProductServiceImpl implements InsertProductService{
         }
 
     }
+
+    private void parseJoinMember(String joinMemberText, Products product) {
+        // 정규식을 사용해 "만 숫자 세 이상" 패턴에서 숫자 추출
+        Pattern agePattern = Pattern.compile("만\\s?(\\d+)(?:세)?\\s?이상");
+        Matcher matcher = agePattern.matcher(joinMemberText);
+        if (matcher.find()) {
+            // 정규식으로 추출한 숫자를 정수로 변환하여 저장
+            product.setJoinMemberAge(Integer.parseInt(matcher.group(1)));
+        } else {
+            // 나이 제한이 없는 경우 null 처리
+            product.setJoinMemberAge(null);
+        }
+    }
+    private void parseEtc(String etcText, Products product) {
+        if (etcText == null || etcText.isEmpty()) {
+            product.setEtc(null);
+            return;
+        }
+
+        // 범위 추출 정규식
+        Pattern rangePattern = Pattern.compile("(\\d+)\\s*(개월|년).*~.*(\\d+)\\s*(개월|년)");
+        Matcher rangeMatcher = rangePattern.matcher(etcText);
+
+        if (rangeMatcher.find()) {
+            // 범위가 있을 경우 최소값과 최대값 추출
+            int minValue = Integer.parseInt(rangeMatcher.group(1));
+            int maxValue = Integer.parseInt(rangeMatcher.group(3));
+
+            // 단위를 확인하여 변환 (년 -> 개월)
+            if (rangeMatcher.group(2).equals("년")) {
+                minValue *= 12;
+            }
+            if (rangeMatcher.group(4).equals("년")) {
+                maxValue *= 12;
+            }
+
+            // 최대값 설정
+            product.setEtc(maxValue);
+        } else {
+            // 단일 값 추출 정규식
+            Pattern singlePattern = Pattern.compile("(\\d+)\\s*(개월|년)");
+            Matcher singleMatcher = singlePattern.matcher(etcText);
+
+            if (singleMatcher.find()) {
+                int value = Integer.parseInt(singleMatcher.group(1));
+
+                // 단위를 확인하여 변환 (년 -> 개월)
+                if (singleMatcher.group(2).equals("년")) {
+                    value *= 12;
+                }
+
+                product.setEtc(value);
+            } else {
+                // 범위도 단일 값도 없을 경우
+                product.setEtc(null);
+            }
+        }
+    }
+
 }
