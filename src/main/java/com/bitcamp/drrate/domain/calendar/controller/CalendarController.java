@@ -12,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/calendar")
@@ -26,9 +28,9 @@ public class CalendarController {
     @PostMapping("/save")
     public ApiResponse<HttpStatus> saveCalendarEntries(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody List<CalendarRequestDTO> requests) {
         try {
-            Long userId = userDetails.getId();
+            Long userId = userDetails.getId(); // 사용자 ID 가져오기
             requests.forEach(request -> request.setCal_user_id(userId));
-            calendarService.saveCalendarEntries(requests);
+            calendarService.saveCalendarEntries(requests); // service에 이벤트 저장 요청
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.CALENDAR_SAVE_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
             return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
@@ -78,4 +80,32 @@ public class CalendarController {
             return ApiResponse.onFailure(ErrorStatus.CALENDAR_DELETE_FAILED.getCode(), ErrorStatus.CALENDAR_DELETE_FAILED.getMessage(), null);
         }
     }
+    
+    // 은행명 및 로고 가져오기
+    @GetMapping("/banks")
+    public ApiResponse<List<Map<String, String>>> getDistinctBankNamesAndLogos() {
+        try {
+            List<Map<String, String>> result = calendarService.getDistinctBankNamesAndLogos();
+            return ApiResponse.onSuccess(result, SuccessStatus.CALENDAR_BANK_QUERY_SUCCESS);
+        } catch (CalendarServiceExceptionHandler e) {
+            return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.CALENDAR_BANK_QUERY_FAILED.getCode(), ErrorStatus.CALENDAR_BANK_QUERY_FAILED.getMessage(), null);
+        }
+    }
+
+    // 특정 은행의 적금목록 가져오기
+    @GetMapping("/banks/{bankName}/products")
+    public ApiResponse<List<String>> getProductNamesByBankName(@PathVariable("bankName") String bankName) {
+        try {
+            List<String> result = calendarService.getProductNamesByBankName(bankName);
+            return ApiResponse.onSuccess(result, SuccessStatus.CALENDAR_PRODUCT_QUERY_SUCCESS);
+        } catch (CalendarServiceExceptionHandler e) {
+            return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.CALENDAR_PRODUCT_QUERY_FAILED.getCode(), ErrorStatus.CALENDAR_PRODUCT_QUERY_FAILED.getMessage(), null);
+        }
+    }
 }
+
+
