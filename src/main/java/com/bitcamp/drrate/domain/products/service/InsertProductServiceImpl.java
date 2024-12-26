@@ -92,6 +92,7 @@ public class InsertProductServiceImpl implements InsertProductService{
                 String bankName = apiDto.getBankName();
                 String logo = "remainLogo.png";  // 기본값
 
+                // 은행 로고
                 if ("하나은행".equals(bankName)) {
                     logo = "hanaLogo.png";
                 } else if ("주식회사 카카오뱅크".equals(bankName)) {
