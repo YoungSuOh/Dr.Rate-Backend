@@ -27,9 +27,9 @@ public class CalendarController {
     @PostMapping("/save")
     public ApiResponse<HttpStatus> saveCalendarEntries(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody List<CalendarRequestDTO> requests) {
         try {
-            Long userId = userDetails.getId();
+            Long userId = userDetails.getId(); // 사용자 ID 가져오기
             requests.forEach(request -> request.setCal_user_id(userId));
-            calendarService.saveCalendarEntries(requests);
+            calendarService.saveCalendarEntries(requests); // service에 이벤트 저장 요청
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.CALENDAR_SAVE_SUCCESS);
         } catch (CalendarServiceExceptionHandler e) {
             return ApiResponse.onFailure(e.getErrorReason().getCode(), e.getErrorReason().getMessage(), null);
@@ -87,7 +87,7 @@ public class CalendarController {
         return banks;
     }
 
-    // 특정 은행의 적금명 가져오기
+    // 특정 은행의 적금목록 가져오기
     @GetMapping("/banks/{bankName}/products")
     public List<String> getProductNamesByBankName(@PathVariable("bankName") String bankName) {
         List<String> productNames = calendarService.getProductNamesByBankName(bankName);

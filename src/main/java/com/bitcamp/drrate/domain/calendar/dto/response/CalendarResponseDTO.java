@@ -15,4 +15,5 @@ public class CalendarResponseDTO {
 	private LocalDate start_date; // 시작 날짜
 	private LocalDate end_date; // 종료 날짜
 	private Long amount; // 금액
+    private LocalDate fixedStartDate; // 최초 시작일
 }

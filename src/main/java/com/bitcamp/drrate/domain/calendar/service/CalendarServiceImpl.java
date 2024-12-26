@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +30,13 @@ public class CalendarServiceImpl implements CalendarService {
     @Transactional
     public void saveCalendarEntries(List<CalendarRequestDTO> requests) {
         try {
+        	// 그룹 ID 생성
             String groupId = UUID.randomUUID().toString();
 
             List<Calendar> calendarEntries = requests.stream().map(request -> Calendar.builder()
                     .cal_user_id(request.getCal_user_id())
-                    .installment_name(request.getInstallment_name())
                     .bank_name(request.getBank_name())
+                    .installment_name(request.getInstallment_name())
                     .amount(request.getAmount())
                     .start_date(request.getStart_date())
                     .end_date(request.getEnd_date())
@@ -42,7 +44,7 @@ public class CalendarServiceImpl implements CalendarService {
                     .build())
                 .collect(Collectors.toList());
 
-            calendarRepository.saveAll(calendarEntries);
+            calendarRepository.saveAll(calendarEntries); // DB 저장
         } catch (Exception e) {
             throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_SAVE_FAILED);
         }
@@ -52,16 +54,26 @@ public class CalendarServiceImpl implements CalendarService {
     @Override
     public List<CalendarResponseDTO> getCalendarEvents(Long userId) {
         try {
+            // 그룹별 최초 시작일 가져오기
+            List<Object[]> groupStartDates = calendarRepository.findGroupStartDates();
+            Map<String, LocalDate> groupStartDateMap = groupStartDates.stream()
+                .collect(Collectors.toMap(
+                    row -> (String) row[0], // 그룹ID
+                    row -> (LocalDate) row[1] // 시작날짜(고정)
+                ));
+
+            // 사용자별 이벤트 가져오기
             return calendarRepository.findByCalUserId(userId).stream()
-                    .map(entry -> CalendarResponseDTO.builder()
-                            .id(entry.getId())
-                            .installment_name(entry.getInstallment_name())
-                            .bank_name(entry.getBank_name())
-                            .start_date(entry.getStart_date())
-                            .end_date(entry.getEnd_date())
-                            .amount(entry.getAmount())
-                            .build())
-                    .collect(Collectors.toList());
+                .map(entry -> CalendarResponseDTO.builder()
+                    .id(entry.getId()) // 이벤트 ID
+                    .bank_name(entry.getBank_name())
+                    .installment_name(entry.getInstallment_name())
+                    .start_date(entry.getStart_date())
+                    .end_date(entry.getEnd_date())
+                    .amount(entry.getAmount())
+                    .fixedStartDate(groupStartDateMap.get(entry.getGroupId())) // 최초 시작일 추가
+                    .build())
+                .collect(Collectors.toList());
         } catch (Exception e) {
             throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_QUERY_FAILED);
         }
@@ -74,15 +86,16 @@ public class CalendarServiceImpl implements CalendarService {
         try {
             Calendar calendarEntry = calendarRepository.findById(id)
                     .orElseThrow(() -> new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_EVENT_NOT_FOUND));
-
+            
+            // 사용자 ID 일치여부
             if (!calendarEntry.getCal_user_id().equals(userId)) {
                 throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_EVENT_NOT_FOUND);
             }
 
             calendarRepository.updateByGroupId(
                 calendarEntry.getGroupId(),
-                request.getInstallment_name(),
                 request.getBank_name(),
+                request.getInstallment_name(),
                 request.getAmount(),
                 request.getEnd_date()
             );
@@ -110,7 +123,9 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     
+    
     // ---- Products 데이터 관련 ----
+    // 은행명, 로고
     public List<Map<String, String>> getDistinctBankNamesAndLogos() {
         List<Object[]> results = calendarRepository.findDistinctBankNamesAndLogos();
         List<Map<String, String>> bankList = new ArrayList<>();
@@ -124,7 +139,8 @@ public class CalendarServiceImpl implements CalendarService {
         
         return bankList;
     }
-
+    
+    // 특정 은행의 적금명목록
     public List<String> getProductNamesByBankName(String bankName) {
         return calendarRepository.findProductNamesByBankName(bankName);
     }

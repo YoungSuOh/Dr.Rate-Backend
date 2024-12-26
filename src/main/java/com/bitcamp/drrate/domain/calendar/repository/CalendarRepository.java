@@ -15,9 +15,6 @@ import java.util.List;
 
 @Repository
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
-    
-    @Query("SELECT c FROM Calendar c WHERE c.groupId = :groupId")
-    List<Calendar> findAllByGroupId(@Param("groupId") String groupId); 
 
     @Query("SELECT c FROM Calendar c WHERE c.cal_user_id = :userId")
     List<Calendar> findByCalUserId(@Param("userId") Long userId); // 로그인한 사용자에 맞는 일정만 가져오기
@@ -38,7 +35,13 @@ public interface CalendarRepository extends JpaRepository<Calendar, Long> {
     @Query("DELETE FROM Calendar c WHERE c.groupId = :groupId")
     void deleteByGroupId(@Param("groupId") String groupId);
     
+    // 그룹
+    @Query("SELECT c FROM Calendar c WHERE c.groupId = :groupId")
+    List<Calendar> findAllByGroupId(@Param("groupId") String groupId); 
     
+    // 그룹별 최초 시작일 가져오기
+    @Query("SELECT c.groupId, MIN(c.start_date) AS fixedStartDate FROM Calendar c GROUP BY c.groupId")
+    List<Object[]> findGroupStartDates();
     
     /////////////////////////////////////////////////////
     // 은행명 및 로고 가져오기
