@@ -9,5 +9,4 @@ public interface EmailinquireRepository extends JpaRepository<Emailinquire, Long
 
     // 문의 내역 조회: 특정 사용자 ID로 조회
     List<Emailinquire> findByInquireId(Long inquireId);
-
-}
+}           
