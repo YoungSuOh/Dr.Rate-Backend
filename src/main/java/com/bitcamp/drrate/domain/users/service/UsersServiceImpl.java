@@ -174,7 +174,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public void myInfoEdit(Users users, String requestEmail) {
+    public void myInfoEdit(Users users) {
         try{
             String encodedPassword = bCryptPasswordEncoder.encode(users.getPassword());
             users.setPassword(encodedPassword);

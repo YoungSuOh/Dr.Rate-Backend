@@ -20,6 +20,6 @@ public interface UsersService {
     void signUp(UsersJoinDTO usersJoinDTO);
     Users getMyInfo(Long id);
     String invalidAccessToken(String accessToken);
-    void myInfoEdit(Users users, String requestEmail);
+    void myInfoEdit(Users users);
     void logout(CustomUserDetails userDetails);
 }

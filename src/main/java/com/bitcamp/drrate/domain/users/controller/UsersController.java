@@ -265,13 +265,12 @@ public class UsersController {
             users.setUsername(requestDTO.getUsername());
             users.setPassword(requestDTO.getPassword());
 
-            usersService.myInfoEdit(users, requestDTO.getEmail());
+            usersService.myInfoEdit(users);
             
             return ApiResponse.onSuccess(null, SuccessStatus.USER_INFO_UPDATE_SUCCESS);
         } catch(Exception e) {
              return ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(), ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(), null);
         }
-        
     }
 
     //토큰 재발급
