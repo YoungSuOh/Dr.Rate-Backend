@@ -48,8 +48,6 @@ public class InsertProductServiceImpl implements InsertProductService{
             DepResponseDTO depResponseDTO = null;
             InsResponseDTO insResponseDTO = null;
 
-            System.out.println("depResponseDTO : "+depResponseDTO);
-            System.out.println("insResponseDTO : "+insResponseDTO);
 
             try {
                 responseDTO = objectMapper.readValue(result, ProductResponseDTO.class);
@@ -63,7 +61,6 @@ public class InsertProductServiceImpl implements InsertProductService{
             List<ProductResponseDTO.ProductApiDto> productList = responseDTO.getResult().getBaseList();
             List<?> optionList = type ? depResponseDTO.getResult().getOptionList() : insResponseDTO.getResult().getOptionList();  // 여기서 타입 별로  추출
 
-            System.out.println("옵션 리스트: " + optionList);
 
             // 각 상품 엔티티 객체로 변환 후 DB에 저장
             for (ProductResponseDTO.ProductApiDto apiDto : productList) {
@@ -91,7 +88,6 @@ public class InsertProductServiceImpl implements InsertProductService{
                 // 가입 기간 관련 데이터 설정
                 parseEtc(apiDto.getEtc(), product);
 
-                System.out.println(product.getJoinMemberAge());
 
                 String bankName = apiDto.getBankName();
                 String logo = "remainLogo.png";  // 기본값
