@@ -126,23 +126,33 @@ public class CalendarServiceImpl implements CalendarService {
     
     // ---- Products 데이터 관련 ----
     // 은행명, 로고
+    @Override
     public List<Map<String, String>> getDistinctBankNamesAndLogos() {
-        List<Object[]> results = calendarRepository.findDistinctBankNamesAndLogos();
-        List<Map<String, String>> bankList = new ArrayList<>();
+        try {
+            List<Object[]> results = calendarRepository.findDistinctBankNamesAndLogos();
+            List<Map<String, String>> bankList = new ArrayList<>();
 
-        for (Object[] result : results) {
-            Map<String, String> bank = new HashMap<>();
-            bank.put("bankName", (String) result[0]); // 은행명
-            bank.put("bankLogo", (String) result[1]); // 은행 로고
-            bankList.add(bank);
+            for (Object[] result : results) {
+                Map<String, String> bank = new HashMap<>();
+                bank.put("bankName", (String) result[0]); // 은행명
+                bank.put("bankLogo", (String) result[1]); // 은행 로고
+                bankList.add(bank);
+            }
+
+            return bankList;
+        } catch (Exception e) {
+            throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_QUERY_FAILED);
         }
-        
-        return bankList;
     }
     
     // 특정 은행의 적금명목록
+    @Override
     public List<String> getProductNamesByBankName(String bankName) {
-        return calendarRepository.findProductNamesByBankName(bankName);
+        try {
+            return calendarRepository.findProductNamesByBankName(bankName);
+        } catch (Exception e) {
+            throw new CalendarServiceExceptionHandler(ErrorStatus.CALENDAR_QUERY_FAILED);
+        }
     }
 }
 

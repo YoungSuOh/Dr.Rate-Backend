@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -83,14 +84,37 @@ public class CalendarController {
     // 은행명 및 로고 가져오기
     @GetMapping("/banks")
     public List<Map<String, String>> getDistinctBankNamesAndLogos() {
-        List<Map<String, String>> banks = calendarService.getDistinctBankNamesAndLogos();
-        return banks;
+        try {
+            return calendarService.getDistinctBankNamesAndLogos();
+        } catch (CalendarServiceExceptionHandler e) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, 
+                e.getErrorReason().getMessage()
+            );
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR, 
+                ErrorStatus.CALENDAR_BANK_QUERY_FAILED.getMessage()
+            );
+        }
     }
 
     // 특정 은행의 적금목록 가져오기
     @GetMapping("/banks/{bankName}/products")
     public List<String> getProductNamesByBankName(@PathVariable("bankName") String bankName) {
-        List<String> productNames = calendarService.getProductNamesByBankName(bankName);
-        return productNames;
+        try {
+            // 데이터 반환
+            return calendarService.getProductNamesByBankName(bankName);
+        } catch (CalendarServiceExceptionHandler e) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, 
+                e.getErrorReason().getMessage()
+            );
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR, 
+                ErrorStatus.CALENDAR_PRODUCT_QUERY_FAILED.getMessage()
+            );
+        }
     }
 }

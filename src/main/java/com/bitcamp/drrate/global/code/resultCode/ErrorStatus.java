@@ -131,6 +131,8 @@ public enum ErrorStatus implements ErrorCode {
     CALENDAR_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL004", "이벤트 수정에 실패했습니다."),
     CALENDAR_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL005", "이벤트 삭제에 실패했습니다."),
     CALENDAR_EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CAL006", "해당 이벤트를 찾을 수 없습니다."),
+    CALENDAR_BANK_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL007", "은행 데이터 조회에 실패했습니다."),
+    CALENDAR_PRODUCT_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL008", "적금명 데이터 조회에 실패했습니다."),
 
     // 권한 에러
     AUTHORIZATION_INVALID(HttpStatus.UNAUTHORIZED, "AUTHORIZATION400", "접근 권한이 없습니다."),
