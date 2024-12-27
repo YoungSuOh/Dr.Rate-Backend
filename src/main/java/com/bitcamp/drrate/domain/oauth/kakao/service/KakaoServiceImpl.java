@@ -1,9 +1,12 @@
 package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class KakaoServiceImpl implements KakaoService {
     private final UsersRepository usersRepository;
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private final String KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
@@ -88,12 +92,16 @@ public class KakaoServiceImpl implements KakaoService {
             Optional<Users> optionalUsers = usersRepository.findByEmail(email);
 
             Users users = optionalUsers.orElseGet(() -> new Users());
-            
+            boolean isNewUser = optionalUsers.isEmpty(); // 신규 가입자 여부 판단
             setUserInfo(users, userInfo);
 
             Long id = users.getId();
 
             usersRepository.save(users);
+
+            if (isNewUser) {
+                incrementNewUserCount();
+            }
 
             String access = null; String refresh = null;
 
@@ -166,5 +174,13 @@ public class KakaoServiceImpl implements KakaoService {
         }else{
             users.setRole(Role.USER);
         }
+    }
+    private void incrementNewUserCount() {
+        String today = LocalDate.now().toString();
+        String redisKey = "daily_new_members:" + today;
+
+        // Redis 값 증가
+        redisTemplate.opsForValue().increment(redisKey);
+        redisTemplate.expire(redisKey, Duration.ofDays(1));
     }
 }

@@ -10,7 +10,15 @@ import java.util.Optional;
 import com.amazonaws.services.s3.AmazonS3;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import org.hibernate.query.sqm.ParsingException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
@@ -153,40 +161,19 @@ public class ProductsServiceImpl implements ProductsService{
         return map;
     }
 
-
-   //241211 오혜진 추가
-
-    @Override
-    public List<Map<String, Object>> getAllProducts() {
-        List<Products> products = productsRepository.findAll();
-        List<Map<String, Object>> resultList = new ArrayList<>();
-
-        for (Products product : products) {
-            Map<String, Object> productMap = new HashMap<>();
-            Long productId = product.getId();
-
-            // 각 상품의 옵션 조회
-            List<DepositeOptions> dep_options = depositeOptionsRepository.findByProductsId(productId);
-            List<InstallMentOptions> ins_options = installMentOptionsRepository.findByProductsId(productId);
-
-            productMap.put("product", product);
-
-            if (dep_options != null && !dep_options.isEmpty()) {
-                productMap.put("options", dep_options);
-            } else if (ins_options != null && !ins_options.isEmpty()) {
-                productMap.put("options", ins_options);
-            }
-            
-            
-
-            resultList.add(productMap);
-        }
-
-        return resultList;
-    }
     //241211 카테고리 - 오혜진
     @Override
     public List<Products> getProductsByCtg(String ctg) {
         return productsRepository.findByCtg(ctg);
     }
+
+
+    @Override
+    public List<Map<String, Object>> getProduct(int page, int size, String bank, int age, int period, String rate, String join, boolean spclRate, boolean basicRate) {
+
+
+        return null;
+    }
+
+
 }

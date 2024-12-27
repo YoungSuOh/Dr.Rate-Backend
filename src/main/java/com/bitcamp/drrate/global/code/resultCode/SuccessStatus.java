@@ -61,6 +61,13 @@ public enum SuccessStatus implements SuccessCode {
     CALENDAR_QUERY_SUCCESS(HttpStatus.OK, "CAL201", "이벤트 조회 성공"),
     CALENDAR_UPDATE_SUCCESS(HttpStatus.OK, "CAL202", "이벤트 수정 성공"),
     CALENDAR_DELETE_SUCCESS(HttpStatus.OK, "CAL203", "이벤트 삭제 성공"),
+
+
+    // Deposite
+    DEPOSITE_GET_SUCCESS(HttpStatus.OK, "DEPOSITE200", "예금 목록 조회 성공")
+
+
+
 	;
 
     private final HttpStatus httpStatus;

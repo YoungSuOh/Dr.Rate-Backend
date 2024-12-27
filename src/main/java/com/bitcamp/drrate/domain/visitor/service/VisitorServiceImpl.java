@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class VisitorServiceImpl implements VisitorService {
                 if (Boolean.FALSE.equals(isMemberVisited)) {
                     redisTemplate.opsForSet().add(redisKey, String.valueOf(userId));
                 }
+                redisTemplate.expire(redisKey, Duration.ofDays(1));
 
             } else if (guestId != null && !guestId.isEmpty()) { // 비회원 방문자 처리
                 System.out.println("guestId: " + guestId);
@@ -51,8 +53,9 @@ public class VisitorServiceImpl implements VisitorService {
                 if (Boolean.FALSE.equals(isGuestLoggedIn)) {
                     redisTemplate.opsForSet().add(redisKey, guestId);
                 }
+                redisTemplate.expire(redisKey, Duration.ofDays(1));
             } else {
-                throw new IllegalArgumentException("Invalid input: Either userId or guestId must be provided.");
+                throw new VisitServiceExceptionHandler(ErrorStatus.VISIT_RECORD_FAILED);
             }
         } catch (RedisConnectionFailureException e) {
             e.printStackTrace();
@@ -74,7 +77,7 @@ public class VisitorServiceImpl implements VisitorService {
             String redisKey = "daily_visitors:member:" + today;
 
             Long size = redisTemplate.opsForSet().size(redisKey);
-            return size != null ? size: 0;
+            return size != null ? size: 0L;
         } catch (NumberFormatException e) {
             e.printStackTrace();
             throw new VisitServiceExceptionHandler(ErrorStatus.REDIS_LOAD_FAILED);
@@ -94,7 +97,7 @@ public class VisitorServiceImpl implements VisitorService {
             String redisKey = "daily_visitors:guest:" + today;
 
             Long size = redisTemplate.opsForSet().size(redisKey);
-            return size != null ? size: 0;
+            return size != null ? size: 0L;
         } catch (NumberFormatException e) {
             e.printStackTrace();
             throw new VisitServiceExceptionHandler(ErrorStatus.REDIS_LOAD_FAILED);
@@ -115,7 +118,7 @@ public class VisitorServiceImpl implements VisitorService {
             String redisKey = "daily_new_members:" + today;
 
             Long size = redisTemplate.opsForSet().size(redisKey);
-            return size != null ? size: 0;
+            return size != null ? size : 0L;
         } catch (NumberFormatException e) {
             e.printStackTrace();
             throw new VisitServiceExceptionHandler(ErrorStatus.REDIS_LOAD_FAILED);
@@ -132,7 +135,7 @@ public class VisitorServiceImpl implements VisitorService {
     @Override
     public List<DailyVisitor> getLast4DaysVisitorCounts() {
         try {
-            LocalDate yesterday = LocalDate.now().minusDays(1);
+            LocalDate yesterday = LocalDate.now();
             return dailyVisitorRepository.findLast4DaysVisitors(yesterday);
         } catch (DataAccessException e) {
             e.printStackTrace();

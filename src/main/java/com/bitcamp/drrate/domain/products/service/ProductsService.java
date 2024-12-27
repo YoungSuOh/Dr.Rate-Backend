@@ -12,12 +12,7 @@ public interface ProductsService {
     /* 상품 하나 출력 */
     Map<String, Object> getOneProduct(Long prdId);
 
-
-
-
-    //241211 전체 조회 카테고리 조회 추가 - 오혜진
-    //List<Products> getAllProducts();
-    List<Map<String, Object>> getAllProducts(); // 전체 조회
     List<Products> getProductsByCtg(String ctg); //카테고리 조회
 
+    List<Map<String, Object>>getProduct(int page, int size, String bank, int age, int period, String rate, String join, boolean spclRate, boolean basicRate);
 }
