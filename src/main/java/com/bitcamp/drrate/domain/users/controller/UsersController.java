@@ -59,7 +59,7 @@ public class UsersController {
     public ResponseEntity<?> login(@RequestParam("code") String code, @PathVariable("provider") String provider) {
         try {
             String access = null;
-            
+            System.out.println("code : "+code);
             
             // Provider별 처리
             if (provider.equals("google")) { //구글
@@ -99,6 +99,7 @@ public class UsersController {
                             null
                     ));
         } catch (Exception e) {
+            e.printStackTrace();
             // 서버 내부 오류
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
