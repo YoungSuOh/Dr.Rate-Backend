@@ -41,4 +41,5 @@ public class UsersResponseDTO {
         private String email;
         private String name;
     }
+
 }
