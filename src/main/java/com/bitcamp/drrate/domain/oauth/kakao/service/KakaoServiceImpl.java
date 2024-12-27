@@ -1,9 +1,11 @@
 package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class KakaoServiceImpl implements KakaoService {
     private final UsersRepository usersRepository;
     private final JWTUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private final String KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
@@ -86,15 +89,21 @@ public class KakaoServiceImpl implements KakaoService {
             String email = userInfo.getKakaoAccount().getEmail();
 
             Optional<Users> optionalUsers = usersRepository.findByEmail(email);
+            boolean isNewUser = optionalUsers.isEmpty(); // 신규 가입자 여부 판단
 
             Users users = optionalUsers.orElseGet(() -> new Users());
-            
+
             setUserInfo(users, userInfo);
 
             Long id = users.getId();
             users.setSocial("Kakao");
 
             usersRepository.save(users);
+
+            // 신규 가입자일 경우 Redis 카운트 증가
+            if (isNewUser) {
+                incrementNewUserCount();
+            }
 
             String access = null; String refresh = null;
 
@@ -161,11 +170,10 @@ public class KakaoServiceImpl implements KakaoService {
         if(userInfo.getKakaoAccount().getName() == null){
             users.setUsername(userInfo.getKakaoAccount().getProfile().getNickName());
         }
-        if(users.getRole().equals("ADMIN")){
-        //if(users.getRole() == Role.ADMIN)
-            users.setRole(Role.ADMIN);
-        }else{
+        if (!Role.ADMIN.equals(users.getRole()) || users.getRole() == null) {
             users.setRole(Role.USER);
+        } else {
+            users.setRole(Role.ADMIN);
         }
     }
 

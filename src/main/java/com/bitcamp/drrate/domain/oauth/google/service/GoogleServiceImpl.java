@@ -230,11 +230,10 @@ public class GoogleServiceImpl implements GoogleService {
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
         users.setUsername(googleInfo.getName());
-        System.out.println(users.getRole());
-        if (Role.ADMIN.equals(users.getRole())) {
-            users.setRole(Role.ADMIN);
-        } else {
+        if (!Role.ADMIN.equals(users.getRole()) || users.getRole() == null) {
             users.setRole(Role.USER);
+        } else {
+            users.setRole(Role.ADMIN);
         }
     }
 
