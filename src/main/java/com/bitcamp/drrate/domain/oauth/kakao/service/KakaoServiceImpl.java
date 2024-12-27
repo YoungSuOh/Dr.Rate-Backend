@@ -168,4 +168,12 @@ public class KakaoServiceImpl implements KakaoService {
             users.setRole(Role.USER);
         }
     }
+
+    private void incrementNewUserCount() {
+        String today = LocalDate.now().toString();
+        String redisKey = "daily_new_members:" + today;
+
+        // Redis 값 증가
+        redisTemplate.opsForValue().increment(redisKey);
+    }
 }
