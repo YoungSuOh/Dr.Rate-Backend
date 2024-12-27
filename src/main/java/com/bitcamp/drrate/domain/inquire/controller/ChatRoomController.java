@@ -3,6 +3,7 @@ package com.bitcamp.drrate.domain.inquire.controller;
 
 import com.bitcamp.drrate.domain.inquire.entity.ChatRoom;
 import com.bitcamp.drrate.domain.inquire.service.chatroom.ChatRoomService;
+import com.bitcamp.drrate.domain.inquire.service.kafka.KafkaTopicService;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
@@ -13,16 +14,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/admin/chatrooms")
+@RequestMapping("/api")
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
+    private final KafkaTopicService kafkaTopicService;
 
-    @GetMapping("/inquireList")
+    @GetMapping("/admin/chatrooms/inquireList")
     public ApiResponse<Page<ChatRoom>> getChatRoomsBySearchCriteria(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size,
-            @RequestParam(required = false) String searchType,
-            @RequestParam(required = false) String keyword
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "4") int size,
+            @RequestParam(value = "searchType",required = false) String searchType,
+            @RequestParam(value = "keyword", required = false) String keyword
     ) {
         try {
             Page<ChatRoom> result = chatRoomService.getChatRoomsBySearchCriteria(page, size, searchType, keyword);
@@ -32,8 +34,21 @@ public class ChatRoomController {
         }
     }
 
+    @GetMapping("/topic/check/{topicName}")
+    public ApiResponse<HttpStatus> checkTopicExists(@PathVariable("topicName") String topicName) {
+        try{
+            if(kafkaTopicService.topicExists(topicName)){
+                return ApiResponse.onSuccess(HttpStatus.OK ,SuccessStatus.KAFKA_TOPIC_GET_SUCCESS);
+            }else{
+                return ApiResponse.onFailure(ErrorStatus.KAFKA_TOPIC_NOT_FOUND.getCode(), ErrorStatus.KAFKA_TOPIC_NOT_FOUND.getMessage(), null);
+            }
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.KAFKA_BROKER_BADREQUEST.getCode(), ErrorStatus.KAFKA_BROKER_BADREQUEST.getMessage(), null);
+        }
+    }
 
-    @DeleteMapping("/{id}")
+
+    @DeleteMapping("/chatrooms/{id}")
     public ApiResponse<HttpStatus> deleteChatRoom(@PathVariable String id) {
         try{
             chatRoomService.deleteChatRoomById(id);

@@ -54,7 +54,12 @@ public class CustomUserDetails extends Users implements UserDetails {
     public String getEmail() {
         return users.getEmail();
     }
-
+    
+    @Override
+    public String getSocial() {
+        return users.getSocial();
+    }
+    
     @Override
     public boolean isAccountNonExpired() {
 

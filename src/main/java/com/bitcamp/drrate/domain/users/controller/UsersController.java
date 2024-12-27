@@ -8,9 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -82,14 +80,11 @@ public class UsersController {
             String redirectUrl = "http://localhost:5173/oauthHandler#access=" + access;
     
             // 성공 시 처리
-            // 헤더 세팅
-            HttpHeaders headers = usersService.tokenSetting(access);
-
             return ResponseEntity
                     .status(HttpStatus.FOUND)
                     //.headers(headers)
                     .header(HttpHeaders.LOCATION, redirectUrl)
-                    .body(ApiResponse.onSuccess(null, SuccessStatus.USER_LOGIN_SUCCESS));
+                    .body(ApiResponse.onSuccess(null, SuccessStatus.USER_LOGIN_SUCCESS)); 
     
         } catch (IllegalArgumentException e) {
             // 클라이언트의 잘못된 요청 (서버 요청주소 설정 오류)
@@ -166,12 +161,12 @@ public class UsersController {
         }
     }
     
-    @RequestMapping(value="/api/userList", method=RequestMethod.GET)
+    @RequestMapping(value="/api/admin/userList", method=RequestMethod.GET)
     public ApiResponse<Page<Users>>getUsersList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size,
-            @RequestParam(required = false) String searchType,
-            @RequestParam(required = false) String keyword,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "4") int size,
+            @RequestParam(name = "searchType", required = false) String searchType,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         try{
@@ -255,6 +250,29 @@ public class UsersController {
         }
     }
 
+    //내 정보 수정 페이지
+    @RequestMapping(value="/api/myInfoEdit", method=RequestMethod.POST)
+    public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO.UsersJoinDTO requestDTO) {
+        try {
+            boolean exists = usersRepository.existsBySocial(userDetails.getSocial());
+            if(!exists) {
+                return ApiResponse.onFailure(ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getCode(), ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getMessage(), null);
+            }
+            Users users = usersRepository.findUsersById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userDetails.getId()));
+
+            users.setEmail(requestDTO.getEmail());
+            users.setUsername(requestDTO.getUsername());
+            users.setPassword(requestDTO.getPassword());
+
+            usersService.myInfoEdit(users);
+            
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_INFO_UPDATE_SUCCESS);
+        } catch(Exception e) {
+             return ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(), ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(), null);
+        }
+    }
+
     //토큰 재발급
     @RequestMapping(value="/api/reissue", method=RequestMethod.POST)
     public ApiResponse<?> tokenRefresh(@RequestBody Map<String, String> requestBody) {
@@ -267,12 +285,24 @@ public class UsersController {
             }
             // accesstoken 검증 로직 및 새로운 accesstoken 발급, 토큰이 없으면 에러 반환
             String token = usersService.invalidAccessToken(accessToken);
+            
             if (token.equals("") || token.isEmpty() ) {
                 return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
             }
             return ApiResponse.onSuccess(token, SuccessStatus.USER_TOKEN_REISSUE_SUCCESS); // 토큰이 담겨왔으면 토큰 반환
         } catch (Exception e) {
             return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+        }
+    }
+
+    //로그아웃
+    @RequestMapping(value="/api/logout", method=RequestMethod.POST)
+    public ApiResponse<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            usersService.logout(userDetails);
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_LOGOUT_SUCCESS);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
         }
     }
 }

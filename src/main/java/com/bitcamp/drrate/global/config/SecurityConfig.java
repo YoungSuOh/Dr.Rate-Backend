@@ -3,10 +3,9 @@ package com.bitcamp.drrate.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -26,7 +25,7 @@ import com.bitcamp.drrate.domain.jwt.JWTUtil;
 import com.bitcamp.drrate.domain.jwt.LoginFilter;
 import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
-import com.bitcamp.drrate.domain.users.service.CustomUserDetailsService; // 직접 구현된 서비스
+import com.bitcamp.drrate.domain.users.service.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
@@ -34,14 +33,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // === 기존 필드들 ===
-    private final AuthenticationConfiguration authenticationConfiguration;
+    // === 의존성 ===
     private final JWTUtil jwtUtil;
     private final ObjectMapper objectMapper;
     private final UsersRepository usersRepository;
     private final RefreshTokenService refreshTokenService;
-
-    // === (중요) 사용자 정보 조회 서비스를 주입받는다 ===
     private final CustomUserDetailsService customUserDetailsService;
 
     /**
@@ -53,22 +49,40 @@ public class SecurityConfig {
     }
 
     /**
-     * AuthenticationManager를 Bean으로 등록
-     * - 과거 configure(AuthenticationManagerBuilder auth) 대체
+     * AuthenticationManager를 HttpSecurity 기반으로 생성
      */
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        // (1) AuthenticationManagerBuilder를 얻어온 뒤
+        // (1) AuthenticationManagerBuilder를 꺼낸다
         AuthenticationManagerBuilder authBuilder =
             http.getSharedObject(AuthenticationManagerBuilder.class);
 
-        // (2) userDetailsService, passwordEncoder 등록
+        // (2) userDetailsService + passwordEncoder 등록
         authBuilder
             .userDetailsService(customUserDetailsService)
             .passwordEncoder(bCryptPasswordEncoder());
 
-        // (3) AuthenticationManager 생성
+        // (3) 빌드
         return authBuilder.build();
+    }
+
+    /**
+     * CORS 설정 Bean
+     */
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true); // 쿠키 포함 허용
+        config.addAllowedOriginPattern("http://localhost:5173");
+        config.addAllowedOriginPattern("https://www.dr-rate.store");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        // 필요하다면 exposeHeaders, e.g. config.addExposedHeader("Authorization");
+
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 
     /**
@@ -76,24 +90,23 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CorsFilter corsFilter) throws Exception {
-        // (4) 만든 authenticationManager를 가져온다
+        // (4) authManager 생성
         AuthenticationManager authManager = authenticationManager(http);
 
-        // (5) 이 authManager를 Security에 적용
+        // (5) http에 authManager 적용
         http.authenticationManager(authManager);
 
         // === CSRF 비활성화 ===
         http.csrf(csrf -> csrf.disable());
 
-        // === CORS 설정 ===
-        // 이미 corsFilter Bean이 있다면, 직접 필터로 등록하거나 http.cors() 등으로 적용 가능
+        // === CORS 필터 등록 (UsernamePasswordAuthenticationFilter 전에) ===
         http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class);
 
         // === formLogin / httpBasic 비활성화 ===
         http.formLogin(form -> form.disable());
         http.httpBasic(basic -> basic.disable());
 
-        // === 접근 권한 설정 ===
+        // === 경로별 접근 권한 ===
         http.authorizeHttpRequests(auth -> auth
             .requestMatchers(
                 "/api/signIn/**",
@@ -103,14 +116,17 @@ public class SecurityConfig {
                 "/api/products/**",
                 "/chat/**",
                 "/api/email/**",
-                "/api/reissue"
+                "/api/reissue",
+                "/api/trackVisit"
             ).permitAll()
             .requestMatchers(
                 "/api/favorite/**",
                 "/api/chatmessages/**",
                 "/api/s3",
                 "/api/calendar",
-                "/api/myInfo"
+                "/api/myInfo",
+                "/api/logout",
+                "/api/myInfoEdit"
             ).authenticated()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated()
@@ -120,18 +136,17 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // === 커스텀 LoginFilter 등록 ===
-        // (6) 여기서 authManager를 이용해 LoginFilter 생성
+        // 기존에 "http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), ...))"
+        // 이런 식으로 authenticationConfiguration을 직접 넘기던 부분은 제거
+        // 한 번만 등록하면 됨
         http.addFilterAt(
-            new LoginFilter(
-                authManager,        // 이렇게 교체!
-                jwtUtil,
-                usersRepository,
-                refreshTokenService
-            ),
+            new LoginFilter(authManager, jwtUtil, usersRepository, refreshTokenService),
             UsernamePasswordAuthenticationFilter.class
         );
 
         // === JWT 검사 필터 등록 ===
+        // LoginFilter 이후에 동작하도록, UsernamePasswordAuthenticationFilter 앞뒤 조정 가능
+        // 여기서는 "UsernamePasswordAuthenticationFilter.class" 앞에 등록
         http.addFilterBefore(
             new JWTFilter(jwtUtil, usersRepository),
             UsernamePasswordAuthenticationFilter.class
@@ -144,22 +159,5 @@ public class SecurityConfig {
         );
 
         return http.build();
-    }
-
-    /**
-     * CORS Filter Bean
-     */
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("http://localhost:5173");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        config.addExposedHeader("Authorization");
-
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
     }
 }

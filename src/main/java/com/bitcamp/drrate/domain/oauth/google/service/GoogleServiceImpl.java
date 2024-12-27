@@ -118,6 +118,7 @@ public class GoogleServiceImpl implements GoogleService {
             setUserInfo(users, googleInfo);
             //DB에서 사용자의 pk값
             Long id = users.getId();
+            users.setSocial("Google");
             //신규 가입자는 DB Insert, 기존 가입자의 경우 정보가 바뀌면 Update 아니면 지나침
             usersRepository.save(users);
 
@@ -125,7 +126,6 @@ public class GoogleServiceImpl implements GoogleService {
             if (isNewUser) {
                 incrementNewUserCount();
             }
-
 
             String access = null; String refresh = null;
             System.out.println("role : " + users.getRole());
@@ -230,11 +230,10 @@ public class GoogleServiceImpl implements GoogleService {
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
         users.setUsername(googleInfo.getName());
-        System.out.println(users.getRole());
-        if (Role.ADMIN.equals(users.getRole())) {
-            users.setRole(Role.ADMIN);
-        } else {
+        if (!Role.ADMIN.equals(users.getRole()) || users.getRole() == null) {
             users.setRole(Role.USER);
+        } else {
+            users.setRole(Role.ADMIN);
         }
     }
 
