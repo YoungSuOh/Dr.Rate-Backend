@@ -310,6 +310,7 @@ public class UsersController {
     @RequestMapping(value="/api/deleteAccount", method=RequestMethod.POST)
     public ApiResponse<?> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("password") @Valid String password) {
         try{
+            System.out.println("회원탈퇴 로직 수행");
             usersService.deleteAccount(userDetails.getId(), password);
             return ApiResponse.onSuccess(null, SuccessStatus.USER_DELETE_SUCCESS);
         } catch(Exception e) {

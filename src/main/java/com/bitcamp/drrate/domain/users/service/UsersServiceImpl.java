@@ -203,19 +203,16 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public void deleteAccount(Long id, String password) {
         try {
-            Users users = usersRepository.findUsersById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
-
+            Users users = usersRepository.findUsersById(id).orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
             String userPwd = users.getPassword();
-            if(userPwd.equals(password)){
-                refreshTokenService.deleteTokens(String.valueOf(id));
+            if(userPwd.equals(password)) {
                 usersRepository.deleteById(id);
+                refreshTokenService.deleteTokens(String.valueOf(id));
             }
         } catch(UsersServiceExceptionHandler ex) {
-            throw new UsersServiceExceptionHandler(ErrorStatus.JSON_PROCESSING_ERROR);
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_AUTHENTICATION_FAILED);
         } catch(Exception e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
 }
