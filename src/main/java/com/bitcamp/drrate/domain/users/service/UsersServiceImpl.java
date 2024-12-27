@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -136,16 +135,6 @@ public class UsersServiceImpl implements UsersService {
         usersRepository.save(newUser);
     }
 
-
-    @Override // 소셜로그인으로 로그인 시 Header에 AccessToken 전달
-    public HttpHeaders tokenSetting(String access) {
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.set("Authorization", "Bearer " + access);
-        headers.add("Access-Control-Expose-Headers", "Authorization");
-        return headers;
-    }
-
     @Override
     public Users getMyInfo(Long id) {
         Users users = usersRepository.findUsersById(id)
@@ -180,6 +169,33 @@ public class UsersServiceImpl implements UsersService {
         } catch(NumberFormatException e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_FORMAT_ERROR);
         } catch(Exception ex) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void myInfoEdit(Users users) {
+        try{
+            String encodedPassword = bCryptPasswordEncoder.encode(users.getPassword());
+            users.setPassword(encodedPassword);
+            
+            usersRepository.save(users);
+
+        } catch(UsersServiceExceptionHandler e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void logout(CustomUserDetails userDetails) {
+        try {
+            String id = String.valueOf(userDetails.getId());
+
+            refreshTokenService.deleteTokens(id);
+            
+        } catch(UsersServiceExceptionHandler ex) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.JSON_PROCESSING_ERROR);
+        } catch(Exception e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }

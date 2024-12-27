@@ -3,6 +3,7 @@ package com.bitcamp.drrate.domain.oauth.kakao.service;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -90,12 +91,14 @@ public class KakaoServiceImpl implements KakaoService {
             String email = userInfo.getKakaoAccount().getEmail();
 
             Optional<Users> optionalUsers = usersRepository.findByEmail(email);
+            boolean isNewUser = optionalUsers.isEmpty(); // 신규 가입자 여부 판단
 
             Users users = optionalUsers.orElseGet(() -> new Users());
-            boolean isNewUser = optionalUsers.isEmpty(); // 신규 가입자 여부 판단
+
             setUserInfo(users, userInfo);
 
             Long id = users.getId();
+            users.setSocial("Kakao");
 
             usersRepository.save(users);
 

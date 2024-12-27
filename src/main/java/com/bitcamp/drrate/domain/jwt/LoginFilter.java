@@ -32,35 +32,41 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final UsersRepository usersRepository;
     private final RefreshTokenService refreshTokenService;
 
-    @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        try{
-            //클라이언트 요청에서 userId, password 추출
-            String userId = obtainUsername(request); // 클라이언트 요청의 키값으로 username이라는 이름으로 주어야한다
-            String password = obtainPassword(request);
-
-            System.out.println("userId = " + userId + "\n" + "password" + password);
-
-            if (userId == null || password == null) {
-                throw new UsersServiceExceptionHandler(ErrorStatus.USER_LOGIN_ERROR);
-            }
-
-            //스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-            //마지막의 null값은 사용자의 권한 즉 role 값인데 로그인 시점에서는 아직 인증된 상태가 아니기 때문에 null로 설정해줘야함.
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, password, null);
-
-            //token에 담은 검증을 위한 AuthenticationManager로 전달
-            return authenticationManager.authenticate(authToken);
-        } catch (AuthenticationException e) {
-        throw new UsersServiceExceptionHandler(ErrorStatus.USER_AUTHENTICATION_FAILED);
+    // --- [중요] 필터가 처리할 URL을 "/api/signIn"으로 지정 ---
+    {
+        this.setFilterProcessesUrl("/api/signIn");
     }
-    }
-    //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급)
+
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+        throws AuthenticationException {
+        // 프론트엔드에서 username/password를 FormData (또는 x-www-form-urlencoded)로 전송
+        String userId = obtainUsername(request);  // == request.getParameter("username")
+        String password = obtainPassword(request); // == request.getParameter("password")
+
+        System.out.println("userId = " + userId + "\n" + "password = " + password);
+
+        if (userId == null || password == null) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_LOGIN_ERROR);
+        }
+
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userId, password);
+
+        return authenticationManager.authenticate(authToken);
+
+    }
+
+    // 로그인 성공 시 JWT 발급
+    @Override
+    protected void successfulAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain,
+            Authentication authentication
+    ) {
         try {
-            CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
-
+            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
             String userId = customUserDetails.getUserId();
 
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -70,38 +76,43 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             Users users = usersRepository.findByUserId(userId);
             if (users == null) {
-                throw new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND); // 사용자를 찾을 수 없음
+                throw new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND);
             }
             Long id = users.getId();
 
+            // Access 토큰 (10분), Refresh 토큰 (24시간)
             String access = jwtUtil.createJwt(id, "access", role, 600000L);
             String refresh = jwtUtil.createJwt(id, "refresh", role, 86400000L);
 
-            //Refresh 토큰 저장
+            // Refresh 토큰 저장
             refreshTokenService.saveTokens(String.valueOf(id), access, refresh);
 
-            response.setHeader("Authorization", "Bearer " + access); // 액세스 토큰 헤더에 저장 (로컬스토리지 저장)
+            // ----- [중요] 프론트엔드에서 Authorization 헤더 확인 가능하도록 설정
+            response.setHeader("Access-Control-Expose-Headers", "Authorization");
+            response.setHeader("Authorization", "Bearer " + access);
+
             response.setStatus(HttpStatus.OK.value());
-            
+
         } catch (Exception e) {
-            // 예외 발생 시 실패 응답 처리
             System.err.println("Successful authentication failed: " + e.getMessage());
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-	//로그인 실패시 실행하는 메소드
+    // 로그인 실패 시
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                             AuthenticationException failed) {
         try {
-            // 클라이언트에 인증 실패 응답
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다.\"}");
+            response.setContentType("application/json; charset=utf-8");
+            // 프론트에서 error.response.data.message 로 바로 사용할 수 있게 필드명 'message'로 통일
+            response.getWriter().write(
+                "{\"message\": \"로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다.\"}"
+            );
         } catch (IOException e) {
-            // 응답 처리 중 예외 발생 시 로깅 및 커스텀 예외
-            System.err.println("인증객체 생성 실패 : " + e.getMessage());
-            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR); // 내부 서버 오류
+            System.err.println("인증 객체 생성 실패 : " + e.getMessage());
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
