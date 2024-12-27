@@ -62,8 +62,34 @@ public class SecurityConfig {
             .userDetailsService(customUserDetailsService)
             .passwordEncoder(bCryptPasswordEncoder());
 
+<<<<<<< HEAD
         // (3) 빌드
         return authBuilder.build();
+=======
+        //         .passwordParameter("password")
+        //         .defaultSuccessUrl("/", true)
+        //         .permitAll());
+        http.formLogin(auth -> auth.disable());
+        //http basic 인증 방식 disable
+        http.httpBasic(auth -> auth.disable());
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/signIn/**", "/api/signUp/**", "/ws/**", "/api/product/**", "/api/products/**" ,
+                        "/chat/**",  "/api/email/**", "/api/reissue", "/api/trackVisit").permitAll()
+                .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar", "/api/myInfo", "/api/emailinquire/**").authenticated()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated());
+
+        http.addFilterBefore(new JWTFilter(jwtUtil, usersRepository), LoginFilter.class);
+        //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, usersRepository, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
+        //세션 설정
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, objectMapper, refreshTokenService), LogoutFilter.class);
+
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+>>>>>>> 85e8a80281d9da4fbcdb1bc89f74fc02c2edd82c
     }
 
     /**
