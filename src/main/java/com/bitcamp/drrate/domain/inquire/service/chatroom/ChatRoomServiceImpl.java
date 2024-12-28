@@ -117,6 +117,40 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         }
     }
 
+    @Override
+    public void createChatRoom(String senderId) {
+        try {
+            // 새로운 채팅방 생성
+            String topicName = "chat-room-" + senderId;
+            ChatRoom newRoom = new ChatRoom();
+            newRoom.setId(senderId);
+            newRoom.setTopicName(topicName);
+
+            UsersResponseDTO.ChatRoomUserInfo chatRoomUserInfo = usersService.getChatRoomUserInfo(Long.parseLong(senderId));
+            newRoom.setEmail(chatRoomUserInfo.getEmail());
+            newRoom.setUserName(chatRoomUserInfo.getName());
+            newRoom.setStatus(ChatRoomStatus.OPEN);
+            newRoom.setCreatedAt(LocalDateTime.now());
+            newRoom.setUpdatedAt(LocalDateTime.now());
+
+            // MongoDB 저장
+            try {
+                chatRoomRepository.save(newRoom);
+            } catch (MongoException e) {
+                throw new InquireServiceHandler(ErrorStatus.MONGODB_SAVE_FAILED);
+            }
+
+            // Kafka 토픽 생성
+            try {
+                kafkaTopicService.createTopic(topicName);
+            } catch (KafkaException e) {
+                throw new InquireServiceHandler(ErrorStatus.KAFKA_BROKER_BADREQUEST);
+            }
+        } catch (Exception e) {
+            throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @Override
     public void deleteChatRoomById(String id) {
@@ -182,8 +216,4 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         }
     }
 
-    @Override
-    public void createChatRoom(String id) {
-
-    }
 }

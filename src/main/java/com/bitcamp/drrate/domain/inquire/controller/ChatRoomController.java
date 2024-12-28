@@ -48,13 +48,13 @@ public class ChatRoomController {
         }
     }
 
-    @PostMapping("/chatrooms")
+    @PostMapping("/chatrooms/create")
     public ApiResponse<HttpStatus> createChatRoom(@RequestParam(value = "id") String id) {
         try{
             chatRoomService.createChatRoom(id);
-            ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.);
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.INQUIRE_ROOM_CREATE_SUCCESS);
         } catch (Exception e) {
-            return ApiResponse.onFailure(ErrorStatus.KAFKA_BROKER_BADREQUEST.getCode(), ErrorStatus.KAFKA_BROKER_BADREQUEST.getMessage(), null);
+            return ApiResponse.onFailure(ErrorStatus.INQUIRE_CREATED_FAILED.getCode(), ErrorStatus.INQUIRE_CREATED_FAILED.getMessage(), null);
         }
     }
 
