@@ -3,6 +3,7 @@ package com.bitcamp.drrate.domain.products.service;
 import java.util.List;
 import java.util.Map;
 
+import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 import com.bitcamp.drrate.domain.products.entity.Products;
 
 public interface ProductsService {
@@ -14,5 +15,7 @@ public interface ProductsService {
 
     List<Products> getProductsByCtg(String ctg); //카테고리 조회
 
-    List<Map<String, Object>>getProduct(int page, int size, String bank, int age, int period, String rate, String join, boolean spclRate, boolean basicRate);
+    List<ProductResponseDTO.ProductListDTO>getGuestProduct(Integer page, Integer size, String category, String bank, String sort);
+
+    List<ProductResponseDTO.ProductListDTO>getProduct(Integer page, Integer size, String category, String bank, Integer age, Integer period, String rate, String join, String sort);
 }

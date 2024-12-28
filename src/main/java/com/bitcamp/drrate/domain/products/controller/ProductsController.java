@@ -1,5 +1,6 @@
 package com.bitcamp.drrate.domain.products.controller;
 
+import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 import com.bitcamp.drrate.domain.products.service.ProductsService;
 import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
@@ -31,20 +32,36 @@ public class ProductsController {
         return map;
     }
 
-    @GetMapping(value = "/getDeposite/{page}")
-    public ApiResponse<List<Map<String, Object>>> getProducts(
-            @RequestParam(value = "page", defaultValue = "0") int page,  
-            @RequestParam(value = "size", defaultValue = "5") int size,
+    @GetMapping(value = "/guest/getProduct")
+    public ApiResponse<List<ProductResponseDTO.ProductListDTO>> getGuestProduct(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "category", required = true) String category,
             @RequestParam(value = "bank", required = false) String bank, // 은행
-            @RequestParam(value = "age", required = false) int age,  // 나이
-            @RequestParam(value = "period", required = false) int period, // 기간
-            @RequestParam(value = "rate", required = false) String rate,  // 이자 방식
-            @RequestParam(value = "join", required = false) String join,  // 가입 방식
-            @RequestParam(value="spclRate", required = false) boolean spclRate,  // 최고 금리순
-            @RequestParam(value="basicRate", required = false) boolean basicRate  // 기본 금리순          
+            @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
     ) {
         try{
-            List<Map<String, Object>>result = productsService.getProduct(page, size, bank, age, period, rate, join, spclRate, basicRate);
+            List<ProductResponseDTO.ProductListDTO>result = productsService.getGuestProduct(page, size, category, bank, sort);
+            return ApiResponse.onSuccess(result, SuccessStatus.DEPOSITE_GET_SUCCESS);
+        }catch (Exception e){
+            return ApiResponse.onFailure(ErrorStatus.DEPOSITE_GET_FAILED.getCode(), ErrorStatus.DEPOSITE_GET_FAILED.getMessage(),null );
+        }
+    }
+
+    @GetMapping(value = "/getProduct")
+    public ApiResponse<List<ProductResponseDTO.ProductListDTO>> getProducts(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "category", required = true) String category,
+            @RequestParam(value = "bank", required = false) String bank, // 은행
+            @RequestParam(value = "age", required = false) Integer age,  // 나이
+            @RequestParam(value = "period", required = false) Integer period, // 기간
+            @RequestParam(value = "rate", required = false) String rate,  // 이자 방식
+            @RequestParam(value = "join", required = false) String join,  // 가입 방식
+            @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
+    ) {
+        try{
+            List<ProductResponseDTO.ProductListDTO>result = productsService.getProduct(page, size, category, bank, age, period, rate, join, sort);
             return ApiResponse.onSuccess(result, SuccessStatus.DEPOSITE_GET_SUCCESS);
         }catch (Exception e){
             return ApiResponse.onFailure(ErrorStatus.DEPOSITE_GET_FAILED.getCode(), ErrorStatus.DEPOSITE_GET_FAILED.getMessage(),null );
@@ -52,14 +69,14 @@ public class ProductsController {
     }
 
 
-
+/*
 
     //241211 카테고리 i,d로 조회 - 오혜진
     @GetMapping(value = "getProductsByCtg/{ctg}")
     @ResponseBody
     public List<Products> getProductsByCtg(@PathVariable(value = "ctg") String ctg) {
         return productsService.getProductsByCtg(ctg);
-    }
+    }*/
     
 
 }
