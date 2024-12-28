@@ -9,16 +9,16 @@ import com.bitcamp.drrate.domain.products.repository.ProductsRepository;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.exception.exceptionhandler.ProductServiceExceptionHandler;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.core.types.OrderSpecifier;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.query.sqm.ParsingException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -164,13 +164,12 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<ProductResponseDTO.ProductListDTO> getGuestProduct(Integer page, Integer size, String category,  List<String> bankList, String sort) {
+    public Page<ProductResponseDTO.ProductListDTO> getGuestProduct(Integer page, Integer size, String category,  List<String> bankList, String sort) {
         Pageable pageable = PageRequest.of(page, size);
         int startIndex = pageable.getPageNumber() * pageable.getPageSize();
         QProducts qProducts = QProducts.products;
         // 쿼리 생성
         BooleanBuilder builder = new BooleanBuilder();
-        OrderSpecifier<?> orderSpecifier = null;
 
         switch (category) {
             // 예금 case
@@ -195,11 +194,12 @@ public class ProductsServiceImpl implements ProductsService {
                         .select(
                                 Projections.constructor(
                                         ProductResponseDTO.ProductListDTO.class,
+                                        qProducts.id,
                                         qProducts.bankLogo,
                                         qProducts.bankName,
                                         qProducts.prdName,
-                                        dOptions.basicRate.stringValue(),
-                                        dOptions.spclRate.stringValue()
+                                        dOptions.basicRate,
+                                        dOptions.spclRate
                                 )
                         )
                         .from(qProducts)
@@ -213,10 +213,11 @@ public class ProductsServiceImpl implements ProductsService {
                                 ProductResponseDTO.ProductListDTO::getPrdName, // prdName을 키로 사용
                                 dto -> dto, // 현재 DTO를 값으로 사용
                                 (existing, replacement) -> {
-                                    BigDecimal existingBasicRate = new BigDecimal(existing.getBasicRate());
-                                    BigDecimal replacementBasicRate = new BigDecimal(replacement.getBasicRate());
-                                    BigDecimal existingSpclRate = new BigDecimal(existing.getSpclRate());
-                                    BigDecimal replacementSpclRate = new BigDecimal(replacement.getSpclRate());
+                                    BigDecimal existingBasicRate = new BigDecimal(String.valueOf(existing.getBasicRate() != null ? existing.getBasicRate() : "0"));
+                                    BigDecimal replacementBasicRate = new BigDecimal(String.valueOf(replacement.getBasicRate() != null ? replacement.getBasicRate() : "0"));
+                                    BigDecimal existingSpclRate = new BigDecimal(String.valueOf(existing.getSpclRate() != null ? existing.getSpclRate() : "0"));
+                                    BigDecimal replacementSpclRate = new BigDecimal(String.valueOf(replacement.getSpclRate() != null ? replacement.getSpclRate() : "0"));
+
 
                                     // spclRate 비교 및 최댓값 갱신
                                     if (replacementSpclRate.compareTo(existingSpclRate) > 0) {
@@ -235,10 +236,10 @@ public class ProductsServiceImpl implements ProductsService {
                         .stream()
                         .sorted((dto1, dto2) -> {
                             // 정렬 조건에 따른 우선순위 설정
-                            BigDecimal dto1SpclRate = new BigDecimal(dto1.getSpclRate());
-                            BigDecimal dto2SpclRate = new BigDecimal(dto2.getSpclRate());
-                            BigDecimal dto1BasicRate = new BigDecimal(dto1.getBasicRate());
-                            BigDecimal dto2BasicRate = new BigDecimal(dto2.getBasicRate());
+                            BigDecimal dto1SpclRate = new BigDecimal(String.valueOf(dto1.getSpclRate()));
+                            BigDecimal dto2SpclRate = new BigDecimal(String.valueOf(dto2.getSpclRate()));
+                            BigDecimal dto1BasicRate = new BigDecimal(String.valueOf(dto1.getBasicRate()));
+                            BigDecimal dto2BasicRate = new BigDecimal(String.valueOf(dto2.getBasicRate()));
 
                             if ("spclRate".equals(sort)) {
                                 return dto2SpclRate.compareTo(dto1SpclRate); // spclRate 기준 내림차순
@@ -250,11 +251,15 @@ public class ProductsServiceImpl implements ProductsService {
                         })
                         .collect(Collectors.toList());
 
-                // 페이징된 결과 반환
-                return dFinalResults.stream()
-                        .skip(startIndex) // 시작 인덱스 건너뛰기
-                        .limit(pageable.getPageSize()) // 페이지 크기만큼 제한
+                int dTotalElements = dFinalResults.size();
+
+                List<ProductResponseDTO.ProductListDTO> dPaginatedResults = dFinalResults.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
                         .collect(Collectors.toList());
+
+                // 페이징된 결과 반환
+                return new PageImpl<>(dPaginatedResults, pageable, dTotalElements);
             //  적금 case
             case "installment":
                 //  카테고리 : 예금(d) or 적금(i)
@@ -271,25 +276,19 @@ public class ProductsServiceImpl implements ProductsService {
                     }
                     builder.and(bankCondition);
                 }
-                // 정렬 조건 설정
-                if (sort.equals("spclRate")) {
-                    orderSpecifier = iOptions.spclRate.desc();
-                } else if (sort.equals("basicRate")) {
-                    orderSpecifier = iOptions.basicRate.desc();
-                } else {
-                    throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_BAD_REQUEST);
-                }
+
 
                 // 1차 데이터 조회
                 List<ProductResponseDTO.ProductListDTO> iResults = queryFactory
                         .select(
                                 Projections.constructor(
                                         ProductResponseDTO.ProductListDTO.class,
+                                        qProducts.id,
                                         qProducts.bankLogo,
                                         qProducts.bankName,
                                         qProducts.prdName,
-                                        iOptions.basicRate.stringValue(),
-                                        iOptions.spclRate.stringValue()
+                                        iOptions.basicRate,
+                                        iOptions.spclRate
                                 )
                         )
                         .from(qProducts)
@@ -303,10 +302,11 @@ public class ProductsServiceImpl implements ProductsService {
                                 ProductResponseDTO.ProductListDTO::getPrdName, // prdName을 키로 사용
                                 dto -> dto, // 현재 DTO를 값으로 사용
                                 (existing, replacement) -> {
-                                    BigDecimal existingBasicRate = new BigDecimal(existing.getBasicRate());
-                                    BigDecimal replacementBasicRate = new BigDecimal(replacement.getBasicRate());
-                                    BigDecimal existingSpclRate = new BigDecimal(existing.getSpclRate());
-                                    BigDecimal replacementSpclRate = new BigDecimal(replacement.getSpclRate());
+                                    BigDecimal existingBasicRate = new BigDecimal(String.valueOf(existing.getBasicRate() != null ? existing.getBasicRate() : "0"));
+                                    BigDecimal replacementBasicRate = new BigDecimal(String.valueOf(replacement.getBasicRate() != null ? replacement.getBasicRate() : "0"));
+                                    BigDecimal existingSpclRate = new BigDecimal(String.valueOf(existing.getSpclRate() != null ? existing.getSpclRate() : "0"));
+                                    BigDecimal replacementSpclRate = new BigDecimal(String.valueOf(replacement.getSpclRate() != null ? replacement.getSpclRate() : "0"));
+
 
                                     // spclRate 비교 및 최댓값 갱신
                                     if (replacementSpclRate.compareTo(existingSpclRate) > 0) {
@@ -325,10 +325,10 @@ public class ProductsServiceImpl implements ProductsService {
                         .stream()
                         .sorted((dto1, dto2) -> {
                             // 정렬 조건에 따른 우선순위 설정
-                            BigDecimal dto1SpclRate = new BigDecimal(dto1.getSpclRate());
-                            BigDecimal dto2SpclRate = new BigDecimal(dto2.getSpclRate());
-                            BigDecimal dto1BasicRate = new BigDecimal(dto1.getBasicRate());
-                            BigDecimal dto2BasicRate = new BigDecimal(dto2.getBasicRate());
+                            BigDecimal dto1SpclRate = new BigDecimal(String.valueOf(dto1.getSpclRate()));
+                            BigDecimal dto2SpclRate = new BigDecimal(String.valueOf(dto2.getSpclRate()));
+                            BigDecimal dto1BasicRate = new BigDecimal(String.valueOf(dto1.getBasicRate()));
+                            BigDecimal dto2BasicRate = new BigDecimal(String.valueOf(dto2.getBasicRate()));
 
                             if ("spclRate".equals(sort)) {
                                 return dto2SpclRate.compareTo(dto1SpclRate); // spclRate 기준 내림차순
@@ -340,11 +340,15 @@ public class ProductsServiceImpl implements ProductsService {
                         })
                         .collect(Collectors.toList());
 
-                // 페이징된 결과 반환
-                return iFinalResults.stream()
-                        .skip(startIndex) // 시작 인덱스 건너뛰기
-                        .limit(pageable.getPageSize()) // 페이지 크기만큼 제한
+                int iTotalElements = iFinalResults.size();
+
+                List<ProductResponseDTO.ProductListDTO> iPaginatedResults = iFinalResults.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
                         .collect(Collectors.toList());
+
+                // 페이징된 결과 반환
+                return new PageImpl<>(iPaginatedResults, pageable, iTotalElements);
             // 예금 적금 아니면 예외 처리
             default:
                 throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_BAD_REQUEST);
@@ -352,15 +356,14 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
 
+    @Transactional
     @Override
-    public List<ProductResponseDTO.ProductListDTO> getProduct(Integer page, Integer size, String category,  List<String> bankList, Integer age, Integer period, String rate, String join, String sort) {
+    public Page<ProductResponseDTO.ProductListDTO> getProduct(Integer page, Integer size, String category, List<String> bankList, Integer age, Integer period, String rate, String join, String sort) {
 
         Pageable pageable = PageRequest.of(page, size);
-        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
         QProducts qProducts = QProducts.products;
         // 쿼리 생성
         BooleanBuilder builder = new BooleanBuilder();
-        OrderSpecifier<?> orderSpecifier = null;
 
         switch (category) {
             // 예금 case
@@ -415,16 +418,18 @@ public class ProductsServiceImpl implements ProductsService {
                 }
 
 
+
                 // 1차 데이터 조회
                 List<ProductResponseDTO.ProductListDTO> qResults = queryFactory
                         .select(
                                 Projections.constructor(
                                         ProductResponseDTO.ProductListDTO.class,
+                                        qProducts.id,
                                         qProducts.bankLogo,
                                         qProducts.bankName,
                                         qProducts.prdName,
-                                        dOptions.basicRate.stringValue(),
-                                        dOptions.spclRate.stringValue()
+                                        dOptions.basicRate,
+                                        dOptions.spclRate
                                 )
                         )
                         .from(qProducts)
@@ -432,16 +437,19 @@ public class ProductsServiceImpl implements ProductsService {
                         .where(builder)
                         .fetch();
 
+
+
                 // 2차 결과 : 중복된 이름의 상품이면 순회하면서 spcl, basic max 값 저장 (중복 제거됨)
                 List<ProductResponseDTO.ProductListDTO> dFinalResults = qResults.stream()
                         .collect(Collectors.toMap(
                                 ProductResponseDTO.ProductListDTO::getPrdName, // prdName을 키로 사용
                                 dto -> dto, // 현재 DTO를 값으로 사용
                                 (existing, replacement) -> {
-                                    BigDecimal existingBasicRate = new BigDecimal(existing.getBasicRate());
-                                    BigDecimal replacementBasicRate = new BigDecimal(replacement.getBasicRate());
-                                    BigDecimal existingSpclRate = new BigDecimal(existing.getSpclRate());
-                                    BigDecimal replacementSpclRate = new BigDecimal(replacement.getSpclRate());
+                                    BigDecimal existingBasicRate = new BigDecimal(String.valueOf(existing.getBasicRate() != null ? existing.getBasicRate() : "0"));
+                                    BigDecimal replacementBasicRate = new BigDecimal(String.valueOf(replacement.getBasicRate() != null ? replacement.getBasicRate() : "0"));
+                                    BigDecimal existingSpclRate = new BigDecimal(String.valueOf(existing.getSpclRate() != null ? existing.getSpclRate() : "0"));
+                                    BigDecimal replacementSpclRate = new BigDecimal(String.valueOf(replacement.getSpclRate() != null ? replacement.getSpclRate() : "0"));
+
 
                                     // spclRate 비교 및 최댓값 갱신
                                     if (replacementSpclRate.compareTo(existingSpclRate) > 0) {
@@ -460,10 +468,10 @@ public class ProductsServiceImpl implements ProductsService {
                         .stream()
                         .sorted((dto1, dto2) -> {
                             // 정렬 조건에 따른 우선순위 설정
-                            BigDecimal dto1SpclRate = new BigDecimal(dto1.getSpclRate());
-                            BigDecimal dto2SpclRate = new BigDecimal(dto2.getSpclRate());
-                            BigDecimal dto1BasicRate = new BigDecimal(dto1.getBasicRate());
-                            BigDecimal dto2BasicRate = new BigDecimal(dto2.getBasicRate());
+                            BigDecimal dto1SpclRate = new BigDecimal(String.valueOf(dto1.getSpclRate()));
+                            BigDecimal dto2SpclRate = new BigDecimal(String.valueOf(dto2.getSpclRate()));
+                            BigDecimal dto1BasicRate = new BigDecimal(String.valueOf(dto1.getBasicRate()));
+                            BigDecimal dto2BasicRate = new BigDecimal(String.valueOf(dto2.getBasicRate()));
 
                             if ("spclRate".equals(sort)) {
                                 return dto2SpclRate.compareTo(dto1SpclRate); // spclRate 기준 내림차순
@@ -475,11 +483,15 @@ public class ProductsServiceImpl implements ProductsService {
                         })
                         .collect(Collectors.toList());
 
-                 // 페이징된 결과 반환
-                return dFinalResults.stream()
-                        .skip(startIndex) // 시작 인덱스 건너뛰기
-                        .limit(pageable.getPageSize()) // 페이지 크기만큼 제한
+                int dTotalElements = dFinalResults.size();
+
+                List<ProductResponseDTO.ProductListDTO> dPaginatedResults = dFinalResults.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
                         .collect(Collectors.toList());
+
+                 // 페이징된 결과 반환
+                return new PageImpl<>(dPaginatedResults, pageable, dTotalElements);
             //  적금 case
             case "installment":
                 //  카테고리 : 예금(d) or 적금(i)
@@ -531,25 +543,19 @@ public class ProductsServiceImpl implements ProductsService {
                     }
                 }
 
-                // 정렬 조건 설정
-                if (sort.equals("spclRate")) {
-                    orderSpecifier = iOptions.spclRate.desc();
-                } else if (sort.equals("basicRate")) {
-                    orderSpecifier = iOptions.basicRate.desc();
-                } else {
-                    throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_BAD_REQUEST);
-                }
+
 
                 // 1차 데이터 조회
                 List<ProductResponseDTO.ProductListDTO> iResults = queryFactory
                         .select(
                                 Projections.constructor(
                                         ProductResponseDTO.ProductListDTO.class,
+                                        qProducts.id,
                                         qProducts.bankLogo,
                                         qProducts.bankName,
                                         qProducts.prdName,
-                                        iOptions.basicRate.stringValue(),
-                                        iOptions.spclRate.stringValue()
+                                        iOptions.basicRate,
+                                        iOptions.spclRate
                                 )
                         )
                         .from(qProducts)
@@ -563,10 +569,10 @@ public class ProductsServiceImpl implements ProductsService {
                                 ProductResponseDTO.ProductListDTO::getPrdName, // prdName을 키로 사용
                                 dto -> dto, // 현재 DTO를 값으로 사용
                                 (existing, replacement) -> {
-                                    BigDecimal existingBasicRate = new BigDecimal(existing.getBasicRate());
-                                    BigDecimal replacementBasicRate = new BigDecimal(replacement.getBasicRate());
-                                    BigDecimal existingSpclRate = new BigDecimal(existing.getSpclRate());
-                                    BigDecimal replacementSpclRate = new BigDecimal(replacement.getSpclRate());
+                                    BigDecimal existingBasicRate = new BigDecimal(String.valueOf(existing.getBasicRate() != null ? existing.getBasicRate() : "0"));
+                                    BigDecimal replacementBasicRate = new BigDecimal(String.valueOf(replacement.getBasicRate() != null ? replacement.getBasicRate() : "0"));
+                                    BigDecimal existingSpclRate = new BigDecimal(String.valueOf(existing.getSpclRate() != null ? existing.getSpclRate() : "0"));
+                                    BigDecimal replacementSpclRate = new BigDecimal(String.valueOf(replacement.getSpclRate() != null ? replacement.getSpclRate() : "0"));
 
                                     // spclRate 비교 및 최댓값 갱신
                                     if (replacementSpclRate.compareTo(existingSpclRate) > 0) {
@@ -585,10 +591,10 @@ public class ProductsServiceImpl implements ProductsService {
                         .stream()
                         .sorted((dto1, dto2) -> {
                             // 정렬 조건에 따른 우선순위 설정
-                            BigDecimal dto1SpclRate = new BigDecimal(dto1.getSpclRate());
-                            BigDecimal dto2SpclRate = new BigDecimal(dto2.getSpclRate());
-                            BigDecimal dto1BasicRate = new BigDecimal(dto1.getBasicRate());
-                            BigDecimal dto2BasicRate = new BigDecimal(dto2.getBasicRate());
+                            BigDecimal dto1SpclRate = new BigDecimal(String.valueOf(dto1.getSpclRate()));
+                            BigDecimal dto2SpclRate = new BigDecimal(String.valueOf(dto2.getSpclRate()));
+                            BigDecimal dto1BasicRate = new BigDecimal(String.valueOf(dto1.getBasicRate()));
+                            BigDecimal dto2BasicRate = new BigDecimal(String.valueOf(dto2.getBasicRate()));
 
                             if ("spclRate".equals(sort)) {
                                 return dto2SpclRate.compareTo(dto1SpclRate); // spclRate 기준 내림차순
@@ -600,11 +606,15 @@ public class ProductsServiceImpl implements ProductsService {
                         })
                         .collect(Collectors.toList());
 
-                // 페이징된 결과 반환
-                return iFinalResults.stream()
-                        .skip(startIndex) // 시작 인덱스 건너뛰기
-                        .limit(pageable.getPageSize()) // 페이지 크기만큼 제한
+                int iTotalElements = iFinalResults.size();
+
+                List<ProductResponseDTO.ProductListDTO> iPaginatedResults = iFinalResults.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
                         .collect(Collectors.toList());
+
+                // 페이징된 결과 반환
+                return new PageImpl<>(iPaginatedResults, pageable, iTotalElements);
             // 예금 적금 아니면 예외 처리
             default:
                 throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_BAD_REQUEST);

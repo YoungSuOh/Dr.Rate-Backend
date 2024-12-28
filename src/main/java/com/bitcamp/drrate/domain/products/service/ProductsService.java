@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 import com.bitcamp.drrate.domain.products.entity.Products;
+import org.springframework.data.domain.Page;
 
 public interface ProductsService {
     /* 상품 코드 확인 */
@@ -15,7 +16,7 @@ public interface ProductsService {
 
     List<Products> getProductsByCtg(String ctg); //카테고리 조회
 
-    List<ProductResponseDTO.ProductListDTO>getGuestProduct(Integer page, Integer size, String category,  List<String> bankList, String sort);
+    Page<ProductResponseDTO.ProductListDTO> getGuestProduct(Integer page, Integer size, String category, List<String> bankList, String sort);
 
-    List<ProductResponseDTO.ProductListDTO>getProduct(Integer page, Integer size, String category,  List<String> bankList, Integer age, Integer period, String rate, String join, String sort);
+    Page<ProductResponseDTO.ProductListDTO>getProduct(Integer page, Integer size, String category,  List<String> bankList, Integer age, Integer period, String rate, String join, String sort);
 }

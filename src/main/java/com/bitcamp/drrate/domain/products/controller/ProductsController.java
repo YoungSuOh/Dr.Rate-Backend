@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import com.bitcamp.drrate.domain.products.entity.Products;
@@ -36,17 +37,16 @@ public class ProductsController {
     }
 
     @GetMapping(value = "/guest/getProduct")
-    public ApiResponse<List<ProductResponseDTO.ProductListDTO>> getGuestProduct(
+    public ApiResponse<Page<ProductResponseDTO.ProductListDTO>> getGuestProduct(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "5") Integer size,
             @RequestParam(value = "category", required = true) String category,
-            @RequestParam(value = "banks", required = false) String banks, // 은행
+            @RequestParam(value = "banks", required = false)  List<String> banks, // 은행
             @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
     ) {
         try{
-            List<String> bankList = banks != null ? Arrays.asList(banks.split(",")) : Collections.emptyList();
 
-            List<ProductResponseDTO.ProductListDTO>result = productsService.getGuestProduct(page, size, category, bankList, sort);
+            Page<ProductResponseDTO.ProductListDTO>result = productsService.getGuestProduct(page, size, category, banks, sort);
             return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
         }catch (Exception e){
             return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
@@ -54,7 +54,7 @@ public class ProductsController {
     }
 
     @GetMapping(value = "/getProduct")
-    public ApiResponse<List<ProductResponseDTO.ProductListDTO>> getProducts(
+    public ApiResponse<Page<ProductResponseDTO.ProductListDTO>> getProducts(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "5") Integer size,
             @RequestParam(value = "category", required = true) String category,
@@ -66,9 +66,10 @@ public class ProductsController {
             @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
     ) {
         try{
-            List<ProductResponseDTO.ProductListDTO>result = productsService.getProduct(page, size, category, banks, age, period, rate, join, sort);
-            return ApiResponse.onSuccess(null, SuccessStatus.PRODUCT_GET_SUCCESS);
+            Page<ProductResponseDTO.ProductListDTO>result = productsService.getProduct(page, size, category, banks, age, period, rate, join, sort);
+            return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
         }catch (Exception e){
+            e.printStackTrace();
             return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
         }
     }
