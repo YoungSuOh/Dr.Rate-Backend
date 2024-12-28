@@ -199,5 +199,26 @@ public class UsersServiceImpl implements UsersService {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    @Override
+    @Transactional
+    public void deleteAccount(Long id, String password) {
+        try {
+            Users users = usersRepository.findUsersById(id)
+            .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
+            String userPwd = users.getPassword();
+            System.out.println("받은 비밀번호 = " + password + "\n사용자 비밀번호 = " + userPwd + "\n사용자 소셜 확인 = " + users.getSocial());
+
+            if ((password != null && bCryptPasswordEncoder.matches(password, userPwd)) || (password == null && userPwd == null && users.getSocial() != null)) {
+                usersRepository.deleteById(id);
+                refreshTokenService.deleteTokens(String.valueOf(id));
+            } else {
+                System.out.println("조건 불충족: 비밀번호 불일치 또는 소셜 계정이 아님");
+            }
+        } catch(UsersServiceExceptionHandler ex) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_AUTHENTICATION_FAILED);
+        } catch(Exception e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

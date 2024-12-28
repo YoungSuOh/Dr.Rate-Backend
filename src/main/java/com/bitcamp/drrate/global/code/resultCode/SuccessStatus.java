@@ -28,6 +28,7 @@ public enum SuccessStatus implements SuccessCode {
     USER_TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "USER208", "토큰 재발급 성공"),
     USER_INFO_UPDATE_SUCCESS(HttpStatus.OK, "USER209", "사용자 정보 수정 성공"),
     USER_EMAIL_AVAILABLE(HttpStatus.OK,"USER210", "사용 가능한 이메일 입니다."),
+    USER_DELETE_SUCCESS(HttpStatus.OK,"USER211", "회원탈퇴 성공"),
 
 
 

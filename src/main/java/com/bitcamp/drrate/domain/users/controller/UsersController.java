@@ -305,4 +305,16 @@ public class UsersController {
             return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
         }
     }
+
+    //회원탈퇴
+    @RequestMapping(value="/api/deleteAccount", method=RequestMethod.POST)
+    public ApiResponse<?> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> request) {
+        try{
+            String password = request.get("password");
+            usersService.deleteAccount(userDetails.getId(), password);
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_DELETE_SUCCESS);
+        } catch(Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
+        }
+    }
 }

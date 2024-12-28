@@ -59,6 +59,7 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api:"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
     //Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
     //JWT
@@ -86,4 +87,12 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "$buildDir/generated/sources/annotationProcessor/java/main"
+        }
+    }
 }
