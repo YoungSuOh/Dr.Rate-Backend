@@ -55,41 +55,15 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         // (1) AuthenticationManagerBuilder를 꺼낸다
         AuthenticationManagerBuilder authBuilder =
-            http.getSharedObject(AuthenticationManagerBuilder.class);
+                http.getSharedObject(AuthenticationManagerBuilder.class);
 
         // (2) userDetailsService + passwordEncoder 등록
         authBuilder
-            .userDetailsService(customUserDetailsService)
-            .passwordEncoder(bCryptPasswordEncoder());
+                .userDetailsService(customUserDetailsService)
+                .passwordEncoder(bCryptPasswordEncoder());
 
-<<<<<<< HEAD
         // (3) 빌드
         return authBuilder.build();
-=======
-        //         .passwordParameter("password")
-        //         .defaultSuccessUrl("/", true)
-        //         .permitAll());
-        http.formLogin(auth -> auth.disable());
-        //http basic 인증 방식 disable
-        http.httpBasic(auth -> auth.disable());
-
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/signIn/**", "/api/signUp/**", "/ws/**", "/api/product/**", "/api/products/**" ,
-                        "/chat/**",  "/api/email/**", "/api/reissue", "/api/trackVisit").permitAll()
-                .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar", "/api/myInfo", "/api/emailinquire/**").authenticated()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated());
-
-        http.addFilterBefore(new JWTFilter(jwtUtil, usersRepository), LoginFilter.class);
-        //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, usersRepository, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
-        //세션 설정
-        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, objectMapper, refreshTokenService), LogoutFilter.class);
-
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        return http.build();
->>>>>>> 85e8a80281d9da4fbcdb1bc89f74fc02c2edd82c
     }
 
     /**
@@ -134,28 +108,30 @@ public class SecurityConfig {
 
         // === 경로별 접근 권한 ===
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/api/signIn/**",
-                "/api/signUp/**",
-                "/ws/**",
-                "/api/product/**",
-                "/api/products/**",
-                "/chat/**",
-                "/api/email/**",
-                "/api/reissue",
-                "/api/trackVisit"
-            ).permitAll()
-            .requestMatchers(
-                "/api/favorite/**",
-                "/api/chatmessages/**",
-                "/api/s3",
-                "/api/calendar",
-                "/api/myInfo",
-                "/api/logout",
-                "/api/myInfoEdit"
-            ).authenticated()
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            .anyRequest().authenticated()
+                .requestMatchers(
+                        "/api/signIn/**",
+                        "/api/signUp/**",
+                        "/ws/**",
+                        "/api/product/**",
+                        "/api/products/**",
+                        "/chat/**",
+                        "/api/email/**",
+                        "/api/reissue",
+                        "/api/trackVisit"
+                ).permitAll()
+                .requestMatchers(
+                        "/api/favorite/**",
+                        "/api/chatmessages/**",
+                        "/api/s3",
+                        "/api/calendar",
+                        "/api/myInfo",
+                        "/api/logout",
+                        "/api/myInfoEdit",
+                        "/api/emailinquire/**",
+                        "/api/inquiries/**"
+                ).authenticated()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
         );
 
         // === 세션 대신 JWT 사용 ===
@@ -166,22 +142,22 @@ public class SecurityConfig {
         // 이런 식으로 authenticationConfiguration을 직접 넘기던 부분은 제거
         // 한 번만 등록하면 됨
         http.addFilterAt(
-            new LoginFilter(authManager, jwtUtil, usersRepository, refreshTokenService),
-            UsernamePasswordAuthenticationFilter.class
+                new LoginFilter(authManager, jwtUtil, usersRepository, refreshTokenService),
+                UsernamePasswordAuthenticationFilter.class
         );
 
         // === JWT 검사 필터 등록 ===
         // LoginFilter 이후에 동작하도록, UsernamePasswordAuthenticationFilter 앞뒤 조정 가능
         // 여기서는 "UsernamePasswordAuthenticationFilter.class" 앞에 등록
         http.addFilterBefore(
-            new JWTFilter(jwtUtil, usersRepository),
-            UsernamePasswordAuthenticationFilter.class
+                new JWTFilter(jwtUtil, usersRepository),
+                UsernamePasswordAuthenticationFilter.class
         );
 
         // === 커스텀 로그아웃 필터 등록 ===
         http.addFilterBefore(
-            new CustomLogoutFilter(jwtUtil, objectMapper, refreshTokenService),
-            LogoutFilter.class
+                new CustomLogoutFilter(jwtUtil, objectMapper, refreshTokenService),
+                LogoutFilter.class
         );
 
         return http.build();
