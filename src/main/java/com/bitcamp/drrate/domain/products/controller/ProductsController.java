@@ -6,6 +6,9 @@ import com.bitcamp.drrate.global.ApiResponse;
 import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
 import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +40,13 @@ public class ProductsController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "5") Integer size,
             @RequestParam(value = "category", required = true) String category,
-            @RequestParam(value = "banks", required = false) String[] bank, // 은행
+            @RequestParam(value = "banks", required = false) String banks, // 은행
             @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
     ) {
         try{
-            List<ProductResponseDTO.ProductListDTO>result = productsService.getGuestProduct(page, size, category, bank, sort);
+            List<String> bankList = banks != null ? Arrays.asList(banks.split(",")) : Collections.emptyList();
+
+            List<ProductResponseDTO.ProductListDTO>result = productsService.getGuestProduct(page, size, category, bankList, sort);
             return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
         }catch (Exception e){
             return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
@@ -53,7 +58,7 @@ public class ProductsController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "5") Integer size,
             @RequestParam(value = "category", required = true) String category,
-            @RequestParam(value = "banks", required = false) String[] bank, // 은행
+            @RequestParam(value = "banks", required = false) String banks, // 은행
             @RequestParam(value = "age", required = false) Integer age,  // 나이
             @RequestParam(value = "period", required = false) Integer period, // 기간
             @RequestParam(value = "rate", required = false) String rate,  // 이자 방식
@@ -61,7 +66,9 @@ public class ProductsController {
             @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
     ) {
         try{
-            List<ProductResponseDTO.ProductListDTO>result = productsService.getProduct(page, size, category, bank, age, period, rate, join, sort);
+            List<String> bankList = banks != null ? Arrays.asList(banks.split(",")) : Collections.emptyList();
+
+            List<ProductResponseDTO.ProductListDTO>result = productsService.getProduct(page, size, category, bankList, age, period, rate, join, sort);
             return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
         }catch (Exception e){
             return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
