@@ -107,9 +107,6 @@ public enum ErrorStatus implements ErrorCode {
     CONDITIONS_SPECIAL_UNKNOWN_ERROR(HttpStatus.BAD_REQUEST, "PRD409", "우대조건을 가져올 수 없습니다"),
     PRODUCT_BAD_REQUEST(HttpStatus.BAD_REQUEST,"PRD410","잘못된 상품 조회 요청입니다"),
 
-    // Deposite
-    DEPOSITE_GET_FAILED(HttpStatus.NOT_FOUND, "DEPOSITE400", "예금 목록 조회 실패했습니다"),
-    DEPOSITE_GET_BAD_REQUEST(HttpStatus.BAD_REQUEST, "DEPOSITE401", "잘못된 형식의 예금 목록 조회 요청입니다."),
 
     // INSERTPRODUCT
     INSERT_ALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "모든 상품 등록에 실패했습니다."),

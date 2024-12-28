@@ -181,4 +181,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Override
+    public void createChatRoom(String id) {
+
+    }
 }

@@ -37,14 +37,14 @@ public class ProductsController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "5") Integer size,
             @RequestParam(value = "category", required = true) String category,
-            @RequestParam(value = "bank", required = false) String bank, // 은행
+            @RequestParam(value = "banks", required = false) String[] bank, // 은행
             @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
     ) {
         try{
             List<ProductResponseDTO.ProductListDTO>result = productsService.getGuestProduct(page, size, category, bank, sort);
-            return ApiResponse.onSuccess(result, SuccessStatus.DEPOSITE_GET_SUCCESS);
+            return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
         }catch (Exception e){
-            return ApiResponse.onFailure(ErrorStatus.DEPOSITE_GET_FAILED.getCode(), ErrorStatus.DEPOSITE_GET_FAILED.getMessage(),null );
+            return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
         }
     }
 
@@ -53,7 +53,7 @@ public class ProductsController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "5") Integer size,
             @RequestParam(value = "category", required = true) String category,
-            @RequestParam(value = "bank", required = false) String bank, // 은행
+            @RequestParam(value = "banks", required = false) String[] bank, // 은행
             @RequestParam(value = "age", required = false) Integer age,  // 나이
             @RequestParam(value = "period", required = false) Integer period, // 기간
             @RequestParam(value = "rate", required = false) String rate,  // 이자 방식
@@ -62,9 +62,9 @@ public class ProductsController {
     ) {
         try{
             List<ProductResponseDTO.ProductListDTO>result = productsService.getProduct(page, size, category, bank, age, period, rate, join, sort);
-            return ApiResponse.onSuccess(result, SuccessStatus.DEPOSITE_GET_SUCCESS);
+            return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
         }catch (Exception e){
-            return ApiResponse.onFailure(ErrorStatus.DEPOSITE_GET_FAILED.getCode(), ErrorStatus.DEPOSITE_GET_FAILED.getMessage(),null );
+            return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
         }
     }
 

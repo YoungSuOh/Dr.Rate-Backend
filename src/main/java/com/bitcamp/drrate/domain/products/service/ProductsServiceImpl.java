@@ -164,7 +164,7 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<ProductResponseDTO.ProductListDTO> getGuestProduct(Integer page, Integer size, String category, String bank, String sort) {
+    public List<ProductResponseDTO.ProductListDTO> getGuestProduct(Integer page, Integer size, String category, String [] banks, String sort) {
         Pageable pageable = PageRequest.of(page, size);
         int startIndex = pageable.getPageNumber() * pageable.getPageSize();
         QProducts qProducts = QProducts.products;
@@ -182,8 +182,12 @@ public class ProductsServiceImpl implements ProductsService {
                 QDepositeOptions dOptions = QDepositeOptions.depositeOptions;
 
                 // 은행 설정
-                if (bank != null) {
-                    builder.and(qProducts.bankName.eq(bank));
+                if (banks != null) {
+                    BooleanBuilder bankCondition = new BooleanBuilder();
+                    for (String bank : banks) {
+                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                    }
+                    builder.and(bankCondition);
                 }
 
                 // 1차 데이터 조회
@@ -260,10 +264,13 @@ public class ProductsServiceImpl implements ProductsService {
                 QInstallMentOptions iOptions = QInstallMentOptions.installMentOptions;
 
                 // 은행 설정
-                if (bank != null) {
-                    builder.and(qProducts.bankName.eq(bank));
+                if (banks != null) {
+                    BooleanBuilder bankCondition = new BooleanBuilder();
+                    for (String bank : banks) {
+                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                    }
+                    builder.and(bankCondition);
                 }
-
                 // 정렬 조건 설정
                 if (sort.equals("spclRate")) {
                     orderSpecifier = iOptions.spclRate.desc();
@@ -346,7 +353,7 @@ public class ProductsServiceImpl implements ProductsService {
 
 
     @Override
-    public List<ProductResponseDTO.ProductListDTO> getProduct(Integer page, Integer size, String category, String bank, Integer age, Integer period, String rate, String join, String sort) {
+    public List<ProductResponseDTO.ProductListDTO> getProduct(Integer page, Integer size, String category, String [] banks, Integer age, Integer period, String rate, String join, String sort) {
 
         Pageable pageable = PageRequest.of(page, size);
         int startIndex = pageable.getPageNumber() * pageable.getPageSize();
@@ -365,8 +372,12 @@ public class ProductsServiceImpl implements ProductsService {
                 QDepositeOptions dOptions = QDepositeOptions.depositeOptions;
 
                 // 은행 설정
-                if (bank != null) {
-                    builder.and(qProducts.bankName.eq(bank));
+                if (banks != null) {
+                    BooleanBuilder bankCondition = new BooleanBuilder();
+                    for (String bank : banks) {
+                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                    }
+                    builder.and(bankCondition);
                 }
 
                 // 나이 설정
@@ -478,8 +489,12 @@ public class ProductsServiceImpl implements ProductsService {
                 QInstallMentOptions iOptions = QInstallMentOptions.installMentOptions;
 
                 // 은행 설정
-                if (bank != null) {
-                    builder.and(qProducts.bankName.eq(bank));
+                if (banks != null) {
+                    BooleanBuilder bankCondition = new BooleanBuilder();
+                    for (String bank : banks) {
+                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                    }
+                    builder.and(bankCondition);
                 }
 
                 // 나이 설정
