@@ -48,7 +48,16 @@ public class ChatRoomController {
         }
     }
 
-
+  /*  @PostMapping("/chatrooms")
+    public ApiResponse<HttpStatus> createChatRoom(@RequestParam(value = "id") String id) {
+        try{
+            chatRoomService.createChatRoom(id);
+            ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.KAFKA_BROKER_BADREQUEST.getCode(), ErrorStatus.KAFKA_BROKER_BADREQUEST.getMessage(), null);
+        }
+    }
+*/
     @DeleteMapping("/chatrooms/{id}")
     public ApiResponse<HttpStatus> deleteChatRoom(@PathVariable String id) {
         try{

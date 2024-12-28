@@ -38,7 +38,8 @@ public enum SuccessStatus implements SuccessCode {
     // INQUIRE
     INQUIRE_LIST_GET_SUCCESS(HttpStatus.OK,"INQUIRE200", "문의 목록 조회 성공"),
     INQUIRE_MESSAGE_GET_SUCCESS(HttpStatus.OK,"INQUIRE201", "문의 메세지 조회 성공"),
-    INQUIRE_ROOM_DELETE_SUCCESS(HttpStatus.OK,"INQUIRE202", "문의 종료 성공"),
+    INQUIRE_MESSAGE_CREATE_SUCCESS(HttpStatus.OK,"INQUIRE202", "문의 방  성공"),
+    INQUIRE_ROOM_DELETE_SUCCESS(HttpStatus.OK,"INQUIRE203", "문의 종료 성공"),
 
 
     //  VISIT
@@ -68,7 +69,7 @@ public enum SuccessStatus implements SuccessCode {
 
 
     // Deposite
-    DEPOSITE_GET_SUCCESS(HttpStatus.OK, "DEPOSITE200", "예금 목록 조회 성공")
+    PRODUCT_GET_SUCCESS(HttpStatus.OK, "PRD200", "예금 목록 조회 성공")
 
 
 
