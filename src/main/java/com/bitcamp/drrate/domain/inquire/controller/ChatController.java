@@ -34,7 +34,7 @@ public class ChatController {
             StompHeaderAccessor stompHeaderAccessor
     ) {
         String senderId = String.valueOf(stompHeaderAccessor.getSessionAttributes().get("userId"));
-        ChatRoom chatRoom = chatRoomServiceImpl.getOrCreateChatRoom(id);
+        ChatRoom chatRoom = chatRoomServiceImpl.getChatRoom(id);
         // Kafka에 메시지 발행
         kafkaProducer.sendMessage(chatRoom, chatMessage.getContent(), senderId);
     }
@@ -45,7 +45,6 @@ public class ChatController {
             @RequestParam("file") MultipartFile multipartFile,
             @RequestParam("senderId") String senderId) {
         try {
-            System.out.println("id : "+id);
             // 파일 업로드
             String fileUrl = s3Service.uploadFile(multipartFile);
 

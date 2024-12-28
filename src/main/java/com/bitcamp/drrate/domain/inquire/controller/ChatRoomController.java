@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -49,9 +51,11 @@ public class ChatRoomController {
     }
 
     @PostMapping("/chatrooms/create")
-    public ApiResponse<HttpStatus> createChatRoom(@RequestParam(value = "id") String id) {
-        try{
-            chatRoomService.createChatRoom(id);
+    public ApiResponse<HttpStatus> createChatRoom(@RequestBody Map<String, String> payload) {
+        try {
+            String id = payload.get("id");
+            System.out.println("id: " + id);
+            chatRoomService.getOrCreateChatRoom(id);
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.INQUIRE_ROOM_CREATE_SUCCESS);
         } catch (Exception e) {
             return ApiResponse.onFailure(ErrorStatus.INQUIRE_CREATED_FAILED.getCode(), ErrorStatus.INQUIRE_CREATED_FAILED.getMessage(), null);
