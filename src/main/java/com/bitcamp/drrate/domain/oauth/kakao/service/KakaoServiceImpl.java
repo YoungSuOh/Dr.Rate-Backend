@@ -1,6 +1,7 @@
 package com.bitcamp.drrate.domain.oauth.kakao.service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -175,18 +176,19 @@ public class KakaoServiceImpl implements KakaoService {
         if(userInfo.getKakaoAccount().getName() == null){
             users.setUsername(userInfo.getKakaoAccount().getProfile().getNickName());
         }
-        if (!Role.ADMIN.equals(users.getRole()) || users.getRole() == null) {
-            users.setRole(Role.USER);
-        } else {
+        if(users.getRole().equals("ADMIN")){
+        //if(users.getRole() == Role.ADMIN)
             users.setRole(Role.ADMIN);
+        }else{
+            users.setRole(Role.USER);
         }
     }
-
     private void incrementNewUserCount() {
         String today = LocalDate.now().toString();
         String redisKey = "daily_new_members:" + today;
 
         // Redis 값 증가
         redisTemplate.opsForValue().increment(redisKey);
+        redisTemplate.expire(redisKey, Duration.ofDays(1));
     }
 }

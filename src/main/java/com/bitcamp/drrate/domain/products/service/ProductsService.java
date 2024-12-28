@@ -3,6 +3,7 @@ package com.bitcamp.drrate.domain.products.service;
 import java.util.List;
 import java.util.Map;
 
+import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 import com.bitcamp.drrate.domain.products.entity.Products;
 
 public interface ProductsService {
@@ -12,12 +13,9 @@ public interface ProductsService {
     /* 상품 하나 출력 */
     Map<String, Object> getOneProduct(Long prdId);
 
-
-
-
-    //241211 전체 조회 카테고리 조회 추가 - 오혜진
-    //List<Products> getAllProducts();
-    List<Map<String, Object>> getAllProducts(); // 전체 조회
     List<Products> getProductsByCtg(String ctg); //카테고리 조회
 
+    List<ProductResponseDTO.ProductListDTO>getGuestProduct(Integer page, Integer size, String category, String bank, String sort);
+
+    List<ProductResponseDTO.ProductListDTO>getProduct(Integer page, Integer size, String category, String bank, Integer age, Integer period, String rate, String join, String sort);
 }

@@ -1,6 +1,7 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
@@ -249,5 +250,6 @@ public class GoogleServiceImpl implements GoogleService {
 
         // Redis 값 증가
         redisTemplate.opsForValue().increment(redisKey);
+        redisTemplate.expire(redisKey, Duration.ofDays(1));
     }
 }
