@@ -95,10 +95,15 @@ public class KakaoServiceImpl implements KakaoService {
 
             setUserInfo(users, userInfo);
 
-            Long id = users.getId();
             users.setSocial("Kakao");
 
             usersRepository.save(users);
+
+            if(users.getId() == null) {
+                Optional<Users> newUsers = usersRepository.findByEmail(email);
+                users = newUsers.orElseGet(() -> new Users());
+            }
+            Long id = users.getId();
 
             // 신규 가입자일 경우 Redis 카운트 증가
             if (isNewUser) {

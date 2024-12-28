@@ -308,9 +308,9 @@ public class UsersController {
 
     //회원탈퇴
     @RequestMapping(value="/api/deleteAccount", method=RequestMethod.POST)
-    public ApiResponse<?> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam("password") @Valid String password) {
+    public ApiResponse<?> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> request) {
         try{
-            System.out.println("회원탈퇴 로직 수행");
+            String password = request.get("password");
             usersService.deleteAccount(userDetails.getId(), password);
             return ApiResponse.onSuccess(null, SuccessStatus.USER_DELETE_SUCCESS);
         } catch(Exception e) {
