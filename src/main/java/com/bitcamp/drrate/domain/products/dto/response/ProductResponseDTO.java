@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -75,10 +76,11 @@ public class ProductResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ProductListDTO {
+        private Long id;
         private String bankLogo;
         private String bankName;
         private String prdName;
-        private String basicRate;
-        private String spclRate;
+        private BigDecimal basicRate;
+        private BigDecimal spclRate;
     }
 }
