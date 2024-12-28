@@ -55,12 +55,12 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         // (1) AuthenticationManagerBuilder를 꺼낸다
         AuthenticationManagerBuilder authBuilder =
-            http.getSharedObject(AuthenticationManagerBuilder.class);
+                http.getSharedObject(AuthenticationManagerBuilder.class);
 
         // (2) userDetailsService + passwordEncoder 등록
         authBuilder
-            .userDetailsService(customUserDetailsService)
-            .passwordEncoder(bCryptPasswordEncoder());
+                .userDetailsService(customUserDetailsService)
+                .passwordEncoder(bCryptPasswordEncoder());
 
         // (3) 빌드
         return authBuilder.build();
@@ -108,28 +108,29 @@ public class SecurityConfig {
 
         // === 경로별 접근 권한 ===
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/api/signIn/**",
-                "/api/signUp/**",
-                "/ws/**",
-                "/api/product/**",
-                "/api/products/**",
-                "/chat/**",
-                "/api/email/**",
-                "/api/reissue",
-                "/api/trackVisit"
-            ).permitAll()
-            .requestMatchers(
-                "/api/favorite/**",
-                "/api/chatmessages/**",
-                "/api/s3",
-                "/api/calendar",
-                "/api/myInfo",
-                "/api/logout",
-                "/api/myInfoEdit"
-            ).authenticated()
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            .anyRequest().authenticated()
+                .requestMatchers(
+                        "/api/signIn/**",
+                        "/api/signUp/**",
+                        "/ws/**",
+                        "/api/product/getOneProduct/**",
+                        "/api/product/guest/**",
+                        "/chat/**",
+                        "/api/email/**",
+                        "/api/reissue",
+                        "/api/trackVisit"
+                ).permitAll()
+                .requestMatchers(
+                        "/api/favorite/**",
+                        "/api/chatmessages/**",
+                        "/api/s3",
+                        "/api/calendar",
+                        "/api/myInfo",
+                        "/api/logout",
+                        "/api/myInfoEdit",
+                        "/api/product/getProduct"
+                ).authenticated()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
         );
 
         // === 세션 대신 JWT 사용 ===
@@ -140,22 +141,22 @@ public class SecurityConfig {
         // 이런 식으로 authenticationConfiguration을 직접 넘기던 부분은 제거
         // 한 번만 등록하면 됨
         http.addFilterAt(
-            new LoginFilter(authManager, jwtUtil, usersRepository, refreshTokenService),
-            UsernamePasswordAuthenticationFilter.class
+                new LoginFilter(authManager, jwtUtil, usersRepository, refreshTokenService),
+                UsernamePasswordAuthenticationFilter.class
         );
 
         // === JWT 검사 필터 등록 ===
         // LoginFilter 이후에 동작하도록, UsernamePasswordAuthenticationFilter 앞뒤 조정 가능
         // 여기서는 "UsernamePasswordAuthenticationFilter.class" 앞에 등록
         http.addFilterBefore(
-            new JWTFilter(jwtUtil, usersRepository),
-            UsernamePasswordAuthenticationFilter.class
+                new JWTFilter(jwtUtil, usersRepository),
+                UsernamePasswordAuthenticationFilter.class
         );
 
         // === 커스텀 로그아웃 필터 등록 ===
         http.addFilterBefore(
-            new CustomLogoutFilter(jwtUtil, objectMapper, refreshTokenService),
-            LogoutFilter.class
+                new CustomLogoutFilter(jwtUtil, objectMapper, refreshTokenService),
+                LogoutFilter.class
         );
 
         return http.build();

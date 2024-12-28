@@ -37,6 +37,7 @@ public class ChatRoomController {
     @GetMapping("/topic/check/{topicName}")
     public ApiResponse<HttpStatus> checkTopicExists(@PathVariable("topicName") String topicName) {
         try{
+            System.out.println(topicName);
             if(kafkaTopicService.topicExists(topicName)){
                 return ApiResponse.onSuccess(HttpStatus.OK ,SuccessStatus.KAFKA_TOPIC_GET_SUCCESS);
             }else{

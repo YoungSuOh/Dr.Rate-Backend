@@ -21,6 +21,9 @@ public class Products {
     @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DepositeOptions> depOptions; // 연관된 DepositeOptions 목록
 
+    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<InstallMentOptions> insOptions;
+
     @Column(name = "ctg", length = 4, nullable = true)
     private String ctg;
 
