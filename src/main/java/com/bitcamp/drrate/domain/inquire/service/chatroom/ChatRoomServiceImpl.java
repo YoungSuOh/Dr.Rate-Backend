@@ -56,7 +56,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             ChatRoom newRoom = new ChatRoom();
             newRoom.setId(senderId);
             newRoom.setTopicName(topicName);
-
+            System.out.println("senderID: " + senderId);
             UsersResponseDTO.ChatRoomUserInfo chatRoomUserInfo = usersService.getChatRoomUserInfo(Long.parseLong(senderId));
             newRoom.setEmail(chatRoomUserInfo.getEmail());
             newRoom.setUserName(chatRoomUserInfo.getName());
@@ -68,6 +68,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             try {
                 chatRoomRepository.save(newRoom);
             } catch (MongoException e) {
+                e.printStackTrace();
                 throw new InquireServiceHandler(ErrorStatus.MONGODB_SAVE_FAILED);
             }
 
@@ -75,11 +76,32 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             try {
                 kafkaTopicService.createTopic(topicName);
             } catch (KafkaException e) {
+                e.printStackTrace();
                 throw new InquireServiceHandler(ErrorStatus.KAFKA_BROKER_BADREQUEST);
             }
 
             return newRoom;
         } catch (Exception e) {
+            e.printStackTrace();
+            throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ChatRoom getChatRoom(String senderId) {
+        try {
+            // 기존 채팅방 조회
+            Optional<ChatRoom> existingRoom = chatRoomRepository.findById(senderId);
+            if (existingRoom.isPresent()) {
+                ChatRoom chatRoom = existingRoom.get();
+                chatRoom.setUpdatedAt(LocalDateTime.now());
+                chatRoom.setStatus(ChatRoomStatus.OPEN);
+                chatRoomRepository.save(chatRoom);
+                return chatRoom;
+            }else{
+                throw new InquireServiceHandler(ErrorStatus.INQUIRE_LIST_GET_FAILED);
+            }
+        }catch (Exception e){
             throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -113,40 +135,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new InquireServiceHandler(ErrorStatus.MONGODB_LOAD_FAILED);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public void createChatRoom(String senderId) {
-        try {
-            // 새로운 채팅방 생성
-            String topicName = "chat-room-" + senderId;
-            ChatRoom newRoom = new ChatRoom();
-            newRoom.setId(senderId);
-            newRoom.setTopicName(topicName);
-
-            UsersResponseDTO.ChatRoomUserInfo chatRoomUserInfo = usersService.getChatRoomUserInfo(Long.parseLong(senderId));
-            newRoom.setEmail(chatRoomUserInfo.getEmail());
-            newRoom.setUserName(chatRoomUserInfo.getName());
-            newRoom.setStatus(ChatRoomStatus.OPEN);
-            newRoom.setCreatedAt(LocalDateTime.now());
-            newRoom.setUpdatedAt(LocalDateTime.now());
-
-            // MongoDB 저장
-            try {
-                chatRoomRepository.save(newRoom);
-            } catch (MongoException e) {
-                throw new InquireServiceHandler(ErrorStatus.MONGODB_SAVE_FAILED);
-            }
-
-            // Kafka 토픽 생성
-            try {
-                kafkaTopicService.createTopic(topicName);
-            } catch (KafkaException e) {
-                throw new InquireServiceHandler(ErrorStatus.KAFKA_BROKER_BADREQUEST);
-            }
-        } catch (Exception e) {
             throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -187,11 +175,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
             // MongoDB에서 ChatMessage 삭제
             try {
-                System.out.println("1");
                 chatMessageRepository.deleteAllByRoomId(id);
-                System.out.println("2");
             } catch (MongoException e) {
-                System.out.println("3");
                 throw new InquireServiceHandler(ErrorStatus.MONGODB_DELETE_FAILED);
             }
 

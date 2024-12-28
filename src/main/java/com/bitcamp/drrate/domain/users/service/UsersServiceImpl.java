@@ -55,6 +55,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public UsersResponseDTO.ChatRoomUserInfo getChatRoomUserInfo(Long userId) {
+        System.out.println("userId = " + userId);
         Users users = usersRepository.findUsersById(userId)
                 .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
         return UsersResponseDTO.ChatRoomUserInfo.builder()

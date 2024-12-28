@@ -70,7 +70,7 @@ public enum SuccessStatus implements SuccessCode {
 
 
     // Deposite
-    PRODUCT_GET_SUCCESS(HttpStatus.OK, "PRD200", "예금 목록 조회 성공")
+    PRODUCT_GET_SUCCESS(HttpStatus.OK, "PRD200", "상품 목록 조회 성공")
 
 
 
