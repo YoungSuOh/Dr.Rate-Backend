@@ -47,8 +47,9 @@ public enum ErrorStatus implements ErrorCode {
     INQUIRE_MESSAGE_BAD_REQUEST(HttpStatus.BAD_REQUEST,"INQUIRE403", "잘못된 형식의 문의 메세지 요청입니다."),
     INQUIRE_INVALID_PATH(HttpStatus.BAD_REQUEST,"INQUIRE404", "잘못된 형식의 문의 메세지 요청입니다."),
     INQUIRE_ROOMID_INVALID(HttpStatus.BAD_REQUEST,"INQUIRE405", "잘못된 문의방 요청입니다."),
-    INQUIRE_DELETE_FAILED(HttpStatus.NOT_FOUND,"INQUIRE406", "문의 종료를 실패했습니다"),
-    INQUIRE_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"INQUIRE407", "유효하지 않은 id 요청입니다"),
+    INQUIRE_CREATED_FAILED(HttpStatus.BAD_REQUEST,"INQUIRE406", "문의방 생성을 실패했습니다"),
+    INQUIRE_DELETE_FAILED(HttpStatus.NOT_FOUND,"INQUIRE407", "문의 종료를 실패했습니다"),
+    INQUIRE_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"INQUIRE408", "유효하지 않은 id 요청입니다"),
 
     // VISIT
     VISIT_RECORD_FAILED(HttpStatus.BAD_REQUEST,"VISIT400", "일일 방문자 데이터 저장을 실패했습니다."),

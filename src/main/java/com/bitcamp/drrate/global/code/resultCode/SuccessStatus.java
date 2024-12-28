@@ -39,7 +39,7 @@ public enum SuccessStatus implements SuccessCode {
     // INQUIRE
     INQUIRE_LIST_GET_SUCCESS(HttpStatus.OK,"INQUIRE200", "문의 목록 조회 성공"),
     INQUIRE_MESSAGE_GET_SUCCESS(HttpStatus.OK,"INQUIRE201", "문의 메세지 조회 성공"),
-    INQUIRE_MESSAGE_CREATE_SUCCESS(HttpStatus.OK,"INQUIRE202", "문의 방  성공"),
+    INQUIRE_ROOM_CREATE_SUCCESS(HttpStatus.OK,"INQUIRE202", "문의 방 성공"),
     INQUIRE_ROOM_DELETE_SUCCESS(HttpStatus.OK,"INQUIRE203", "문의 종료 성공"),
 
 
@@ -51,7 +51,7 @@ public enum SuccessStatus implements SuccessCode {
     FILE_UPLOAD_SUCCESS(HttpStatus.OK,"S3200", "파일 업로드 성공"),
     FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공"),
 
-    // kafka
+    // Kafka
     KAFKA_TOPIC_GET_SUCCESS(HttpStatus.OK,"KAFKA200", "토픽 조회 성공"),
 
 
