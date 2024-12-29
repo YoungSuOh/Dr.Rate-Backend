@@ -214,7 +214,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
@@ -302,7 +302,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
@@ -408,7 +408,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
@@ -534,7 +534,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
