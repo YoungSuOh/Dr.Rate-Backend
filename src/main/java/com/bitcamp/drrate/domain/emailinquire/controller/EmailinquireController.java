@@ -57,7 +57,7 @@ public class EmailinquireController {
     }
 
     // 이메일 문의 내역 조회 (사용자 ID별)
-    @RequestMapping(value="/myinquired", method=RequestMethod.GET)
+    @RequestMapping(value="/api/inquiries", method=RequestMethod.GET)
     public ResponseEntity<List<Emailinquire>> getEmailInquiresByUserId(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long id = userDetails.getId(); // 사용자 users table의 pk값
 

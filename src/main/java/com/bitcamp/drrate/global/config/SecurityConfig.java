@@ -117,7 +117,8 @@ public class SecurityConfig {
                         "/chat/**",
                         "/api/email/**",
                         "/api/reissue",
-                        "/api/trackVisit"
+                        "/api/trackVisit",
+                        "/api/inquiries"
                 ).permitAll()
                 .requestMatchers(
                         "/api/favorite/**",
@@ -127,8 +128,7 @@ public class SecurityConfig {
                         "/api/myInfo",
                         "/api/logout",
                         "/api/myInfoEdit",
-                        "/api/emailinquire/**",
-                        "/api/inquiries/**"
+                        "/api/emailinquire/**"
                 ).authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
