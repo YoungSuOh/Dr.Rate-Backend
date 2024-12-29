@@ -21,10 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,6 +162,39 @@ public class ProductsServiceImpl implements ProductsService {
         return productsRepository.findByCtg(ctg);
     }
 
+    //241211 오혜진 추가
+
+    @Override
+    public List<Map<String, Object>> getAllProducts() {
+        List<Products> products = productsRepository.findAll();
+        List<Map<String, Object>> resultList = new ArrayList<>();
+
+        for (Products product : products) {
+            Map<String, Object> productMap = new HashMap<>();
+            Long productId = product.getId();
+
+            // 각 상품의 옵션 조회
+            List<DepositeOptions> dep_options = depositeOptionsRepository.findByProductsId(productId);
+            List<InstallMentOptions> ins_options = installMentOptionsRepository.findByProductsId(productId);
+
+            productMap.put("product", product);
+
+            if (dep_options != null && !dep_options.isEmpty()) {
+                productMap.put("options", dep_options);
+            } else if (ins_options != null && !ins_options.isEmpty()) {
+                productMap.put("options", ins_options);
+            }
+
+
+
+            resultList.add(productMap);
+        }
+
+        return resultList;
+    }
+
+
+
     @Override
     public Page<ProductResponseDTO.ProductListDTO> getGuestProduct(Integer page, Integer size, String category,  List<String> bankList, String sort) {
         Pageable pageable = PageRequest.of(page, size);
@@ -186,7 +216,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
@@ -274,7 +304,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
@@ -380,7 +410,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
@@ -506,7 +536,7 @@ public class ProductsServiceImpl implements ProductsService {
                 if (bankList != null) {
                     BooleanBuilder bankCondition = new BooleanBuilder();
                     for (String bank : bankList) {
-                        bankCondition.or(qProducts.bankName.eq(bank.trim())); // OR 조건 추가
+                        bankCondition.or(qProducts.bankName.eq(bank)); // OR 조건 추가
                     }
                     builder.and(bankCondition);
                 }
