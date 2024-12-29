@@ -10,7 +10,7 @@ import lombok.Data;
 @Entity
 @Table(name = "products")
 @Data
-@JsonIgnoreProperties({"depOptions"})
+@JsonIgnoreProperties({"depOptions", "insOptions"})
 public class Products {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
