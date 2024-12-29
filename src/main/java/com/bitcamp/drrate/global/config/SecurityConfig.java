@@ -113,6 +113,7 @@ public class SecurityConfig {
                         "/api/signUp/**",
                         "/ws/**",
                         "/api/product/getOneProduct/**",
+                        "/api/product/getAllProducts",
                         "/api/product/guest/**",
                         "/chat/**",
                         "/api/email/**",
