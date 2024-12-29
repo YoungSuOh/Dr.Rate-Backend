@@ -16,6 +16,8 @@ public interface ProductsService {
 
     List<Products> getProductsByCtg(String ctg); //카테고리 조회
 
+    List<Map<String,Object>>getAllProducts();
+
     Page<ProductResponseDTO.ProductListDTO> getGuestProduct(Integer page, Integer size, String category, List<String> bankList, String sort);
 
     Page<ProductResponseDTO.ProductListDTO>getProduct(Integer page, Integer size, String category,  List<String> bankList, Integer age, Integer period, String rate, String join, String sort);
