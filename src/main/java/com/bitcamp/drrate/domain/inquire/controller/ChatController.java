@@ -29,7 +29,7 @@ public class ChatController {
 
     @MessageMapping("/chat/room/{id}")
     public void chatMessage(
-            @DestinationVariable String id,
+            @DestinationVariable("id") String id,
             @Payload ChatMessage chatMessage,
             StompHeaderAccessor stompHeaderAccessor
     ) {
