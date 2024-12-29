@@ -1,17 +1,13 @@
 package com.bitcamp.drrate.global.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -27,6 +23,8 @@ import com.bitcamp.drrate.domain.jwt.refresh.RefreshTokenService;
 import com.bitcamp.drrate.domain.users.repository.UsersRepository;
 import com.bitcamp.drrate.domain.users.service.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -129,7 +127,8 @@ public class SecurityConfig {
                         "/api/logout",
                         "/api/myInfoEdit",
                         "/api/product/getProduct",
-                        "/api/deleteAccount"
+                        "/api/deleteAccount",
+                        "/api/emailinquire/**"
                 ).authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
