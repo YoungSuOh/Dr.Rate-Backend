@@ -23,24 +23,24 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
 
   /* 마이페이지; 예금 목록 조회 */
   @Query("SELECT new com.bitcamp.drrate.domain.favorites.dto.response.FavoriteListDTO(\n" +
-      "f.id, p.bankLogo, p.bankName, p.prdName, MAX(d.basicRate), MAX(d.spclRate)) " +
+      "p.id, f.id, p.bankLogo, p.bankName, p.prdName, MAX(d.basicRate), MAX(d.spclRate)) " +
       "FROM Favorites f " +
       "JOIN f.product p " +
       "JOIN DepositeOptions d ON p.id = d.products.id " +
       "WHERE f.user.id = :faUserId " +
-      "GROUP BY f.id, p.bankLogo, p.bankName, p.prdName " +
+      "GROUP BY p.id, f.id, p.bankLogo, p.bankName, p.prdName " +
       "ORDER BY f.id DESC")
   List<FavoriteListDTO> findDepositsByUserId(@Param("faUserId") Long faUserId);
 
 
   /* 마이페이지; 적금 목록 조회 */
   @Query("SELECT new com.bitcamp.drrate.domain.favorites.dto.response.FavoriteListDTO(\n" +
-      "f.id, p.bankLogo, p.bankName, p.prdName, MAX(i.basicRate), MAX(i.spclRate)) " +
+      "p.id, f.id, p.bankLogo, p.bankName, p.prdName, MAX(i.basicRate), MAX(i.spclRate)) " +
       "FROM Favorites f " +
       "JOIN f.product p " +
       "JOIN InstallMentOptions i ON p.id = i.products.id " +
       "WHERE f.user.id = :faUserId " +
-      "GROUP BY f.id, p.bankLogo, p.bankName, p.prdName " +
+      "GROUP BY p.id, f.id, p.bankLogo, p.bankName, p.prdName " +
       "ORDER BY f.id DESC")
   List<FavoriteListDTO> findInstallmentsByUserId(@Param("faUserId") Long faUserId);
 
@@ -48,13 +48,13 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
 
   /* 마이페이지; 예금 검색 */
   @Query("SELECT new com.bitcamp.drrate.domain.favorites.dto.response.FavoriteListDTO(\n" +
-      "f.id, p.bankLogo, p.bankName, p.prdName, MAX(d.basicRate), MAX(d.spclRate)) " +
+      "p.id, f.id, p.bankLogo, p.bankName, p.prdName, MAX(d.basicRate), MAX(d.spclRate)) " +
       "FROM Favorites f " +
       "JOIN f.product p " +
       "JOIN DepositeOptions d ON p.id = d.products.id " +
       "WHERE f.user.id = :faUserId AND ((:searchKey = 'bankName' AND p.bankName LIKE %:searchValue%) OR \n" +
       "(:searchKey = 'prdName' AND p.prdName LIKE %:searchValue%)) " +
-      "GROUP BY f.id, p.bankLogo, p.bankName, p.prdName " +
+      "GROUP BY p.id, f.id, p.bankLogo, p.bankName, p.prdName " +
       "ORDER BY f.id DESC")
   List<FavoriteListDTO> searchDepositsByUserId(@Param("faUserId") Long faUserId,
                                                @Param("searchKey") String searchKey,
@@ -65,13 +65,13 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
 
   /* 마이페이지; 적금 검색 */
   @Query("SELECT new com.bitcamp.drrate.domain.favorites.dto.response.FavoriteListDTO(\n" +
-      "f.id, p.bankLogo, p.bankName, p.prdName, MAX(i.basicRate), MAX(i.spclRate)) " +
+      "p.id, f.id, p.bankLogo, p.bankName, p.prdName, MAX(i.basicRate), MAX(i.spclRate)) " +
       "FROM Favorites f " +
       "JOIN f.product p " +
       "JOIN InstallMentOptions i ON p.id = i.products.id " +
       "WHERE f.user.id = :faUserId AND ((:searchKey = 'bankName' AND p.bankName LIKE %:searchValue%) OR \n" +
       "(:searchKey = 'prdName' AND p.prdName LIKE %:searchValue%)) " +
-      "GROUP BY f.id, p.bankLogo, p.bankName, p.prdName " +
+      "GROUP BY p.id, f.id, p.bankLogo, p.bankName, p.prdName " +
       "ORDER BY f.id DESC")
   List<FavoriteListDTO> searchInstallmentsByUserId(@Param("faUserId") Long faUserId,
                                                    @Param("searchKey") String searchKey,
