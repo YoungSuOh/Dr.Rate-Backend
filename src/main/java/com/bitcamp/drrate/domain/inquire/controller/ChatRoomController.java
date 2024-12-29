@@ -63,7 +63,7 @@ public class ChatRoomController {
     }
 
     @DeleteMapping("/chatrooms/{id}")
-    public ApiResponse<HttpStatus> deleteChatRoom(@PathVariable String id) {
+    public ApiResponse<HttpStatus> deleteChatRoom(@PathVariable(value = "id") String id) {
         try{
             chatRoomService.deleteChatRoomById(id);
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.INQUIRE_ROOM_DELETE_SUCCESS);
