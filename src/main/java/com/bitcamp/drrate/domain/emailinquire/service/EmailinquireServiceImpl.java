@@ -1,5 +1,7 @@
 package com.bitcamp.drrate.domain.emailinquire.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 import org.springframework.mail.javamail.JavaMailSender;
@@ -31,26 +33,29 @@ public class EmailinquireServiceImpl implements EmailinquireService {
             // MIME 형식 이메일 생성
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
             // 이메일 수신자, 제목, 본문 설정
             helper.setTo("anfto023@gmail.com"); // 수신자 이메일
             helper.setSubject(emailInquire.getInquireTitle()); // 제목
-            helper.setText(emailInquire.getInquireContent(), false); // 내용 (HTML 여부는 false로 설정)
+            helper.setText(emailInquire.getInquireEmail() + "\n\n" + emailInquire.getInquireContent(), false); // 내용 (HTML 여부는 false로 설정)
 
             // 문의자 이메일 설정
             helper.setFrom(emailInquire.getInquireEmail()); // Gmail은 보안정책 때문에 발신자 이메일을 변경할 수 없음.
-            helper.setText(emailInquire.getInquireEmail(), false);
-
             // 파일 첨부 처리
             if (fileUuid != null && !fileUuid.isEmpty()) {
+                // 이메일 본문에 URL 추가
                 helper.addAttachment(fileUuid.getOriginalFilename(), fileUuid);
-                String fileUrl = s3Service.uploadFile(fileUuid); // 클라우드 저장 및 파일 url
+                emailSender.send(message); // 문의 이메일 전송
+
+                String fileUrl = s3Service.uploadFile(fileUuid); // 파일을 S3에 업로드
                 emailInquire.setFileUuid(fileUrl);
+                
+                emailinquireRepository.save(emailInquire);
+            } else {
+                emailSender.send(message); // 문의 이메일 전송
+                emailinquireRepository.save(emailInquire);
             }
             
-            emailSender.send(message); // 문의 이메일 전송
-
-            emailinquireRepository.save(emailInquire);
+            
         } catch(RuntimeException e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.UNABLE_TO_SEND_EMAIL);
         } catch(Exception e) {

@@ -128,7 +128,7 @@ public class SecurityConfig {
                         "/api/myInfoEdit",
                         "/api/product/getProduct",
                         "/api/deleteAccount",
-                        "/api/emailinquire"
+                        "/api/emailinquire/**"
                 ).authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()

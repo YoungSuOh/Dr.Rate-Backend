@@ -35,13 +35,6 @@ public class EmailinquireController {
                                                 @RequestParam("inquireContent") String inquireContent,
                                                 @RequestParam(value="fileUuid", required=false) MultipartFile fileUuid,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
-        System.out.println("이메일 문의 저장 메서드 실행");
-        System.out.println("카테고리 = " + inquireCtg + "\n" +
-                            "문의자 이름 = " + inquireUser + "\n" +
-                            "문의자 이메일 = " + inquireEmail + "\n" + 
-                            "문의 제목 = " + inquireTitle + "\n" +
-                            "문의 내용 = " + inquireContent + "\n" +
-                            "파일 이름 = " + fileUuid);
 
         Emailinquire emailInquire = new Emailinquire();
 
@@ -51,8 +44,9 @@ public class EmailinquireController {
         emailInquire.setInquireTitle(inquireTitle);
         emailInquire.setInquireContent(inquireContent);
         emailInquire.setInquireId(userDetails.getId());
-
+        
         emailinquireService.saveEmailInquire(emailInquire, fileUuid);
+        System.out.println("이메일 저장 메서드 성공");
         return ResponseEntity.ok(emailInquire);
     }
 
