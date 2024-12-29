@@ -150,8 +150,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             // ChatRoomImage에서 파일 URL 가져오기
             List<ChatRoomImage> chatRoomImages;
             try {
-                chatRoomImages = chatRoomImageRepository.findAllById(Collections.singleton(id));
+                chatRoomImages = chatRoomImageRepository.findAllByRoomId(id);
             } catch (MongoException e) {
+                e.printStackTrace();
                 throw new InquireServiceHandler(ErrorStatus.MONGODB_LOAD_FAILED);
             }
 
@@ -162,14 +163,16 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     deleteRequest.setFileUrl(image.getImageUrl());
                     s3Service.deleteFile(deleteRequest);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     throw new InquireServiceHandler(ErrorStatus.S3_DELETE_FAILED);
                 }
             }
 
             // MongoDB에서 ChatRoomImage 삭제
             try {
-                chatRoomImageRepository.deleteAllById(Collections.singleton(id));
+                chatRoomImageRepository.deleteAllByRoomId(id);
             } catch (MongoException e) {
+                e.printStackTrace();
                 throw new InquireServiceHandler(ErrorStatus.MONGODB_DELETE_FAILED);
             }
 
@@ -177,6 +180,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             try {
                 chatMessageRepository.deleteAllByRoomId(id);
             } catch (MongoException e) {
+                e.printStackTrace();
                 throw new InquireServiceHandler(ErrorStatus.MONGODB_DELETE_FAILED);
             }
 
@@ -191,12 +195,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 }
 
             } catch (MongoException e) {
+                e.printStackTrace();
                 throw new InquireServiceHandler(ErrorStatus.MONGODB_DELETE_FAILED);
             }
 
         } catch (InquireServiceHandler e) {
+            e.printStackTrace();
             throw e;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new InquireServiceHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
