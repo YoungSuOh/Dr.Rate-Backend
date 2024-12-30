@@ -4,11 +4,7 @@ import com.bitcamp.drrate.domain.users.entity.Role;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 public class UsersRequestDTO {
 
@@ -16,6 +12,7 @@ public class UsersRequestDTO {
     @Getter@Setter
     @AllArgsConstructor
     @NoArgsConstructor
+    @ToString
     public static class UsersJoinDTO {
         @NotNull
         private String userId;

@@ -22,4 +22,6 @@ public interface UsersService {
     String invalidAccessToken(String accessToken);
     void myInfoEdit(Users users);
     void logout(CustomUserDetails userDetails);
+
+    void resetPassword(String userId, String newPassword);
 }

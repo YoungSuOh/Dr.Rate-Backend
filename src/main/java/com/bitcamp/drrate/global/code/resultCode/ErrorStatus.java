@@ -23,6 +23,8 @@ public enum ErrorStatus implements ErrorCode {
     USER_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "USER407", "사용자의 인증에 실패하였습니다."),
     USER_LIST_GET_SUCCESS(HttpStatus.NOT_FOUND, "USER408", "유저 목록 조회 실패했습니다."),
     USER_LIST_BAD_REQUEST(HttpStatus.BAD_REQUEST, "USER409", "잘못된 형식의 유저 목록 조회입니다."),
+    USER_EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "USER410", "가입되지 않은 이메일입니다."),
+    USER_EMAIL_ID_MISMATCH(HttpStatus.BAD_REQUEST, "USER411","아이디와 이메일이 일치하지 않습니다."),
 
 
 

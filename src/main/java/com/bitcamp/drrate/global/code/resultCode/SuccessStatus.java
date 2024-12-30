@@ -23,11 +23,15 @@ public enum SuccessStatus implements SuccessCode {
     USER_MYPAGE_SUCCESS(HttpStatus.OK,"USER203", "마이페이지 조회 성공"),
     USER_LOGOUT_SUCCESS(HttpStatus.OK,"USER204", "로그아웃 성공"),
     USER_LIST_GET_SUCCESS(HttpStatus.OK,"USER205", "유저 목록 조회 성공"),
-    USER_VERIFYCATION_EMAIL(HttpStatus.OK, "USER206", "인증번호 전송 성공"),
+    USER_VERIFYCATION_EMAIL(HttpStatus.OK, "USER206", "이메일 전송 성공"),
     USER_VERIFY_EMAIL_SUCCESS(HttpStatus.OK, "USER207", "인증번호 일치"),
     USER_TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "USER208", "토큰 재발급 성공"),
     USER_INFO_UPDATE_SUCCESS(HttpStatus.OK, "USER209", "사용자 정보 수정 성공"),
     USER_EMAIL_AVAILABLE(HttpStatus.OK,"USER210", "사용 가능한 이메일 입니다."),
+    USER_VALIDATION_SUCCESS(HttpStatus.OK,"USER211","이메일 아이디 일치"),
+    USER_PASSWORD_RESET_SUCCESS(HttpStatus.OK,"USER212" ,"비밀번호 수정 성공" ),
+
+
 
 
 
@@ -64,8 +68,7 @@ public enum SuccessStatus implements SuccessCode {
     CALENDAR_UPDATE_SUCCESS(HttpStatus.OK, "CAL202", "이벤트 수정 성공"),
     CALENDAR_DELETE_SUCCESS(HttpStatus.OK, "CAL203", "이벤트 삭제 성공"),
     CALENDAR_BANK_QUERY_SUCCESS(HttpStatus.OK, "CAL204", "은행 데이터 조회 성공"),
-    CALENDAR_PRODUCT_QUERY_SUCCESS(HttpStatus.OK, "CAL205", "적금명 데이터 조회 성공"),
-	;
+    CALENDAR_PRODUCT_QUERY_SUCCESS(HttpStatus.OK, "CAL205", "적금명 데이터 조회 성공"),;
 
     private final HttpStatus httpStatus;
     private final String code;
