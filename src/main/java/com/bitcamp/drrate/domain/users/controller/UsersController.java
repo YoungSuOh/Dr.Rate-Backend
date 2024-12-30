@@ -261,9 +261,9 @@ public class UsersController {
             Users users = usersRepository.findUsersById(userDetails.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userDetails.getId()));
 
-            users.setEmail(requestDTO.getEmail());
-            users.setUsername(requestDTO.getUsername());
-            users.setPassword(requestDTO.getPassword());
+            // users.setEmail(requestDTO.getEmail());
+            // users.setUsername(requestDTO.getUsername());
+            // users.setPassword(requestDTO.getPassword());
 
             usersService.myInfoEdit(users);
             
@@ -302,6 +302,22 @@ public class UsersController {
             usersService.logout(userDetails);
             return ApiResponse.onSuccess(null, SuccessStatus.USER_LOGOUT_SUCCESS);
         } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
+        }
+    }
+
+    //회원탈퇴
+    @RequestMapping(value="/api/deleteAccount", method=RequestMethod.POST)
+    public ApiResponse<?> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> request) {
+        try{
+            String password = request.get("password");
+
+            boolean match = usersService.deleteAccount(userDetails.getId(), password);
+            if(!match) {
+                return ApiResponse.onFailure(ErrorStatus.USER_DELETION_FAILED.getCode(), ErrorStatus.USER_DELETION_FAILED.getMessage(), null);
+            }
+            return ApiResponse.onSuccess(match, SuccessStatus.USER_DELETE_SUCCESS);
+        } catch(Exception e) {
             return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
         }
     }

@@ -28,6 +28,7 @@ public enum SuccessStatus implements SuccessCode {
     USER_TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "USER208", "토큰 재발급 성공"),
     USER_INFO_UPDATE_SUCCESS(HttpStatus.OK, "USER209", "사용자 정보 수정 성공"),
     USER_EMAIL_AVAILABLE(HttpStatus.OK,"USER210", "사용 가능한 이메일 입니다."),
+    USER_DELETE_SUCCESS(HttpStatus.OK,"USER211", "회원탈퇴 성공"),
 
 
 
@@ -38,7 +39,8 @@ public enum SuccessStatus implements SuccessCode {
     // INQUIRE
     INQUIRE_LIST_GET_SUCCESS(HttpStatus.OK,"INQUIRE200", "문의 목록 조회 성공"),
     INQUIRE_MESSAGE_GET_SUCCESS(HttpStatus.OK,"INQUIRE201", "문의 메세지 조회 성공"),
-    INQUIRE_ROOM_DELETE_SUCCESS(HttpStatus.OK,"INQUIRE202", "문의 종료 성공"),
+    INQUIRE_ROOM_CREATE_SUCCESS(HttpStatus.OK,"INQUIRE202", "문의 방 성공"),
+    INQUIRE_ROOM_DELETE_SUCCESS(HttpStatus.OK,"INQUIRE203", "문의 종료 성공"),
 
 
     //  VISIT
@@ -49,7 +51,7 @@ public enum SuccessStatus implements SuccessCode {
     FILE_UPLOAD_SUCCESS(HttpStatus.OK,"S3200", "파일 업로드 성공"),
     FILE_DELETE_SUCCESS(HttpStatus.OK,"S3201", "파일 삭제 성공"),
 
-    // kafka
+    // Kafka
     KAFKA_TOPIC_GET_SUCCESS(HttpStatus.OK,"KAFKA200", "토픽 조회 성공"),
 
 
@@ -65,6 +67,13 @@ public enum SuccessStatus implements SuccessCode {
     CALENDAR_DELETE_SUCCESS(HttpStatus.OK, "CAL203", "이벤트 삭제 성공"),
     CALENDAR_BANK_QUERY_SUCCESS(HttpStatus.OK, "CAL204", "은행 데이터 조회 성공"),
     CALENDAR_PRODUCT_QUERY_SUCCESS(HttpStatus.OK, "CAL205", "적금명 데이터 조회 성공"),
+
+
+    // Deposite
+    PRODUCT_GET_SUCCESS(HttpStatus.OK, "PRD200", "상품 목록 조회 성공")
+
+
+
 	;
 
     private final HttpStatus httpStatus;

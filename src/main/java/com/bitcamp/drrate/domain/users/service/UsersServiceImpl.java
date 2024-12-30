@@ -55,6 +55,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public UsersResponseDTO.ChatRoomUserInfo getChatRoomUserInfo(Long userId) {
+        System.out.println("userId = " + userId);
         Users users = usersRepository.findUsersById(userId)
                 .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
         return UsersResponseDTO.ChatRoomUserInfo.builder()
@@ -199,5 +200,27 @@ public class UsersServiceImpl implements UsersService {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    @Override
+    @Transactional
+    public boolean deleteAccount(Long id, String password) {
+        try {
+            Users users = usersRepository.findUsersById(id)
+            .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
+            String userPwd = users.getPassword();
+
+            if ((password != null && bCryptPasswordEncoder.matches(password, userPwd)) || (password == null && userPwd == null && users.getSocial() != null)) {
+                usersRepository.deleteById(id);
+                refreshTokenService.deleteTokens(String.valueOf(id));
+                return true;
+            } else {
+                System.out.println("조건 불충족: 비밀번호 불일치 또는 소셜 계정이 아님");
+                return false;
+            }
+        } catch(UsersServiceExceptionHandler ex) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_AUTHENTICATION_FAILED);
+        } catch(Exception e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
