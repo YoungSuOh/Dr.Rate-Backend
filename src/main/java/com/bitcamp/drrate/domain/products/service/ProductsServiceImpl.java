@@ -47,6 +47,7 @@ public class ProductsServiceImpl implements ProductsService {
     /* 상품 출력 */
     @Override
     public Map<String, Object> getOneProduct(Long prdId) {
+        System.out.print("prdId: " + prdId + "\n");
         Optional<Products> product;
         List<DepositeOptions> dep_options;
         List<InstallMentOptions> ins_options;
@@ -80,6 +81,7 @@ public class ProductsServiceImpl implements ProductsService {
         }
 
         if (dep_options != null && !dep_options.isEmpty()) {
+            System.out.println("dep_options: " + dep_options.isEmpty());
             map.put("options", dep_options);
         } else if (ins_options != null && !ins_options.isEmpty()) {
             map.put("options", ins_options);
