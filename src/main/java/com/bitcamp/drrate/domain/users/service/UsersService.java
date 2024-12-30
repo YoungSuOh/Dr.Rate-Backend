@@ -22,5 +22,5 @@ public interface UsersService {
     String invalidAccessToken(String accessToken);
     void myInfoEdit(Users users);
     void logout(CustomUserDetails userDetails);
-    void deleteAccount(Long id, String password);
+    boolean deleteAccount(Long id, String password);
 }
