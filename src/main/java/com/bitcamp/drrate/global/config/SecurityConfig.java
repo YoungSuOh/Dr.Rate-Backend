@@ -1,5 +1,6 @@
 package com.bitcamp.drrate.global.config;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -71,6 +72,7 @@ public class SecurityConfig {
         http.httpBasic(auth -> auth.disable());
 
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/signIn/**", "/api/signUp/**", "/ws/**", "/api/product/**", "/api/products/**" ,
                         "/chat/**",  "/api/email/**", "/api/reissue", "/api/trackVisit").permitAll()
                 .requestMatchers("/api/favorite/**", "/api/chatmessages/**", "/api/s3", "/api/calendar", "/api/myInfo").authenticated()
