@@ -22,10 +22,7 @@ public interface UsersService {
     String invalidAccessToken(String accessToken);
     void myInfoEdit(Users users);
     void logout(CustomUserDetails userDetails);
-<<<<<<< HEAD
-
     void resetPassword(String userId, String newPassword);
-=======
     boolean deleteAccount(Long id, String password);
->>>>>>> b1f6c6d27a69c6057386082d980b60048fb84138
+
 }

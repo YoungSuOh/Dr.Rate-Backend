@@ -203,7 +203,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-<<<<<<< HEAD
+
     public void resetPassword(String userId, String newPassword) {
         Users users = usersRepository.findByUserId(userId);
         if (users == null) {
@@ -213,7 +213,7 @@ public class UsersServiceImpl implements UsersService {
         usersRepository.save(users);
     }
 
-=======
+    @Override
     @Transactional
     public boolean deleteAccount(Long id, String password) {
         try {
@@ -235,5 +235,4 @@ public class UsersServiceImpl implements UsersService {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
->>>>>>> b1f6c6d27a69c6057386082d980b60048fb84138
 }
