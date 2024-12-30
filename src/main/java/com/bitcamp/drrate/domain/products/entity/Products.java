@@ -10,7 +10,7 @@ import lombok.Data;
 @Entity
 @Table(name = "products")
 @Data
-@JsonIgnoreProperties({"depOptions"})
+@JsonIgnoreProperties({"depOptions", "insOptions"})
 public class Products {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +20,9 @@ public class Products {
     //241211 옵션 - 오혜진
     @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DepositeOptions> depOptions; // 연관된 DepositeOptions 목록
+
+    @OneToMany(mappedBy = "products", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<InstallMentOptions> insOptions;
 
     @Column(name = "ctg", length = 4, nullable = true)
     private String ctg;

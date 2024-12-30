@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -37,6 +39,7 @@ public class ChatRoomController {
     @GetMapping("/topic/check/{topicName}")
     public ApiResponse<HttpStatus> checkTopicExists(@PathVariable("topicName") String topicName) {
         try{
+            System.out.println(topicName);
             if(kafkaTopicService.topicExists(topicName)){
                 return ApiResponse.onSuccess(HttpStatus.OK ,SuccessStatus.KAFKA_TOPIC_GET_SUCCESS);
             }else{
@@ -47,9 +50,20 @@ public class ChatRoomController {
         }
     }
 
+    @PostMapping("/chatrooms/create")
+    public ApiResponse<HttpStatus> createChatRoom(@RequestBody Map<String, String> payload) {
+        try {
+            String id = payload.get("id");
+            System.out.println("id: " + id);
+            chatRoomService.getOrCreateChatRoom(id);
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.INQUIRE_ROOM_CREATE_SUCCESS);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.INQUIRE_CREATED_FAILED.getCode(), ErrorStatus.INQUIRE_CREATED_FAILED.getMessage(), null);
+        }
+    }
 
     @DeleteMapping("/chatrooms/{id}")
-    public ApiResponse<HttpStatus> deleteChatRoom(@PathVariable String id) {
+    public ApiResponse<HttpStatus> deleteChatRoom(@PathVariable(value = "id") String id) {
         try{
             chatRoomService.deleteChatRoomById(id);
             return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.INQUIRE_ROOM_DELETE_SUCCESS);

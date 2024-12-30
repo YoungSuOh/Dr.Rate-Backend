@@ -32,25 +32,26 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
 
         try {
             // Redis에서 방문자 수 가져오기
-            Long memberCount = getRedisSetSize(memberKey);
-            Long guestCount = getRedisSetSize(guestKey);
-            Long totalCount = memberCount + guestCount;
+            Long memberCount = redisTemplate.opsForSet().size(memberKey);
+            Long guestCount = redisTemplate.opsForSet().size(guestKey);
+            Long totalCount = (memberCount != null ? memberCount : 0L)
+                    + (guestCount != null ? guestCount : 0L);
 
-            // Redis에서 신규 가입자 수 가져오기
-            Integer newMembersCount = getRedisValueAsInteger(newMembersKey);
+            // 2) 신규 가입자 Set 사이즈
+            Long newMemberCount = redisTemplate.opsForSet().size(newMembersKey);
 
 
 
             // MySQL에 데이터 저장
             dailyVisitorRepository.save(new DailyVisitor(
                     LocalDate.now(),
-                    memberCount != null ? memberCount.intValue() : 0,
-                    guestCount != null ? guestCount.intValue() : 0,
-                    totalCount != null ? totalCount.intValue() : 0,
-                    newMembersCount != null ? newMembersCount : 0
+                    (memberCount != null) ? memberCount.intValue() : 0,
+                    (guestCount != null) ? guestCount.intValue() : 0,
+                    totalCount.intValue(),
+                    (newMemberCount != null) ? newMemberCount.intValue() : 0
             ));
 
-            // Redis 데이터 삭제
+            // Redis 데이터 삭제 (어제자 데이터는 더 이상 필요 없으니까)
             redisTemplate.delete(memberKey);
             redisTemplate.delete(guestKey);
             redisTemplate.delete(newMembersKey);
