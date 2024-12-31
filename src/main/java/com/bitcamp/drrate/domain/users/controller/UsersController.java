@@ -79,7 +79,7 @@ public class UsersController {
             }
 
             // 리다이렉트 경로 설정. access토큰을 쿼리 파라미터에 포함
-            String redirectUrl = "http://localhost:5173/oauthHandler#access=" + access;
+            String redirectUrl = "https://dr-rate.store/oauthHandler#access=" + access;
     
             // 성공 시 처리
             return ResponseEntity
