@@ -323,6 +323,3 @@ public class UsersController {
         }
     }
 }
-
-}
-
