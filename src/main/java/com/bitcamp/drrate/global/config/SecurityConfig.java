@@ -107,7 +107,7 @@ public class SecurityConfig {
         // === 경로별 접근 권한 ===
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                        "/api/health/**",
+                        "/api/healthCheck",
                         "/api/signIn/**",
                         "/api/signUp/**",
                         "/ws/**",
