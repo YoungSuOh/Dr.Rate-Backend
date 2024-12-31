@@ -1,11 +1,15 @@
 package com.bitcamp.drrate.domain.users.service;
 
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,7 @@ public class UsersServiceImpl implements UsersService {
     private final RefreshTokenService refreshTokenService;
     private final JWTUtil jwtUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     @Transactional
@@ -132,9 +137,13 @@ public class UsersServiceImpl implements UsersService {
                 .password(encodedPassword)
                 .role(Role.USER)
                 .build();
+        incrementNewUserCount();
 
+        // 엔티티 매핑 상태 확인
+        System.out.println("Mapped User Entity: " + newUser);
         usersRepository.save(newUser);
     }
+
 
     @Override
     public Users getMyInfo(Long id) {
@@ -202,6 +211,16 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
+    public void resetPassword(String userId, String newPassword) {
+        Users users = usersRepository.findByUserId(userId);
+        if (users == null) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND);
+        }
+        users.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        usersRepository.save(users);
+    }
+
+    @Override
     @Transactional
     public boolean deleteAccount(Long id, String password) {
         try {
@@ -222,5 +241,13 @@ public class UsersServiceImpl implements UsersService {
         } catch(Exception e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void incrementNewUserCount() {
+        String today = LocalDate.now().toString();
+        String redisKey = "daily_new_members:" + today;
+
+        redisTemplate.opsForSet().add(redisKey, "new_member_" + UUID.randomUUID()); // 더미 값 추가
+        redisTemplate.expire(redisKey, Duration.ofDays(1));
     }
 }

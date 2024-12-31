@@ -30,5 +30,9 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     boolean existsBySocial(String social);
 
+
+    boolean existsByUserIdAndEmail(String userId, String email);
+
     void deleteById(Long id);
+
 }
