@@ -132,7 +132,8 @@ public class UsersServiceImpl implements UsersService {
                 .password(encodedPassword)
                 .role(Role.USER)
                 .build();
-
+        // 엔티티 매핑 상태 확인
+        System.out.println("Mapped User Entity: " + newUser);
         usersRepository.save(newUser);
     }
 
@@ -199,6 +200,17 @@ public class UsersServiceImpl implements UsersService {
         } catch(Exception e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Override
+
+    public void resetPassword(String userId, String newPassword) {
+        Users users = usersRepository.findByUserId(userId);
+        if (users == null) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND);
+        }
+        users.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        usersRepository.save(users);
     }
 
     @Override
