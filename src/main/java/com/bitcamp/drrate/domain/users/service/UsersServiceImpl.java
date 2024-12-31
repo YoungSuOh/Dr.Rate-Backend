@@ -98,7 +98,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo) {
         //이메일로 기존 사용자 조회
-        Optional<Users> existUsers = usersRepository.findByEmail(userInfo.getKakaoAccount().getEmail());
+        Optional<Users> existUsers = usersRepository.findByEmail(userInfo.getKakao_account().getEmail());
 
         if (existUsers.isPresent()) {
             //기존 사용자 로그인 처리
@@ -106,8 +106,8 @@ public class UsersServiceImpl implements UsersService {
         }
         // 신규 사용자 회원가입 처리
         Users newUsers = Users.builder()
-                .email(userInfo.getKakaoAccount().getEmail())
-                .username(userInfo.getKakaoAccount().getProfile().getNickName())
+                .email(userInfo.getKakao_account().getEmail())
+                .username(userInfo.getKakao_account().getProfile().getNickName())
                 .build();
 
         return usersRepository.save(newUsers);
