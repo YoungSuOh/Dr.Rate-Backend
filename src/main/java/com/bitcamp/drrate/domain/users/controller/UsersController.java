@@ -77,7 +77,7 @@ public class UsersController {
             }
 
             // 리다이렉트 경로 설정. access토큰을 쿼리 파라미터에 포함
-            String redirectUrl = "http://localhost:5173/oauthHandler#access=" + access;
+            String redirectUrl = "https://dr-rate.store/oauthHandler#access=" + access;
     
             // 성공 시 처리
             return ResponseEntity
@@ -295,6 +295,7 @@ public class UsersController {
         }
     }
 
+
     //로그아웃
     @RequestMapping(value="/api/logout", method=RequestMethod.POST)
     public ApiResponse<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -322,3 +323,6 @@ public class UsersController {
         }
     }
 }
+
+}
+
