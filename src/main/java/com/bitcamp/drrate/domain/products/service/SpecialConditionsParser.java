@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SpecialConditionsParser {
+
     public static List<ProductResponseDTO.ProductCondition> parseSpecialConditions(String specialConditions, BigDecimal basicRate, BigDecimal spclRate) {
         // 조건 리스트
         List<ProductResponseDTO.ProductCondition> conditions = new ArrayList<>();

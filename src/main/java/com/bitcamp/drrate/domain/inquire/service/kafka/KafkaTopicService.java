@@ -40,7 +40,6 @@ public class KafkaTopicService {
     }
     public boolean topicExists(String topicName) {
         try {
-            System.out.println("topicExists");
             DescribeTopicsResult result = adminClient.describeTopics(Collections.singletonList(topicName));
             result.values().get(topicName).get(); // 토픽이 없으면 예외 발생
             return true;

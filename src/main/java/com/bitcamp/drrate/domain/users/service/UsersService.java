@@ -2,7 +2,6 @@ package com.bitcamp.drrate.domain.users.service;
 
 
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 
 import com.bitcamp.drrate.domain.oauth.kakao.dto.response.KakaoUserInfoResponseDTO;
 import com.bitcamp.drrate.domain.users.dto.CustomUserDetails;
@@ -18,8 +17,10 @@ public interface UsersService {
     UsersResponseDTO.ChatRoomUserInfo getChatRoomUserInfo(Long userId);
     Page<Users>getUsersList(int page, int size, String searchType, String keyword);
     Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo);
-    HttpHeaders tokenSetting(String access);
     void signUp(UsersJoinDTO usersJoinDTO);
     Users getMyInfo(Long id);
     String invalidAccessToken(String accessToken);
+    void myInfoEdit(Users users);
+    void logout(CustomUserDetails userDetails);
+    boolean deleteAccount(Long id, String password);
 }

@@ -47,8 +47,9 @@ public enum ErrorStatus implements ErrorCode {
     INQUIRE_MESSAGE_BAD_REQUEST(HttpStatus.BAD_REQUEST,"INQUIRE403", "잘못된 형식의 문의 메세지 요청입니다."),
     INQUIRE_INVALID_PATH(HttpStatus.BAD_REQUEST,"INQUIRE404", "잘못된 형식의 문의 메세지 요청입니다."),
     INQUIRE_ROOMID_INVALID(HttpStatus.BAD_REQUEST,"INQUIRE405", "잘못된 문의방 요청입니다."),
-    INQUIRE_DELETE_FAILED(HttpStatus.NOT_FOUND,"INQUIRE406", "문의 종료를 실패했습니다"),
-    INQUIRE_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"INQUIRE407", "유효하지 않은 id 요청입니다"),
+    INQUIRE_CREATED_FAILED(HttpStatus.BAD_REQUEST,"INQUIRE406", "문의방 생성을 실패했습니다"),
+    INQUIRE_DELETE_FAILED(HttpStatus.NOT_FOUND,"INQUIRE407", "문의 종료를 실패했습니다"),
+    INQUIRE_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND,"INQUIRE408", "유효하지 않은 id 요청입니다"),
 
     // VISIT
     VISIT_RECORD_FAILED(HttpStatus.BAD_REQUEST,"VISIT400", "일일 방문자 데이터 저장을 실패했습니다."),
@@ -78,6 +79,7 @@ public enum ErrorStatus implements ErrorCode {
     // Social
     SOCIAL_URL_NOT_FOUND(HttpStatus.BAD_REQUEST, "SESSION405", "잘못된 요청 주소입니다."),
     SOCIAL_PARAMETERS_INVALID(HttpStatus.NOT_FOUND, "SESSION406", "잘못된 매개변수를 설정하였습니다."),
+    SOCIAL_AUTHORIZATION_INVALID(HttpStatus.UNAUTHORIZED, "SESSION407", "소셜 로그인 사용자는 정보수정이 불가능 합니다."),
 
 
     // Mongo db
@@ -104,6 +106,8 @@ public enum ErrorStatus implements ErrorCode {
     CONDITIONS_SPECIAL_PARSERATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD407", "금리 처리 중 오류가 발생했습니다."),
     CONDITIONS_SPECIAL_INSERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PRD408", "우대조건 리스트 저장 중 오류가 발생했습니다."),
     CONDITIONS_SPECIAL_UNKNOWN_ERROR(HttpStatus.BAD_REQUEST, "PRD409", "우대조건을 가져올 수 없습니다"),
+    PRODUCT_BAD_REQUEST(HttpStatus.BAD_REQUEST,"PRD410","잘못된 상품 조회 요청입니다"),
+
 
     // INSERTPRODUCT
     INSERT_ALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INS400", "모든 상품 등록에 실패했습니다."),
@@ -131,6 +135,8 @@ public enum ErrorStatus implements ErrorCode {
     CALENDAR_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL004", "이벤트 수정에 실패했습니다."),
     CALENDAR_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL005", "이벤트 삭제에 실패했습니다."),
     CALENDAR_EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "CAL006", "해당 이벤트를 찾을 수 없습니다."),
+    CALENDAR_BANK_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL007", "은행 데이터 조회에 실패했습니다."),
+    CALENDAR_PRODUCT_QUERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CAL008", "적금명 데이터 조회에 실패했습니다."),
 
     // 권한 에러
     AUTHORIZATION_INVALID(HttpStatus.UNAUTHORIZED, "AUTHORIZATION400", "접근 권한이 없습니다."),
