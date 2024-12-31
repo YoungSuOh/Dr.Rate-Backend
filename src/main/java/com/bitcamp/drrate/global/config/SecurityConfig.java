@@ -1,5 +1,6 @@
 package com.bitcamp.drrate.global.config;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -54,6 +55,7 @@ public class SecurityConfig {
         // (1) AuthenticationManagerBuilder를 꺼낸다
         AuthenticationManagerBuilder authBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
+
 
         // (2) userDetailsService + passwordEncoder 등록
         authBuilder
