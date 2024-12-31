@@ -52,4 +52,5 @@ public class Users extends BaseEntity {
 
     @Column(nullable = true, name = "social")
     private String social;
+
 }

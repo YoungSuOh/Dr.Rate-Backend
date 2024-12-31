@@ -109,40 +109,38 @@ public class UsersController {
                     ));
         }
     }
-    //이메일 인증 번호 전송
+    // 이메일 인증 번호 전송
     @RequestMapping(value="/api/email/verify", method=RequestMethod.POST)
-    public ApiResponse<Void> sendMessage(@RequestParam("email") String email) {
+    public ApiResponse<HttpStatus> sendMessage(@RequestParam("email") String email) {
         try {
             // 이메일 중복 체크
             if (usersRepository.existsByEmail(email)) {
                 return ApiResponse.onFailure(
-                        ErrorStatus.USER_EMAIL_DUPLICATE.getCode(), // 오류 코드
-                        ErrorStatus.USER_EMAIL_DUPLICATE.getMessage(), // 오류 메시지
-                        null // 데이터는 없음
+                        ErrorStatus.USER_EMAIL_DUPLICATE.getCode(),
+                        ErrorStatus.USER_EMAIL_DUPLICATE.getMessage(),
+                        HttpStatus.CONFLICT // HTTP 상태
                 );
             }
-
             // 인증 코드 전송 로직
             emailService.sendCodeToEmail(email);
             System.out.println("이메일 인증번호 발송 성공");
 
-            return ApiResponse.onSuccess(null, SuccessStatus.USER_VERIFYCATION_EMAIL); // 성공 시
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VERIFYCATION_EMAIL);
         } catch (UsersServiceExceptionHandler e) {
-            // 메일 전송 실패 시
             return ApiResponse.onFailure(
                     ErrorStatus.UNABLE_TO_SEND_EMAIL.getCode(),
                     ErrorStatus.UNABLE_TO_SEND_EMAIL.getMessage(),
-                    null
+                    HttpStatus.SERVICE_UNAVAILABLE
             );
         } catch (Exception e) {
-            // 예상치 못한 서버 오류
             return ApiResponse.onFailure(
                     ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
                     "서버 오류가 발생했습니다.",
-                    null
+                    HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
     }
+
 
     
     // 인증번호 확인
@@ -163,6 +161,75 @@ public class UsersController {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // 이메일로 가입된 아이디 전송
+    @RequestMapping(value = "/api/email/findId", method = RequestMethod.POST)
+    public ApiResponse<HttpStatus> seenIdByEmail(@RequestParam("email") String email) {
+        try {
+            emailService.sendIdToEmail(email);
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VERIFYCATION_EMAIL);
+        } catch (UsersServiceExceptionHandler e) {
+            return ApiResponse.onFailure(
+                e.getErrorReason().getCode(),
+                e.getErrorReason().getMessage(),
+                HttpStatus.SERVICE_UNAVAILABLE
+            );
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+
+    // 이메일 아이디 일치 검증
+    @RequestMapping(value = "/api/email/validateUser" , method = RequestMethod.GET)
+    public ApiResponse<HttpStatus> validateUserByEmailAndId(@RequestParam("email") String email, @RequestParam("userId")String userId) {
+        try {
+            boolean isValid = usersRepository.existsByUserIdAndEmail(userId, email);
+            if (!isValid) {
+                return ApiResponse.onFailure(
+                    ErrorStatus.USER_EMAIL_ID_MISMATCH.getCode(),
+                    "아이디와 이메일이 일치하지 않습니다.",
+                    HttpStatus.NOT_FOUND
+                );
+            }
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VALIDATION_SUCCESS);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                "서버 오류가 발생했습니다.",
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    // 비밀번호찾기 인증 번호 전송
+    @RequestMapping(value="/api/email/findPwd", method=RequestMethod.POST)
+    public ApiResponse<HttpStatus> sendMail(@RequestParam("email") String email) {
+        try {
+            emailService.sendCodeToEmail(email);
+            System.out.println("이메일 인증번호 발송 성공");
+
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VERIFYCATION_EMAIL);
+        } catch (UsersServiceExceptionHandler e) {
+            return ApiResponse.onFailure(
+                    ErrorStatus.UNABLE_TO_SEND_EMAIL.getCode(),
+                    ErrorStatus.UNABLE_TO_SEND_EMAIL.getMessage(),
+                    HttpStatus.SERVICE_UNAVAILABLE
+            );
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                    ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                    "서버 오류가 발생했습니다.",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+
     
     @RequestMapping(value="/api/admin/userList", method=RequestMethod.GET)
     public ApiResponse<Page<Users>>getUsersList(
@@ -187,6 +254,7 @@ public class UsersController {
     // 회원가입 처리
     @RequestMapping(value="/api/signUp", method=RequestMethod.POST)
     public ResponseEntity<ApiResponse> signUp(@RequestBody @Valid UsersRequestDTO.UsersJoinDTO usersJoinDTO) {
+
         try {
             // 회원가입 서비스 호출
             usersService.signUp(usersJoinDTO);
@@ -239,6 +307,29 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
                             "서버 오류가 발생했습니다.", null));
+        }
+    }
+    // 비밀번호 재설정
+    @RequestMapping(value = "/api/signUp/resetPwd", method = RequestMethod.POST)
+    public ApiResponse<HttpStatus> resetPassword(@RequestBody Map<String, String> requestBody) {
+        try {
+            String userId = requestBody.get("userId");
+            String newPassword = requestBody.get("newPassword");
+
+            usersService.resetPassword(userId, newPassword);
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_PASSWORD_RESET_SUCCESS);
+        } catch (UsersServiceExceptionHandler e) {
+            return ApiResponse.onFailure(
+                    e.getErrorReason().getCode(),
+                    e.getErrorReason().getMessage(),
+                    HttpStatus.BAD_REQUEST
+            );
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                    ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                    "서버 오류가 발생했습니다.",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 

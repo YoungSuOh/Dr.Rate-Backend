@@ -52,14 +52,35 @@ public class EmailServiceImpl implements EmailService {
             throw new UsersServiceExceptionHandler(ErrorStatus.UNABLE_TO_SEND_EMAIL);
         }
     }
+    // 이메일로 가입된 아이디 전송
+    @Override
+    public void sendIdToEmail(String toEmail) {
+        try {
+            // 이메일 존재 여부 확인
+            String userId = usersRepository.findByEmail(toEmail)
+                .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_EMAIL_NOT_FOUND))
+                .getUserId(); // 이메일로 찾은 아이디
+
+            String title = "Dr.Rate 가입된 아이디 정보";
+            String text = "회원님의 아이디는: " + userId + " 입니다.";
+
+            // 이메일 전송
+            sendEmail(toEmail, title, text);
+
+            logger.info("아이디 전송 완료: {}", toEmail);
+        } catch (UsersServiceExceptionHandler e) {
+            logger.warn("아이디 전송 실패: {}", toEmail, e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("아이디 전송 중 오류 발생: {}", toEmail, e);
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     // 이메일 발송 및 Redis 저장
     @Override
     public void sendCodeToEmail(String toEmail) {
         try {
-            // 중복 이메일 체크
-            checkDuplicatedEmail(toEmail);
-
             String title = "Dr.Rate 이메일 인증 번호";
             String authCode = createCode();
 
@@ -94,6 +115,7 @@ public class EmailServiceImpl implements EmailService {
         }
         return isVerified;
     }
+
 
     // 중복 이메일 체크
     private void checkDuplicatedEmail(String email) {
