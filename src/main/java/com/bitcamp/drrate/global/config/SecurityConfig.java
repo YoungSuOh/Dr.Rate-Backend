@@ -132,7 +132,7 @@ public class SecurityConfig {
                         "/api/emailinquire/**",
                         "/api/inquiries"
                 ).authenticated()
-                .requestMatchers("/api/admin/**", "/api/products/insertDep").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
 

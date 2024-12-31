@@ -83,11 +83,6 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:mysql'
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> 8728448da8bcd849bb147f27af4b7c30d8e42dba
     //kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }

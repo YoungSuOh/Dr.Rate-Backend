@@ -49,7 +49,7 @@ public class EmailinquireServiceImpl implements EmailinquireService {
                 emailSender.send(message); // 문의 이메일 전송
 
                 String fileUrl = s3Service.uploadFile(fileUuid); // 파일을 S3에 업로드
-                emailInquire.setAnswerFile(fileUrl);
+                emailInquire.setFileUuid(fileUrl);
                 
                 emailinquireRepository.save(emailInquire);
             } else {
