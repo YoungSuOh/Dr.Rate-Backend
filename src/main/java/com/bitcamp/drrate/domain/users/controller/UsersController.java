@@ -263,9 +263,9 @@ public class UsersController {
             Users users = usersRepository.findUsersById(userDetails.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userDetails.getId()));
 
-            // users.setEmail(requestDTO.getEmail());
-            // users.setUsername(requestDTO.getUsername());
-            // users.setPassword(requestDTO.getPassword());
+            users.setEmail(requestDTO.getEmail());
+            users.setUsername(requestDTO.getUsername());
+            users.setPassword(requestDTO.getPassword());
 
             usersService.myInfoEdit(users);
             
