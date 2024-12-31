@@ -63,23 +63,23 @@ public class KakaoServiceImpl implements KakaoService {
     public String login(String code) {
         try {
             KakaoTokenResponseDTO kakaoTokenResponseDTO = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("https")
-                        .path("/oauth/token")
-                        .queryParam("grant_type", "authorization_code")
-                        .queryParam("client_id", client_id)
-                        .queryParam("code",code)
-                        .build(true))
-                .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
-                    return Mono.error(new UsersServiceExceptionHandler(ErrorStatus.SOCIAL_PARAMETERS_INVALID));
-                })
-                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
-                    return Mono.error(new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR));
-                })
-                .bodyToMono(KakaoTokenResponseDTO.class)
-                .block();
+                    .uri(uriBuilder -> uriBuilder
+                            .scheme("https")
+                            .path("/oauth/token")
+                            .queryParam("grant_type", "authorization_code")
+                            .queryParam("client_id", client_id)
+                            .queryParam("code",code)
+                            .build(true))
+                    .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
+                        return Mono.error(new UsersServiceExceptionHandler(ErrorStatus.SOCIAL_PARAMETERS_INVALID));
+                    })
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
+                        return Mono.error(new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR));
+                    })
+                    .bodyToMono(KakaoTokenResponseDTO.class)
+                    .block();
 
             if (kakaoTokenResponseDTO == null) {
                 throw new UsersServiceExceptionHandler(ErrorStatus.SESSION_ACCESS_PARSE_ERROR);
@@ -87,7 +87,7 @@ public class KakaoServiceImpl implements KakaoService {
             KakaoUserInfoResponseDTO userInfo = getUserInfo(kakaoTokenResponseDTO.getAccessToken());
 
             //소셜로그인으로 들어올 시 해당하는 소셜의 정보가 바뀔 수 있기 때문에 업데이트를 계속 해주어야한다.
-            String email = userInfo.getKakaoAccount().getEmail();
+            String email = userInfo.getKakao_account().getEmail();
 
             Optional<Users> optionalUsers = usersRepository.findByEmail(email);
             boolean isNewUser = optionalUsers.isEmpty(); // 신규 가입자 여부 판단
@@ -143,6 +143,7 @@ public class KakaoServiceImpl implements KakaoService {
         }
     }
 
+
     //사용자 정보 요청
     private KakaoUserInfoResponseDTO getUserInfo(String accessToken) throws IOException {
         try {
@@ -171,13 +172,17 @@ public class KakaoServiceImpl implements KakaoService {
     }
 
     private void setUserInfo(Users users, KakaoUserInfoResponseDTO userInfo) {
-        users.setEmail(userInfo.getKakaoAccount().getEmail());
-        users.setUsername(userInfo.getKakaoAccount().getName());
-        if(userInfo.getKakaoAccount().getName() == null){
-            users.setUsername(userInfo.getKakaoAccount().getProfile().getNickName());
+        users.setEmail(userInfo.getKakao_account().getEmail());
+        if(userInfo.getKakao_account().getName()!=null){
+            users.setUsername(userInfo.getKakao_account().getName());
+        } else if (userInfo.getKakao_account().getProfile().getNickName() != null) {
+            users.setUsername(userInfo.getKakao_account().getProfile().getNickName());
+        }else{
+            users.setUsername("닉네임");
         }
-        if(users.getRole().equals("ADMIN")){
-        //if(users.getRole() == Role.ADMIN)
+
+        if(users.getRole() == Role.ADMIN){
+            //if(users.getRole() == Role.ADMIN)
             users.setRole(Role.ADMIN);
         }else{
             users.setRole(Role.USER);
