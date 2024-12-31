@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FavoriteListDTO {
+  private Long prdId;             // 상품 ID
   private Long favoriteId;        // 즐겨찾기 ID
   private String bankLogo;        // 은행 로고
   private String bankName;        // 은행 이름

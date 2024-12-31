@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
@@ -13,5 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ChatRoomImage {
     @Id
     private String id;
+    @Field("roomId")
+    private String roomId;
+    @Field("imageUrl")
     private String imageUrl;
 }
