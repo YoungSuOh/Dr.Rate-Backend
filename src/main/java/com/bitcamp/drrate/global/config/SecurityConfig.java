@@ -107,6 +107,7 @@ public class SecurityConfig {
         // === 경로별 접근 권한 ===
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                        "/api/healthCheck",
                         "/api/signIn/**",
                         "/api/signUp/**",
                         "/ws/**",
@@ -131,7 +132,7 @@ public class SecurityConfig {
                         "/api/emailinquire/**",
                         "/api/inquiries"
                 ).authenticated()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**", "/api/products/insertDep").hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
 

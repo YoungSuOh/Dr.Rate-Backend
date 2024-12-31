@@ -44,4 +44,6 @@ public class Emailinquire extends BaseEntity {
     @Column(name = "answer_content", columnDefinition = "TEXT")
     private String answerContent; // 이메일 문의 답변 내용
 
+    @Column(name = "answer_file")
+    private String answerFile;
 }
