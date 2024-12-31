@@ -3,6 +3,7 @@ package com.bitcamp.drrate.domain.users.controller;
 import java.io.IOException;
 import java.util.Map;
 
+import com.bitcamp.drrate.domain.inquire.service.chatroom.ChatRoomService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,7 @@ public class UsersController {
     private final UsersService usersService;
     private final EmailService emailService;
     private final UsersRepository usersRepository;
+    private final ChatRoomService chatRoomService;
 
     //소셜 로그인 인가코드 요청
     @RequestMapping(value="/api/signIn/{provider}", method=RequestMethod.GET)
@@ -314,6 +316,7 @@ public class UsersController {
             String password = request.get("password");
 
             boolean match = usersService.deleteAccount(userDetails.getId(), password);
+            chatRoomService.deleteChatRoomById(String.valueOf(userDetails.getId()));
             if(!match) {
                 return ApiResponse.onFailure(ErrorStatus.USER_DELETION_FAILED.getCode(), ErrorStatus.USER_DELETION_FAILED.getMessage(), null);
             }
