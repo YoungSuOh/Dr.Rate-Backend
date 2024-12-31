@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -248,8 +249,7 @@ public class GoogleServiceImpl implements GoogleService {
         String today = LocalDate.now().toString();
         String redisKey = "daily_new_members:" + today;
 
-        // Redis 값 증가
-        redisTemplate.opsForValue().increment(redisKey);
+        redisTemplate.opsForSet().add(redisKey, "new_member_" + UUID.randomUUID()); // 더미 값 추가
         redisTemplate.expire(redisKey, Duration.ofDays(1));
     }
 }
