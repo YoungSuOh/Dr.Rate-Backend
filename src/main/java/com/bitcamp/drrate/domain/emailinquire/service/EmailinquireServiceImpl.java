@@ -1,7 +1,5 @@
 package com.bitcamp.drrate.domain.emailinquire.service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -36,6 +34,7 @@ public class EmailinquireServiceImpl implements EmailinquireService {
             // MIME 형식 이메일 생성
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
             // 이메일 수신자, 제목, 본문 설정
             helper.setTo("anfto023@gmail.com"); // 수신자 이메일
             helper.setSubject(emailInquire.getInquireTitle()); // 제목
@@ -50,15 +49,13 @@ public class EmailinquireServiceImpl implements EmailinquireService {
                 emailSender.send(message); // 문의 이메일 전송
 
                 String fileUrl = s3Service.uploadFile(fileUuid); // 파일을 S3에 업로드
-                emailInquire.setAnswerFile(fileUrl);
+                emailInquire.setFileUuid(fileUrl);
                 
                 emailinquireRepository.save(emailInquire);
             } else {
                 emailSender.send(message); // 문의 이메일 전송
                 emailinquireRepository.save(emailInquire);
             }
-            
-            
         } catch(RuntimeException e) {
             throw new UsersServiceExceptionHandler(ErrorStatus.UNABLE_TO_SEND_EMAIL);
         } catch(Exception e) {

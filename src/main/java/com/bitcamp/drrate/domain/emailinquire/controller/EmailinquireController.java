@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,7 +29,7 @@ import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/emailinquire")
+@RequestMapping({"/api/emailinquire", "/api/inquiries"})
 @RequiredArgsConstructor
 public class EmailinquireController {
     private final EmailinquireService emailinquireService;
@@ -57,11 +58,10 @@ public class EmailinquireController {
         } catch(Exception e) {
             return ApiResponse.onFailure(ErrorStatus.INQUIRE_LIST_GET_FAILED.getCode(), ErrorStatus.INQUIRE_LIST_GET_FAILED.getMessage(), null);
         }
-        
     }
 
     // 이메일 문의 내역 조회 (사용자 ID별)
-    @RequestMapping(value="/myinquired", method=RequestMethod.GET)
+    @GetMapping
     public ResponseEntity<List<Emailinquire>> getEmailInquiresByUserId(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long id = userDetails.getId(); // 사용자 users table의 pk값
 
