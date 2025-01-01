@@ -548,7 +548,9 @@ public class ProductsServiceImpl implements ProductsService {
                     if (age < 0) {
                         throw new ProductServiceExceptionHandler(ErrorStatus.PRODUCT_BAD_REQUEST);
                     } else {
-                        builder.and(qProducts.joinMemberAge.goe(age));
+                        builder.and(
+                                qProducts.joinMemberAge.goe(age).or(qProducts.joinMemberAge.isNull())
+                        );
                     }
                 }
 
