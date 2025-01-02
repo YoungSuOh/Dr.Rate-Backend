@@ -36,20 +36,22 @@ public class VisitorServiceImpl implements VisitorService {
                 Long userId = usersService.getUserId(userDetails); // userId 검증 수행
                 redisKey = "daily_visitors:member:" + today;
 
-                // 중복 방문 확인
-                Boolean isMemberVisited = redisTemplate.opsForSet().isMember(redisKey, String.valueOf(userId));
-                if (Boolean.FALSE.equals(isMemberVisited)) {
-                    redisTemplate.opsForSet().add(redisKey, String.valueOf(userId));
+                String redisKey2 = "daily_visitors:guest:" + today;
+
+                Boolean isGuestLoggedIn = redisTemplate.opsForSet().isMember(redisKey2, guestId);
+
+                if (Boolean.FALSE.equals(isGuestLoggedIn)) {
+                    Boolean isMemberVisited = redisTemplate.opsForSet().isMember(redisKey, String.valueOf(userId));
+                    if (Boolean.FALSE.equals(isMemberVisited)) {
+                        redisTemplate.opsForSet().add(redisKey, String.valueOf(userId));
+                    }
                 }
                 redisTemplate.expire(redisKey, Duration.ofDays(1));
 
             } else if (guestId != null && !guestId.isEmpty()) { // 비회원 방문자 처리
-                System.out.println("guestId: " + guestId);
                 redisKey = "daily_visitors:guest:" + today;
 
-                // 중복 확인
-                String memberKey = "daily_visitors:member:" + today;
-                Boolean isGuestLoggedIn = redisTemplate.opsForSet().isMember(memberKey, guestId);
+                Boolean isGuestLoggedIn = redisTemplate.opsForSet().isMember(redisKey, guestId);
                 if (Boolean.FALSE.equals(isGuestLoggedIn)) {
                     redisTemplate.opsForSet().add(redisKey, guestId);
                 }
