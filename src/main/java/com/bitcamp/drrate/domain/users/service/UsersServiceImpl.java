@@ -227,7 +227,6 @@ public class UsersServiceImpl implements UsersService {
             Users users = usersRepository.findUsersById(id)
             .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
             String userPwd = users.getPassword();
-
             if ((password != null && bCryptPasswordEncoder.matches(password, userPwd)) || (password == null && userPwd == null && users.getSocial() != null)) {
                 usersRepository.deleteById(id);
                 refreshTokenService.deleteTokens(String.valueOf(id));
