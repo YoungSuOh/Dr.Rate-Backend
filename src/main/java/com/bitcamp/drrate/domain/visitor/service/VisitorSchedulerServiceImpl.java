@@ -23,12 +23,12 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정 실행
     @Override
     public void transferDailyVisitorsToDB() {
-        String today = LocalDate.now().toString();
+        String yesterday = LocalDate.now().minusDays(1).toString();
 
         // Redis 키 설정
-        String memberKey = "daily_visitors:member:" + today;
-        String guestKey = "daily_visitors:guest:" + today;
-        String newMembersKey = "daily_new_members:" + today;
+        String memberKey = "daily_visitors:member:" + yesterday;
+        String guestKey = "daily_visitors:guest:" + yesterday;
+        String newMembersKey = "daily_new_members:" + yesterday;
 
         try {
             // Redis에서 방문자 수 가져오기

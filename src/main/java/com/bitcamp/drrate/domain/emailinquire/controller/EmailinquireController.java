@@ -11,11 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bitcamp.drrate.domain.emailinquire.entity.Emailinquire;
@@ -28,13 +24,13 @@ import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/emailinquire")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class EmailinquireController {
     private final EmailinquireService emailinquireService;
     
     // 이메일 문의 저장
-    @RequestMapping(value="/save", method=RequestMethod.POST, consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value="/emailinquire/save", method=RequestMethod.POST, consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> saveEmailInquire(@RequestParam("inquireCtg") String inquireCtg,
                                                 @RequestParam("inquireUser") String inquireUser,
                                                 @RequestParam("inquireEmail") String inquireEmail,
@@ -57,11 +53,10 @@ public class EmailinquireController {
         } catch(Exception e) {
             return ApiResponse.onFailure(ErrorStatus.INQUIRE_LIST_GET_FAILED.getCode(), ErrorStatus.INQUIRE_LIST_GET_FAILED.getMessage(), null);
         }
-        
     }
 
     // 이메일 문의 내역 조회 (사용자 ID별)
-    @RequestMapping(value="/myinquired", method=RequestMethod.GET)
+    @GetMapping("/inquiries")
     public ResponseEntity<List<Emailinquire>> getEmailInquiresByUserId(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long id = userDetails.getId(); // 사용자 users table의 pk값
 
@@ -70,14 +65,15 @@ public class EmailinquireController {
     }
 
     // 이메일 문의 삭제
-    @RequestMapping(value="/delete", method=RequestMethod.GET)
-    public ResponseEntity<Void> deleteEmailInquire(@PathVariable Long id) {
+    @DeleteMapping(value="/emailinquire/delete/{id}")
+    public ResponseEntity<Void> deleteEmailInquire(@PathVariable("id") Long id) {
+        System.out.println("id : "+id);
         emailinquireService.deleteEmailInquire(id);
         return ResponseEntity.noContent().build();
     }
 
     //관리자 이메일 문의 내역 리스트 페이지
-    @RequestMapping(value="/emailInquireList", method=RequestMethod.GET)
+    @RequestMapping(value="/emailinquire/emailInquireList", method=RequestMethod.GET)
     public ApiResponse<?> getEmailInquireList(@RequestParam(name="page", defaultValue = "0") int page,
                                                 @RequestParam(name="size", defaultValue = "5") int size) {
         try {
@@ -115,7 +111,7 @@ public class EmailinquireController {
     }
 
     //관리자 이메일 답변 전송
-    @RequestMapping(value="/answer", method=RequestMethod.POST)
+    @RequestMapping(value="/emailinquire/answer", method=RequestMethod.POST)
     public ApiResponse<?> answerEmail(@RequestParam("id") Long id,
                                         @RequestParam("answerTitle") String answerTitle,
                                         @RequestParam("answerContent") String answerContent,
