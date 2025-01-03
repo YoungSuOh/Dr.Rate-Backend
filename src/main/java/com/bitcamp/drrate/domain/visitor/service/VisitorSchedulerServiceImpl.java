@@ -20,7 +20,7 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
     private final RedisTemplate<String, String> redisTemplate;
     private final DailyVisitorRepository dailyVisitorRepository;
 
-    @Scheduled(cron = "0 0 0 * * *") // 매일 자정 실행
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") // 매일 자정 실행
     @Override
     public void transferDailyVisitorsToDB() {
         String yesterday = LocalDate.now().minusDays(1).toString();
@@ -39,6 +39,11 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
 
             // 2) 신규 가입자 Set 사이즈
             Long newMemberCount = redisTemplate.opsForSet().size(newMembersKey);
+
+            System.out.println("memberCount: " + memberCount);
+            System.out.println("guestCount: " + guestCount);
+            System.out.println("totalCount: " + totalCount);
+            System.out.println("newMemberCount: " + newMemberCount);
 
 
 
