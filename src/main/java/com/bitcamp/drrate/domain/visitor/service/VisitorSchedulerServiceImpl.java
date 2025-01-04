@@ -49,7 +49,7 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
 
             // MySQL에 데이터 저장
             dailyVisitorRepository.save(new DailyVisitor(
-                    LocalDate.now(),
+                    LocalDate.now().minusDays(1),
                     (memberCount != null) ? memberCount.intValue() : 0,
                     (guestCount != null) ? guestCount.intValue() : 0,
                     totalCount.intValue(),
