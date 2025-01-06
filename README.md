@@ -9,7 +9,8 @@
 
 ## ERD
 
-![image](https://github.com/user-attachments/assets/33e56fbe-d5e5-4a79-98ce-d00dc125d539)
+![Dr Rate](https://github.com/user-attachments/assets/6b501838-c561-4ae0-8b79-231a8a25bfc6)
+
 
 ## 역할 분담
 - **김진환 & 박상욱**
