@@ -69,7 +69,7 @@ public class KafkaProducer {
             kafkaTemplate.send(chatRoom.getTopicName(), jsonMessage);
 
             chatRoomImageRepository.save(ChatRoomImage.builder()
-                    .id(chatRoom.getId())
+                    .roomId(chatRoom.getId())
                     .imageUrl(imageUrl)
                     .build());
         } catch (JsonProcessingException e) {

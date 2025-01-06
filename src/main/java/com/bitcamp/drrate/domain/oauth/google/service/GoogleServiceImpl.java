@@ -1,9 +1,11 @@
 package com.bitcamp.drrate.domain.oauth.google.service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -117,9 +119,16 @@ public class GoogleServiceImpl implements GoogleService {
 
             setUserInfo(users, googleInfo);
             //DB에서 사용자의 pk값
-            Long id = users.getId();
+            users.setSocial("Google");
             //신규 가입자는 DB Insert, 기존 가입자의 경우 정보가 바뀌면 Update 아니면 지나침
             usersRepository.save(users);
+            
+            if(users.getId() == null) {
+                Optional<Users> newUsers = usersRepository.findByEmail(email);
+                users = newUsers.orElseGet(() -> new Users());
+            }
+            Long id = users.getId();
+            
 
             // 신규 가입자일 경우 Redis 카운트 증가
             if (isNewUser) {
@@ -229,11 +238,10 @@ public class GoogleServiceImpl implements GoogleService {
     private void setUserInfo(Users users, GoogleUserInfo googleInfo) {
         users.setEmail(googleInfo.getEmail());
         users.setUsername(googleInfo.getName());
-        System.out.println(users.getRole());
-        if (Role.ADMIN.equals(users.getRole())) {
-            users.setRole(Role.ADMIN);
-        } else {
+        if (!Role.ADMIN.equals(users.getRole()) || users.getRole() == null) {
             users.setRole(Role.USER);
+        } else {
+            users.setRole(Role.ADMIN);
         }
     }
 
@@ -241,7 +249,7 @@ public class GoogleServiceImpl implements GoogleService {
         String today = LocalDate.now().toString();
         String redisKey = "daily_new_members:" + today;
 
-        // Redis 값 증가
-        redisTemplate.opsForValue().increment(redisKey);
+        redisTemplate.opsForSet().add(redisKey, "new_member_" + UUID.randomUUID()); // 더미 값 추가
+        redisTemplate.expire(redisKey, Duration.ofDays(1));
     }
 }

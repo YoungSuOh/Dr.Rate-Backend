@@ -1,16 +1,19 @@
 package com.bitcamp.drrate.domain.products.controller;
 
+import com.bitcamp.drrate.domain.products.dto.response.ProductResponseDTO;
 import com.bitcamp.drrate.domain.products.service.ProductsService;
+import com.bitcamp.drrate.global.ApiResponse;
+import com.bitcamp.drrate.global.code.resultCode.ErrorStatus;
+import com.bitcamp.drrate.global.code.resultCode.SuccessStatus;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 import com.bitcamp.drrate.domain.products.entity.Products;
 
@@ -33,18 +36,49 @@ public class ProductsController {
         return map;
     }
 
+    @GetMapping(value = "/guest/getProduct")
+    public ApiResponse<Page<ProductResponseDTO.ProductListDTO>> getGuestProduct(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "category", required = true) String category,
+            @RequestParam(value = "banks", required = false)  List<String> banks, // 은행
+            @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
+    ) {
+        try{
 
+            Page<ProductResponseDTO.ProductListDTO>result = productsService.getGuestProduct(page, size, category, banks, sort);
+            return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
+        }catch (Exception e){
+            return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
+        }
+    }
 
-    
-    
-    
-    //241211 상품전체조회 - 오혜진
-    @GetMapping(value = "getAllProducts")
-    @ResponseBody
+    @GetMapping(value = "/getProduct")
+    public ApiResponse<Page<ProductResponseDTO.ProductListDTO>> getProducts(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "category", required = true) String category,
+            @RequestParam(value = "banks", required = false)  List<String> banks, // 은행
+            @RequestParam(value = "age", required = false) Integer age,  // 나이
+            @RequestParam(value = "period", required = false) Integer period, // 기간
+            @RequestParam(value = "rate", required = false) String rate,  // 이자 방식
+            @RequestParam(value = "join", required = false) String join,  // 가입 방식
+            @RequestParam(value="sort", required = false, defaultValue = "spclRate") String sort
+    ) {
+        try{
+            Page<ProductResponseDTO.ProductListDTO>result = productsService.getProduct(page, size, category, banks, age, period, rate, join, sort);
+            return ApiResponse.onSuccess(result, SuccessStatus.PRODUCT_GET_SUCCESS);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResponse.onFailure(ErrorStatus.PRODUCT_NOT_FOUND.getCode(), ErrorStatus.PRODUCT_NOT_FOUND.getMessage(),null );
+        }
+    }
+
+    @GetMapping(value="getAllProducts")
     public List<Map<String, Object>> getAllProducts() {
         return productsService.getAllProducts();
     }
-    
+
     //241211 카테고리 i,d로 조회 - 오혜진
     @GetMapping(value = "getProductsByCtg/{ctg}")
     @ResponseBody

@@ -1,12 +1,15 @@
 package com.bitcamp.drrate.domain.users.service;
 
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class UsersServiceImpl implements UsersService {
     private final RefreshTokenService refreshTokenService;
     private final JWTUtil jwtUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     @Transactional
@@ -56,6 +60,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public UsersResponseDTO.ChatRoomUserInfo getChatRoomUserInfo(Long userId) {
+        System.out.println("userId = " + userId);
         Users users = usersRepository.findUsersById(userId)
                 .orElseThrow(() -> new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND));
         return UsersResponseDTO.ChatRoomUserInfo.builder()
@@ -98,7 +103,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public Users handleLoginOrSignup(KakaoUserInfoResponseDTO userInfo) {
         //이메일로 기존 사용자 조회
-        Optional<Users> existUsers = usersRepository.findByEmail(userInfo.getKakaoAccount().getEmail());
+        Optional<Users> existUsers = usersRepository.findByEmail(userInfo.getKakao_account().getEmail());
 
         if (existUsers.isPresent()) {
             //기존 사용자 로그인 처리
@@ -106,8 +111,8 @@ public class UsersServiceImpl implements UsersService {
         }
         // 신규 사용자 회원가입 처리
         Users newUsers = Users.builder()
-                .email(userInfo.getKakaoAccount().getEmail())
-                .username(userInfo.getKakaoAccount().getProfile().getNickName())
+                .email(userInfo.getKakao_account().getEmail())
+                .username(userInfo.getKakao_account().getProfile().getNickName())
                 .build();
 
         return usersRepository.save(newUsers);
@@ -132,19 +137,13 @@ public class UsersServiceImpl implements UsersService {
                 .password(encodedPassword)
                 .role(Role.USER)
                 .build();
+        incrementNewUserCount();
 
+        // 엔티티 매핑 상태 확인
+        System.out.println("Mapped User Entity: " + newUser);
         usersRepository.save(newUser);
     }
 
-
-    @Override // 소셜로그인으로 로그인 시 Header에 AccessToken 전달
-    public HttpHeaders tokenSetting(String access) {
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.set("Authorization", "Bearer " + access);
-        headers.add("Access-Control-Expose-Headers", "Authorization");
-        return headers;
-    }
 
     @Override
     public Users getMyInfo(Long id) {
@@ -183,5 +182,71 @@ public class UsersServiceImpl implements UsersService {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    @Override
+    public void myInfoEdit(Users users) {
+        try{
+            String encodedPassword = bCryptPasswordEncoder.encode(users.getPassword());
+            users.setPassword(encodedPassword);
+            
+            usersRepository.save(users);
+
+        } catch(UsersServiceExceptionHandler e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void logout(CustomUserDetails userDetails) {
+        try {
+            String id = String.valueOf(userDetails.getId());
+
+            refreshTokenService.deleteTokens(id);
+            
+        } catch(UsersServiceExceptionHandler ex) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.JSON_PROCESSING_ERROR);
+        } catch(Exception e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void resetPassword(String userId, String newPassword) {
+        Users users = usersRepository.findByUserId(userId);
+        if (users == null) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_ID_CANNOT_FOUND);
+        }
+        users.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        usersRepository.save(users);
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteAccount(Long id, String password) {
+        try {
+            Users users = usersRepository.findUsersById(id)
+            .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + id));
+            String userPwd = users.getPassword();
+            if ((password != null && bCryptPasswordEncoder.matches(password, userPwd)) || (password == null && userPwd == null && users.getSocial() != null)) {
+                usersRepository.deleteById(id);
+                refreshTokenService.deleteTokens(String.valueOf(id));
+                return true;
+            } else {
+                System.out.println("조건 불충족: 비밀번호 불일치 또는 소셜 계정이 아님");
+                return false;
+            }
+        } catch(UsersServiceExceptionHandler ex) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.USER_AUTHENTICATION_FAILED);
+        } catch(Exception e) {
+            throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void incrementNewUserCount() {
+        String today = LocalDate.now().toString();
+        String redisKey = "daily_new_members:" + today;
+
+        redisTemplate.opsForSet().add(redisKey, "new_member_" + UUID.randomUUID()); // 더미 값 추가
+        redisTemplate.expire(redisKey, Duration.ofDays(1));
+    }
 }

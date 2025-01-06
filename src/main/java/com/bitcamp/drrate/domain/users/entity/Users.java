@@ -49,4 +49,8 @@ public class Users extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Column(nullable = true, name = "social")
+    private String social;
+
 }

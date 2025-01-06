@@ -3,11 +3,9 @@ package com.bitcamp.drrate.domain.products.dto.response;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -71,5 +69,18 @@ public class ProductResponseDTO {
         private String description;
         private double rate;
         private String conditionType;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProductListDTO {
+        private Long id;
+        private String bankLogo;
+        private String bankName;
+        private String prdName;
+        private BigDecimal basicRate;
+        private BigDecimal spclRate;
     }
 }

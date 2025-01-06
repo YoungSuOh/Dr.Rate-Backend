@@ -3,6 +3,7 @@ package com.bitcamp.drrate.domain.users.controller;
 import java.io.IOException;
 import java.util.Map;
 
+import com.bitcamp.drrate.domain.inquire.service.chatroom.ChatRoomService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,7 @@ public class UsersController {
     private final UsersService usersService;
     private final EmailService emailService;
     private final UsersRepository usersRepository;
+    private final ChatRoomService chatRoomService;
 
     //소셜 로그인 인가코드 요청
     @RequestMapping(value="/api/signIn/{provider}", method=RequestMethod.GET)
@@ -80,9 +82,6 @@ public class UsersController {
             String redirectUrl = "https://dr-rate.store/oauthHandler#access=" + access;
     
             // 성공 시 처리
-            // 헤더 세팅
-            HttpHeaders headers = usersService.tokenSetting(access);
-
             return ResponseEntity
                     .status(HttpStatus.FOUND)
                     //.headers(headers)
@@ -110,40 +109,38 @@ public class UsersController {
                     ));
         }
     }
-    //이메일 인증 번호 전송
+    // 이메일 인증 번호 전송
     @RequestMapping(value="/api/email/verify", method=RequestMethod.POST)
-    public ApiResponse<Void> sendMessage(@RequestParam("email") String email) {
+    public ApiResponse<HttpStatus> sendMessage(@RequestParam("email") String email) {
         try {
             // 이메일 중복 체크
             if (usersRepository.existsByEmail(email)) {
                 return ApiResponse.onFailure(
-                        ErrorStatus.USER_EMAIL_DUPLICATE.getCode(), // 오류 코드
-                        ErrorStatus.USER_EMAIL_DUPLICATE.getMessage(), // 오류 메시지
-                        null // 데이터는 없음
+                        ErrorStatus.USER_EMAIL_DUPLICATE.getCode(),
+                        ErrorStatus.USER_EMAIL_DUPLICATE.getMessage(),
+                        HttpStatus.CONFLICT // HTTP 상태
                 );
             }
-
             // 인증 코드 전송 로직
             emailService.sendCodeToEmail(email);
             System.out.println("이메일 인증번호 발송 성공");
 
-            return ApiResponse.onSuccess(null, SuccessStatus.USER_VERIFYCATION_EMAIL); // 성공 시
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VERIFYCATION_EMAIL);
         } catch (UsersServiceExceptionHandler e) {
-            // 메일 전송 실패 시
             return ApiResponse.onFailure(
                     ErrorStatus.UNABLE_TO_SEND_EMAIL.getCode(),
                     ErrorStatus.UNABLE_TO_SEND_EMAIL.getMessage(),
-                    null
+                    HttpStatus.SERVICE_UNAVAILABLE
             );
         } catch (Exception e) {
-            // 예상치 못한 서버 오류
             return ApiResponse.onFailure(
                     ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
                     "서버 오류가 발생했습니다.",
-                    null
+                    HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
     }
+
 
     
     // 인증번호 확인
@@ -164,6 +161,75 @@ public class UsersController {
             throw new UsersServiceExceptionHandler(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // 이메일로 가입된 아이디 전송
+    @RequestMapping(value = "/api/email/findId", method = RequestMethod.POST)
+    public ApiResponse<HttpStatus> seenIdByEmail(@RequestParam("email") String email) {
+        try {
+            emailService.sendIdToEmail(email);
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VERIFYCATION_EMAIL);
+        } catch (UsersServiceExceptionHandler e) {
+            return ApiResponse.onFailure(
+                e.getErrorReason().getCode(),
+                e.getErrorReason().getMessage(),
+                HttpStatus.SERVICE_UNAVAILABLE
+            );
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+
+    // 이메일 아이디 일치 검증
+    @RequestMapping(value = "/api/email/validateUser" , method = RequestMethod.GET)
+    public ApiResponse<HttpStatus> validateUserByEmailAndId(@RequestParam("email") String email, @RequestParam("userId")String userId) {
+        try {
+            boolean isValid = usersRepository.existsByUserIdAndEmail(userId, email);
+            if (!isValid) {
+                return ApiResponse.onFailure(
+                    ErrorStatus.USER_EMAIL_ID_MISMATCH.getCode(),
+                    "아이디와 이메일이 일치하지 않습니다.",
+                    HttpStatus.NOT_FOUND
+                );
+            }
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VALIDATION_SUCCESS);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                "서버 오류가 발생했습니다.",
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    // 비밀번호찾기 인증 번호 전송
+    @RequestMapping(value="/api/email/findPwd", method=RequestMethod.POST)
+    public ApiResponse<HttpStatus> sendMail(@RequestParam("email") String email) {
+        try {
+            emailService.sendCodeToEmail(email);
+            System.out.println("이메일 인증번호 발송 성공");
+
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_VERIFYCATION_EMAIL);
+        } catch (UsersServiceExceptionHandler e) {
+            return ApiResponse.onFailure(
+                    ErrorStatus.UNABLE_TO_SEND_EMAIL.getCode(),
+                    ErrorStatus.UNABLE_TO_SEND_EMAIL.getMessage(),
+                    HttpStatus.SERVICE_UNAVAILABLE
+            );
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                    ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                    "서버 오류가 발생했습니다.",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+
     
     @RequestMapping(value="/api/admin/userList", method=RequestMethod.GET)
     public ApiResponse<Page<Users>>getUsersList(
@@ -188,6 +254,7 @@ public class UsersController {
     // 회원가입 처리
     @RequestMapping(value="/api/signUp", method=RequestMethod.POST)
     public ResponseEntity<ApiResponse> signUp(@RequestBody @Valid UsersRequestDTO.UsersJoinDTO usersJoinDTO) {
+
         try {
             // 회원가입 서비스 호출
             usersService.signUp(usersJoinDTO);
@@ -242,6 +309,29 @@ public class UsersController {
                             "서버 오류가 발생했습니다.", null));
         }
     }
+    // 비밀번호 재설정
+    @RequestMapping(value = "/api/signUp/resetPwd", method = RequestMethod.POST)
+    public ApiResponse<HttpStatus> resetPassword(@RequestBody Map<String, String> requestBody) {
+        try {
+            String userId = requestBody.get("userId");
+            String newPassword = requestBody.get("newPassword");
+
+            usersService.resetPassword(userId, newPassword);
+            return ApiResponse.onSuccess(HttpStatus.OK, SuccessStatus.USER_PASSWORD_RESET_SUCCESS);
+        } catch (UsersServiceExceptionHandler e) {
+            return ApiResponse.onFailure(
+                    e.getErrorReason().getCode(),
+                    e.getErrorReason().getMessage(),
+                    HttpStatus.BAD_REQUEST
+            );
+        } catch (Exception e) {
+            return ApiResponse.onFailure(
+                    ErrorStatus.INTERNAL_SERVER_ERROR.getCode(),
+                    "서버 오류가 발생했습니다.",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 
     //내 정보 불러오기
     @RequestMapping(value="/api/myInfo", method=RequestMethod.POST)
@@ -254,13 +344,28 @@ public class UsersController {
         }
     }
 
-    // //내 정보 수정 페이지
-    // @RequestMapping(value="/api/myInfoEdit", method=RequestMethod.POST)
-    // public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO usersJoinDTO) {
-    //     try{
-    //         Users users = usersService.getMyInfo(userDetails.getId());
-    //     }
-    // }
+    //내 정보 수정 페이지
+    @RequestMapping(value="/api/myInfoEdit", method=RequestMethod.POST)
+    public ApiResponse<Users> getMyInfoEdit(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody @Valid UsersRequestDTO.UsersJoinDTO requestDTO) {
+        try {
+            boolean exists = usersRepository.existsBySocial(userDetails.getSocial());
+            if(!exists) {
+                return ApiResponse.onFailure(ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getCode(), ErrorStatus.SOCIAL_AUTHORIZATION_INVALID.getMessage(), null);
+            }
+            Users users = usersRepository.findUsersById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found for ID: " + userDetails.getId()));
+
+            users.setEmail(requestDTO.getEmail());
+            users.setUsername(requestDTO.getUsername());
+            users.setPassword(requestDTO.getPassword());
+
+            usersService.myInfoEdit(users);
+            
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_INFO_UPDATE_SUCCESS);
+        } catch(Exception e) {
+             return ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR.getCode(), ErrorStatus.INTERNAL_SERVER_ERROR.getMessage(), null);
+        }
+    }
 
     //토큰 재발급
     @RequestMapping(value="/api/reissue", method=RequestMethod.POST)
@@ -281,6 +386,35 @@ public class UsersController {
             return ApiResponse.onSuccess(token, SuccessStatus.USER_TOKEN_REISSUE_SUCCESS); // 토큰이 담겨왔으면 토큰 반환
         } catch (Exception e) {
             return ApiResponse.onFailure(ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getCode(), ErrorStatus.SESSION_ACCESS_PARSE_ERROR.getMessage(), null);
+        }
+    }
+
+
+    //로그아웃
+    @RequestMapping(value="/api/logout", method=RequestMethod.POST)
+    public ApiResponse<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            usersService.logout(userDetails);
+            return ApiResponse.onSuccess(null, SuccessStatus.USER_LOGOUT_SUCCESS);
+        } catch (Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
+        }
+    }
+
+    //회원탈퇴
+    @RequestMapping(value="/api/deleteAccount", method=RequestMethod.POST)
+    public ApiResponse<?> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> request) {
+        try{
+            String password = request.get("password");
+
+            boolean match = usersService.deleteAccount(userDetails.getId(), password);
+            chatRoomService.deleteChatRoomById(String.valueOf(userDetails.getId()));
+            if(!match) {
+                return ApiResponse.onFailure(ErrorStatus.USER_DELETION_FAILED.getCode(), ErrorStatus.USER_DELETION_FAILED.getMessage(), null);
+            }
+            return ApiResponse.onSuccess(match, SuccessStatus.USER_DELETE_SUCCESS);
+        } catch(Exception e) {
+            return ApiResponse.onFailure(ErrorStatus.AUTHORIZATION_INVALID.getCode(), ErrorStatus.AUTHORIZATION_INVALID.getMessage(), null);
         }
     }
 }

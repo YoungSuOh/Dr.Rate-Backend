@@ -20,37 +20,43 @@ public class VisitorSchedulerServiceImpl implements VisitorSchedulerService {
     private final RedisTemplate<String, String> redisTemplate;
     private final DailyVisitorRepository dailyVisitorRepository;
 
-    @Scheduled(cron = "0 0 0 * * *") // 매일 자정 실행
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") // 매일 자정 실행
     @Override
     public void transferDailyVisitorsToDB() {
-        String today = LocalDate.now().toString();
+        String yesterday = LocalDate.now().minusDays(1).toString();
 
         // Redis 키 설정
-        String memberKey = "daily_visitors:member:" + today;
-        String guestKey = "daily_visitors:guest:" + today;
-        String newMembersKey = "daily_new_members:" + today;
+        String memberKey = "daily_visitors:member:" + yesterday;
+        String guestKey = "daily_visitors:guest:" + yesterday;
+        String newMembersKey = "daily_new_members:" + yesterday;
 
         try {
             // Redis에서 방문자 수 가져오기
-            Long memberCount = getRedisSetSize(memberKey);
-            Long guestCount = getRedisSetSize(guestKey);
-            Long totalCount = memberCount + guestCount;
+            Long memberCount = redisTemplate.opsForSet().size(memberKey);
+            Long guestCount = redisTemplate.opsForSet().size(guestKey);
+            Long totalCount = (memberCount != null ? memberCount : 0L)
+                    + (guestCount != null ? guestCount : 0L);
 
-            // Redis에서 신규 가입자 수 가져오기
-            Integer newMembersCount = getRedisValueAsInteger(newMembersKey);
+            // 2) 신규 가입자 Set 사이즈
+            Long newMemberCount = redisTemplate.opsForSet().size(newMembersKey);
+
+            System.out.println("memberCount: " + memberCount);
+            System.out.println("guestCount: " + guestCount);
+            System.out.println("totalCount: " + totalCount);
+            System.out.println("newMemberCount: " + newMemberCount);
 
 
 
             // MySQL에 데이터 저장
             dailyVisitorRepository.save(new DailyVisitor(
-                    LocalDate.now(),
-                    memberCount != null ? memberCount.intValue() : 0,
-                    guestCount != null ? guestCount.intValue() : 0,
-                    totalCount != null ? totalCount.intValue() : 0,
-                    newMembersCount != null ? newMembersCount : 0
+                    LocalDate.now().minusDays(1),
+                    (memberCount != null) ? memberCount.intValue() : 0,
+                    (guestCount != null) ? guestCount.intValue() : 0,
+                    totalCount.intValue(),
+                    (newMemberCount != null) ? newMemberCount.intValue() : 0
             ));
 
-            // Redis 데이터 삭제
+            // Redis 데이터 삭제 (어제자 데이터는 더 이상 필요 없으니까)
             redisTemplate.delete(memberKey);
             redisTemplate.delete(guestKey);
             redisTemplate.delete(newMembersKey);
